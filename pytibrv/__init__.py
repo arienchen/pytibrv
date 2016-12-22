@@ -49,6 +49,6 @@
 #   lib = dind_library('tibrv')   -> 'd:\\tibco\\tibrv\\8.4.5\\bin\\tibrv.dll' 
 #   _rv = _ctypes.windll.LoadLibrary(lib)
 # 
-# 
-__version__ = '1.0.0'
+#
+from .version import version as __version__
 __all__ = ['api', 'status', 'tport', 'queue', 'events', 'disp', 'msg']

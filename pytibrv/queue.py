@@ -1,5 +1,5 @@
 ##
-# tibrv/queue.py
+# pytibrv/queue.py
 #   TIBRV Library for PYTHON
 #
 # LAST MODIFIED : V1.0 20161211 ARIEN

@@ -1,5 +1,5 @@
 ##
-# tibrv/tport.py
+# pytibrv/tport.py
 #   TIBRV Library for PYTHON
 #
 # LAST MODIFIED : V1.0 20161211 ARIEN

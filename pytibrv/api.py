@@ -1,5 +1,5 @@
 ##
-# tibrv/api.py
+# pytibrv/api.py
 #   TIBRV Library for PYTHON
 #
 # LAST MODIFIED : V1.0 20161209 ARIEN arien.chen@gmail.com

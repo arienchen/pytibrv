@@ -1,14 +1,20 @@
-
-
+##
+# tibrvsend.py
+#   rewrite TIBRV example: tibrvsend.c
+#   using ython Object Model
+#
+# LAST MODIFIED: V1.0 2016-12-22 ARIEN arien.chen@gmail.com
+#
 import sys
 import getopt
-from tibrv.tport import *
-from tibrv.msg import *
+from pytibrv.tport import *
+from pytibrv.msg import *
 
-def usage() :
-    print()
-    print("tibrvsend.py [-service service] [-network network]")
-    print("             [-daemon daemon] <subject> <message>")
+def usage():
+    print('TIBRV Sender: tibrvsend.py')
+    print('')
+    print('tibrvsend.py [--service service] [--network network]')
+    print('             [--daemon daemon] <subject> <message>')
     print()
     sys.exit(1)
 
@@ -16,7 +22,7 @@ def usage() :
 def get_params(argv):
 
     try:
-        opts, args = getopt.getopt(argv, '', ['service', 'network', 'daemon'])
+        opts, args = getopt.getopt(argv, '', ['service=', 'network=', 'daemon='])
 
     except getopt.GetoptError:
         usage()
@@ -26,11 +32,11 @@ def get_params(argv):
     daemon = None
 
     for opt, arg in opts:
-        if opt == '-service':
+        if opt == '--service':
             service = arg
-        elif opt == '-network':
+        elif opt == '--network':
             network = arg
-        elif opt == '-daemon':
+        elif opt == '--daemon':
             daemon = arg
         else:
             usage()
@@ -87,8 +93,8 @@ def main(argv):
 
     return
 
-if __name__ == "__main__" :
-   main(sys.argv)
+if __name__ == "__main__":
+    main(sys.argv)
 
 
 

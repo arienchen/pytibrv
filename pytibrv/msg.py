@@ -1,5 +1,5 @@
 ##
-# tibrv/msg.py
+# pytibrv/msg.py
 #   TIBRV Library for PYTHON
 #
 # LAST MODIFIED : V1.0 20161211 ARIEN arien.chen@gmail.com

@@ -1,11 +1,13 @@
-import os
+##
+# timer.py
+#   Demo TIBRV Timer Callback
+#
+# LAST MODIFIED: V1.0 2016-12-22 ARIEN arien.chen@gmail.com
+#
 import sys
-sys.path.insert(0, os.path.abspath('.'))
-
-import ctypes
-from time import sleep
-from tibrv.events import *
-from tibrv.disp import *
+import time
+from pytibrv.events import *
+from pytibrv.disp import *
 from datetime import datetime
 
 

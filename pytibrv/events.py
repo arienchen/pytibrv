@@ -1,5 +1,5 @@
 ##
-# tibrv/events.py
+# pytibrv/events.py
 #   TIBRV Library for PYTHON
 #
 # LAST MODIFIED : V1.0 20161211 ARIEN
@@ -233,7 +233,7 @@ _rv.tibrvEvent_CreateTimer.argtypes = [_ctypes.POINTER(c_tibrvEvent),
                                        _ctypes.py_object]
 _rv.tibrvEvent_CreateTimer.restype = c_tibrv_status
 
-def tibrvEvent_CreateTimer(queue: tibrvQueue, callback, interval: float, closure) -> tibrv_status:
+def tibrvEvent_CreateTimer(queue: tibrvQueue, callback, interval: float, closure=None) -> tibrv_status:
 
     ev = c_tibrvEvent(0)
     que = c_tibrvQueue(queue)
