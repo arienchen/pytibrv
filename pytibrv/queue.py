@@ -1,12 +1,21 @@
 ##
 # pytibrv/queue.py
 #   TIBRV Library for PYTHON
+#   tibrvQueue_XXX
 #
-# LAST MODIFIED : V1.0 20161211 ARIEN
+# LAST MODIFIED : V1.0 20161211 ARIEN arien.chen@gmail.com 
 #
 # DESCRIPTIONS
-# ---------------------------------------------------
-#
+# ------------------------------------------------------
+# 1.TibrvQueue.__del__ will call tibrvQueue_Destory() 
+# 
+# 2. DEFAULT QUEUE
+#    (1) use TIBRV_DEFAULT_QUEUE in API, like as TIBRV C 
+#    (2) TibrvQueue() would be DEFAULT QUEUE by default.
+#        You must call TibrvQueue.create() for a new que. 
+#        ex:
+#        que = TibrvQueue()             -> que is DEFAULT QUE now
+#        que.create('MY QUE')           -> que is new, NOT DEFAULT QUE
 #
 # FEATURES: * = un-implement
 # ------------------------------------------------------
@@ -22,9 +31,13 @@
 #   tibrvQueue_TimedDispatch
 #   tibrvQueue_TimedDispatchOneEvent
 #
+# Python Class
+# ---------------------------------------------------
+#   TibrvQueue 
+#
 # CHANGED LOGS
 # ---------------------------------------------------
-# 20161211 ARIEN V1.0
+# 20161211 V1.0 ARIEN arien.chen@gmail.com 
 #   CREATED
 #
 ##
