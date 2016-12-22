@@ -1,8 +1,9 @@
 ##
 # pytibrv/events.py
 #   TIBRV Library for PYTHON
-#
-# LAST MODIFIED : V1.0 20161211 ARIEN
+#   tibrvEvent_XXX
+# 
+# LAST MODIFIED : V1.0 20161211 ARIEN arien.chen@gmail.com 
 #
 # DESCRIPTIONS
 # ---------------------------------------------------
@@ -24,18 +25,19 @@
 #       _clib.register(cb)
 #       ...
 #
-#    IT WOULD SEGMENT FAULT WHEN my_callback was triggered
-#    object cb would store the callback function pointer
-#    when reg_callback() was returned,
-#    cb would be garbage collected
-#    when C try to 'callback' the Python Function,
+#    IT WOULD SEGMENT FAULT WHEN my_callback was triggered.
+#    The local variable:cb would store the callback function pointer
+#    and it would be garbage collected when reg_callback() was returned,
+#    
+#    Callback is async. When C try to 'callback' the Python Function,
 #    it would access a destroy object in Python.
+#    then it cause SEGFAULT.
 #
 #    I found this issue only in OSX, Linux seems OK.
 #
 #    BUGFIX:
 #       create a dict variable to store the CFUNCTYPE objects
-#
+#       rather than a local variable inner a function
 #
 # 2. Callback Closure as Python Object
 #    plz refer : http://stackoverflow.com/questions/3245859/back-casting-a-ctypes-py-object-in-a-callback
@@ -48,7 +50,7 @@
 #           reg_func.argtypes = [ , py_object, ...]
 #
 #
-#    (3) Call C API to pass Pythoon my_obj
+#    (3) Call C API to pass Python my_obj
 #           cb = callback(my_func)
 #           reg_func( cb, py_object(my_obj), ...)
 #
@@ -60,20 +62,28 @@
 #   (5) Beware for immutable object, such as Python native data type: bool, int, float, str
 #       for example:
 #
-#       cnt = 1
+#       cnt = int(1)
 #       ...
 #       reg_func(cb, py_object(cnt))
 #       ...
-#       cnt = cnt + 1           -> cnt would refer to a new object, not 1
-#                               -> my_func would get the original object (=1) always
+#       cnt = cnt + 1           -> cnt would refer to a new int object, not 1
+#                               -> my_func would always get the original object (=1)
+#                               -> Python pass object reference BY VALUE.   
 #
 #   (6) GC Issue
-#       like as GC issue of CFUNCTYPE()
+#       like as GC issue of CFUNCTYPE()/Callback
 #       if closure object was create inner a function,
-#       when function returned the closure object would be GC and destroyed.
+#       this local object would be GC and destroyed when when function returned
 #       it cause Segment Fault either.
 #
-#
+# 3. callback function inner class 
+#    DONT pass class function into API
+#    All class function predefine 1'st parameter as 'self'. 
+#    
+#    If you prefer calling wrapper API, then declare callback as module function.
+#    If you use class function for callback, please user pytibrv Python Object Model
+#    ex: TibrvListener, TibrvMsgCallback  
+#    
 # FEATURES: * = un-implement
 # ------------------------------------------------------
 #   tibrvEvent_CreateListener
@@ -93,11 +103,19 @@
 #  *tibrvEvent_GetIOSource
 #  *tibrvEvent_GetIOType
 #
+# Python Class
+# ------------------------------------------------------
+#   TibrvTimerCallback               
+#   TibrvMsgCallback                
+#   TibrvEvent                  base class for TibrvTimer, TibrvListener
+#   TibrvTimer                  
+#   TibrvListener               
+#   
 # CHANGED LOGS
 # ---------------------------------------------------
-# 20161211 ARIEN V1.0
+# 20161211 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
-#
+##
 
 import ctypes as _ctypes
 from .queue import *
