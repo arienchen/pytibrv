@@ -11,7 +11,7 @@
 #                  8.4.2/
 #                  8.4.5/
 # 
-# The environment variable LD_LIBRARY_PATH, wuld be set to indicate specific TIBRV version.
+# The environment variable LD_LIBRARY_PATH, would be set to indicate specific TIBRV version.
 # ex:
 #   TIBRV_HOME=/opt/tibco/tibrv/8.4.5
 #   LD_LIBRARY_PATH=${TIBRV_HOME}/lib:$LD_LIBRARY_PATH
@@ -23,31 +23,34 @@
 #                8.4.2\
 #                8.4.5\
 # 
-# The environment variable Path, wuld be set to indicate specific TIBRV version.
+# The environment variable Path, would be set to indicate specific TIBRV version.
 # ex:
-#   TIBRV_HOME=d:\tibco\tibrv\8.4.5
-#   Path=%TIBRV_HOME%\bin;%Path%
+#   set TIBRV_HOME=d:\tibco\tibrv\8.4.5
+#   set Path=%TIBRV_HOME%\bin;%Path%
 # 
 # ctypes LoadLibrary behave different for OS
 #
 # In Darwin(OSX)
 #   find_library() would search in LD_LIBRARY_PATH and return the full path
 #   ex: 
-#   lib = find_library('C') -> '/opt/tibco/tibrv/8.4.5/lib/libtibrv64.dylib'
+#   lib = find_library('tibrv64') -> '/opt/tibco/tibrv/8.4.5/lib/libtibrv64.dylib'
 #   _rv = ctypes.cdll.LoadLibrary(lib) 
 # 
 # In Linux
 #   find_library() use 'ldconfig -p' to find the lib name
-#   just call LoadLibrary() 
 #   ex: 
 #   find_library('tibrv64')       -> None 
 #   find_library('libtibrv64.so') -> None 
+#
+#   ldconfig use for global linking library, not suitable for multiple version of TIBRV
+#   just call LoadLibrary(lib_name) 
+#   ex: 
 #   _rv = ctypes.cdll.LoadLibrary('libtibrv64.so') 
 # 
 # In Windows
-#   find_library() would searcho DLL in Path and return full path
-#   lib = dind_library('tibrv')   -> 'd:\\tibco\\tibrv\\8.4.5\\bin\\tibrv.dll' 
-#   _rv = _ctypes.windll.LoadLibrary(lib)
+#   find_library() would search DLL in Path and return full path
+#   lib = find_library('tibrv')   -> 'd:\\tibco\\tibrv\\8.4.5\\bin\\tibrv.dll' 
+#   _rv = ctypes.windll.LoadLibrary(lib)
 # 
 #
 from .version import version as __version__
