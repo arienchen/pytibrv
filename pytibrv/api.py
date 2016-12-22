@@ -8,17 +8,20 @@
 # ---------------------------------------------------
 # 1. Use ctypes for dynamic binding
 #
-# 2. ctypes is just a wrapper to C,
-#    all ctypes data type: c_int, c_wchar_p
-#    actually, it present a piece of memory
+# 2. ctypes data type 
+#    ctypes is just a wrapper to C,
+#    it support data type: c_int, c_float, c_char_p
+#    all present a piece of memory
+#    actually, c_int, c_flaot are all Python Class
+#    BUT 
+#    ctypes DOES NOT overload the __eq__ function
+#    
 #    for example:
 #    x = c_int32(0)
 #    y = c_int32(0)
 #
 #    -> x != y              because x,y are 2 pointer ,although the content is same
 #    -> x.value == y.value
-#
-#    Must be very aware to use ctypes data type.
 #
 # 3. Python Call By Reference
 #
@@ -35,7 +38,8 @@
 #    print(y)         -> it is still "123"
 #
 #    in change()
-#    x = "ABC"        -> you assign x to a new string reference
+#    x = "ABC"        -> you assign local variable x to a new string reference
+#                     -> actually, x would be GC when change() returned  
 #
 #    after change(y) returned, Python doest not affect the reference of y
 #    y is still point to "123"
@@ -47,12 +51,12 @@
 #
 #    In Python,
 #    Although it is not support 'Call By Reference',
-#    but it support multiple objects return
+#    but it support multiple objects in return
 #
 #    def tibrvTransport_Create(...) :
 #       tx = ctypes.c_uint32(0)
 #       status = _rv.tibrvTransportCreate(ctypes.byref(tx), ...)
-#       return status, tx.value
+#       return status, tx.value     -> type(tx.value) is Python int  
 #
 #    ...
 #    status, ret = tibrvTransport_Create(...)
@@ -60,8 +64,8 @@
 #
 # 4. Python3 DOES NOT support c_char_p('text', 10)
 #    In Python3,
-#    c_char_p is a char[](byte[]), not a null-terminated string
-#       you have to convert byte[] <> str
+#    c_char_p is char[], not a null-terminated string
+#       you have to convert char[] <- -> str
 #
 #       this work in Python3
 #       x = c_char_p(b'TEXT')
@@ -74,9 +78,21 @@
 #    c_wchar_p is wchar[] for Unicode
 #       although it represent Python str
 #       But decode char[] as wchar[] would cause error
+#
 #       for example
 #       '12' -> char[] = [0x31, 0x32]
-#       wchar would decode it as UTF16 0x3132 , and it is wrong
+#       wchar would decode it as UTF16 0x3132 , and it is wrong  
+# 
+# 5. Naming Convension
+#    pytibrv API use same naming like as TIBRV C
+#    lowercase -> refer to TIBRV C include files(.h) 
+#                 ex: tibrv_status, tibrv_i32, tibrv_Open(), ...
+#    
+#    pytibrv declare its own class, naming in capital
+#    ex: TibrvMsg, TibrvMSgDateTime, TibrvQueue, ... 
+#    
+#    tibrvQueue -> API, refer to tibrvId = uint32 => Python int  
+#    TibrvQueue -> Python Object 
 #
 # FEATURES: * = un-implement
 # ------------------------------------------------------
@@ -89,9 +105,15 @@
 #  *tibrv_OpenEx
 #  *tibrv_IsIPM
 #
+# Python Class
+# -----------------------------------------------------
+# TibrvMsgDateTime          TIBRV C struct 
+# TibrvMsgField             TIBRV C struct 
+# Tibrv                     package for tibrv_XXXX
+#
 # CHANGED LOGS
 # ---------------------------------------------------
-# 20161209 ARIEN V1.0
+# 20161209 V1,0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
 ##
@@ -106,15 +128,15 @@ from ctypes.util import find_library as _find_library
 from sys import platform as _platform
 
 if _platform == "linux" or _platform == "linux2":
-    # linux
+    # linux, use file name, it would search LD_LIBRARY_PATH to find full path
     _rv = _ctypes.cdll.LoadLibrary('libtibrv64.so')
     _func=_ctypes.CFUNCTYPE
 elif _platform == "darwin":
-    # MAC OS X
+    # MAC OSX, use lib name, it would search LD_LIBRARY_PATH to find full path 
     _rv = _ctypes.cdll.LoadLibrary(_find_library('tibrv64'))
     _func=_ctypes.CFUNCTYPE
 elif _platform == 'win32':
-    # Windows
+    # Windows, use dll name, it would search Path to find full path 
     _rv = _ctypes.windll.LoadLibrary(_find_library('tibrv'))
     _func=_ctypes.WINFUNCTYPE
 else:
@@ -126,9 +148,9 @@ else:
 #    Using Python int to represent C int32,uint32, void *
 #
 # 2. Python does not support enum
-#    redefine as int
+#    redefine as Python int
 #
-# 3.
+# 3. naming conversion as TIBRV .h 
 ##-----------------------------------------------------------------------------
 tibrv_status            = int
 tibrvId                 = int
