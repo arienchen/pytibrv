@@ -1,8 +1,9 @@
 ##
 # pytibrv/tport.py
 #   TIBRV Library for PYTHON
+#   tibrvTransport_XXX
 #
-# LAST MODIFIED : V1.0 20161211 ARIEN
+# LAST MODIFIED : V1.0 20161211 ARIEN arien.chen@gmail.com 
 #
 # DESCRIPTIONS
 # ---------------------------------------------------
@@ -33,9 +34,13 @@
 #  *tibrvTransport_SetBatchSize
 #  *tibrvTransport_CreateLicensed
 #
+# Python Class 
+# ------------------------------------------------------
+#   TibrvTx 
+# 
 # CHANGED LOGS
 # ---------------------------------------------------
-# 20161211 ARIEN V1.0
+# 20161211 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
 ##
