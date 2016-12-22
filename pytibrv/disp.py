@@ -1,12 +1,14 @@
 ##
 # pytibrv/disp.py
 #   TIBRV Library for PYTHON
-#
+#   tibrvDispacher_XXX
+# 
 # LAST MODIFIED : V1.0 20161211 ARIEN
 #
 # DESCRIPTIONS
 # ---------------------------------------------------
-#
+# 1. TibrvDispatcher.__del__() will call tibrvDispatcher_Destroy() 
+# 
 #
 # FEATURES: * = un-implement
 # ------------------------------------------------------
@@ -15,10 +17,13 @@
 #   tibrvDispatcher_GetName
 #   tibrvDispatcher_SetName
 #
+# Python Class
+# ------------------------------------------------------
+#   TibrvDispacher 
 #
 # CHANGED LOGS
 # ---------------------------------------------------
-# 20161211 ARIEN V1.0
+# 20161211 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
 import ctypes as _ctypes
