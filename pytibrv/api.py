@@ -97,28 +97,10 @@
 ##
 from time import time as _time
 import ctypes as _ctypes
+from . import _load, _func
 
-# FIND AND LOAD C Libraries
-# Unix/Linux/OSX    : LD_LIBRARY_PATH
-# Windows           : Path
-from ctypes.util import find_library as _find_library
-
-from sys import platform as _platform
-
-if _platform == "linux" or _platform == "linux2":
-    # linux
-    _rv = _ctypes.cdll.LoadLibrary('libtibrv64.so')
-    _func=_ctypes.CFUNCTYPE
-elif _platform == "darwin":
-    # MAC OS X
-    _rv = _ctypes.cdll.LoadLibrary(_find_library('tibrv64'))
-    _func=_ctypes.CFUNCTYPE
-elif _platform == 'win32':
-    # Windows
-    _rv = _ctypes.windll.LoadLibrary(_find_library('tibrv'))
-    _func=_ctypes.WINFUNCTYPE
-else:
-    raise SystemError(_platform + ' is not supported')
+# module variable
+_rv = _load('tibrv')
 
 ##-----------------------------------------------------------------------------
 # TIBRV Data Types for Python

@@ -52,3 +52,55 @@
 #
 from .version import version as __version__
 __all__ = ['api', 'status', 'tport', 'queue', 'events', 'disp', 'msg']
+
+
+import ctypes as __ctypes
+from ctypes.util import find_library as __find_library
+import sys as __sys
+from platform import architecture as __arch
+
+# module variables
+_func = None                # ctype func cast, OS dependent
+
+# detech OS and ARCH
+__lib_bit = lambda: '64' if __arch()[0] == '64bit' else ''
+
+if __sys.platform[:5] == "linux" or __sys.platform[:3] == "aix":
+    # Unix/Linux
+    _func = __ctypes.CFUNCTYPE
+    __lib_name = lambda name: 'lib' + name + __lib_bit() + '.so'
+
+elif __sys.platform == "darwin":
+    # MAC OS X
+    _func = __ctypes.CFUNCTYPE
+    __lib_name = lambda name: name + __lib_bit()
+
+elif __sys.platform == 'win32':
+    # Windows
+    _func = __ctypes.WINFUNCTYPE
+    __lib_name = lambda name: name
+
+else:
+    raise SystemError(__sys.platform + ' is not supported')
+
+
+def _load(name: str):
+    lib = None
+
+    if __sys.platform[:5] == "linux" or __sys.platform[:3] == "aix":
+        # Unix/Linux/AIX
+        lib = __ctypes.cdll.LoadLibrary(__lib_name(name))
+
+    elif __sys.platform == "darwin":
+        # MAC OS X
+        lib = __ctypes.cdll.LoadLibrary(__find_library(__lib_name(name)))
+
+    elif __sys.platform == 'win32':
+        # Windows
+        lib = __ctypes.windll.LoadLibrary(__find_library(__lib_name(name)))
+
+    else:
+        raise SystemError(__sys.platform + ' is not supported')
+
+    return lib
+
