@@ -1,7 +1,7 @@
 import os
 import sys
-from tibrv.api import *
-from tibrv.status import *
+from pytibrv.api import *
+from pytibrv.status import *
 import unittest
 
 

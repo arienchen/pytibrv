@@ -1,10 +1,10 @@
 import datetime
 import time
-from tibrv.tport import *
-from tibrv.status import *
-from tibrv.tport import *
-from tibrv.events import *
-from tibrv.disp import *
+from pytibrv.tport import *
+from pytibrv.status import *
+from pytibrv.tport import *
+from pytibrv.events import *
+from pytibrv.disp import *
 import unittest
 
 class EventTest(unittest.TestCase, TibrvMsgCallback):

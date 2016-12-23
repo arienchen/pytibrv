@@ -1,5 +1,5 @@
 import time
-from tibrv.disp import *
+from pytibrv.disp import *
 import unittest
 
 class DispatcherTest(unittest.TestCase):

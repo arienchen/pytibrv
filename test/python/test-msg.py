@@ -1,7 +1,7 @@
 import os
 import sys
 import ctypes
-from tibrv.msg import *
+from pytibrv.msg import *
 import unittest
 
 

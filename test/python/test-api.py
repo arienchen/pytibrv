@@ -1,9 +1,6 @@
-import os
-import sys
-from tibrv.api import *
-from tibrv.status import *
+from pytibrv.api import Tibrv
+from pytibrv.status import *
 import unittest
-
 
 class VersionTest(unittest.TestCase):
 
