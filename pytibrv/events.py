@@ -280,7 +280,7 @@ def tibrvEvent_CreateTimer(queue: tibrvQueue, callback, interval: float, closure
 _rv.tibrvEvent_DestroyEx.argtypes = [c_tibrvEvent, c_tibrvEventOnComplete]
 _rv.tibrvEvent_DestroyEx.restype = c_tibrv_status
 
-def tibrvEvent_DestroyEx(event:tibrvEvent) -> tibrv_status :
+def tibrvEvent_Destroy(event:tibrvEvent) -> tibrv_status :
 
     ev = c_tibrvEvent(event)
 
@@ -484,7 +484,7 @@ class TibrvEvent:
         if self.id() == 0:
             return TIBRV_INVALID_EVENT
 
-        status = tibrvEvent_DestroyEx(self._event)
+        status = tibrvEvent_Destroy(self._event)
         self._event = 0
         return status
 
