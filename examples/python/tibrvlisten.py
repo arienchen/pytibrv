@@ -46,9 +46,6 @@ def get_params(argv):
 
 def my_callback(event, msg, closure):
 
-    msg = TibrvMsg(msg)
-
-
     localTime, gmtTime = TibrvMsg.nowString()
 
     if msg.replySubject is not None:
@@ -85,7 +82,7 @@ def main(argv):
     def_que = TibrvQueue()
     listener = TibrvListener()
 
-    err = listener.create(def_que, my_callback, tx, subj, None)
+    err = listener.create(def_que, TibrvMsgCallback(my_callback), tx, subj, None)
     if err != TIBRV_OK:
         print('{}: Error {} listening to {}'.format('', progname, TibrvStatus.text(err), subj))
         sys.exit(2)
