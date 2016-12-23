@@ -1,10 +1,10 @@
-import datetime
+from datetime import datetime
 import time
-from tibrv.tport import *
-from tibrv.status import *
-from tibrv.tport import *
-from tibrv.events import *
-from tibrv.disp import *
+from pytibrv.tport import *
+from pytibrv.status import *
+from pytibrv.tport import *
+from pytibrv.events import *
+from pytibrv.disp import *
 import unittest
 
 class TimerTest(unittest.TestCase, TibrvTimerCallback):
@@ -32,6 +32,9 @@ class TimerTest(unittest.TestCase, TibrvTimerCallback):
 
         que = TibrvQueue()
         que.create('TIMER TEST')
+        disp = TibrvDispatcher()
+        status = disp.create(que)
+        self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
 
         print('')
 
@@ -39,13 +42,17 @@ class TimerTest(unittest.TestCase, TibrvTimerCallback):
         status = tm.create(que, self, 1.0)
         self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
 
-        self.timeout = time.time() + 20000
+        # run for 11 seconds
+        self.timeout = time.time() + 11
 
         while time.time() <= self.timeout:
-            time.sleep(0.6)
+            time.sleep(0.5)
+            # wait till callback() destroy iteself when counter >= 10
             if tm.id() == 0:
                 break;
             #print('SLEEP...')
+
+        disp.destroy()
 
         self.assertEqual(10, self.counter)
 
