@@ -1,10 +1,10 @@
 from datetime import datetime
 import time
-from pytibrv.tport import *
 from pytibrv.status import *
-from pytibrv.tport import *
+from pytibrv.api import *
 from pytibrv.events import *
 from pytibrv.disp import *
+from pytibrv.queue import *
 import unittest
 
 
@@ -15,21 +15,20 @@ def callback(event:tibrvEvent, message:tibrvMsg, closure):
     print(test.counter, datetime.now())
     if test.counter >= 10:
         status = tibrvEvent_Destroy(event)
-        if TIBRV_OK != status:
-            raise TibrvError(status)
+        assert TIBRV_OK == status, tibrvStatus_GetText(status)
+
         test.tm = 0
 
 class TimerTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        status = Tibrv.open()
-        if status != TIBRV_OK:
-            raise TibrvError(status)
+        status = tibrv_Open()
+        assert status == TIBRV_OK, tibrvStatus_GetText(status)
 
     @classmethod
     def tearDownClass(cls):
-        Tibrv.close()
+        tibrv_Close()
 
 
     def test_create(self):
