@@ -103,24 +103,21 @@
 #  *tibrvEvent_GetIOSource
 #  *tibrvEvent_GetIOType
 #
-# Python Class
-# ------------------------------------------------------
-#   TibrvTimerCallback               
-#   TibrvMsgCallback                
-#   TibrvEvent                  base class for TibrvTimer, TibrvListener
-#   TibrvTimer                  
-#   TibrvListener               
-#   
 # CHANGED LOGS
-# ---------------------------------------------------
+# -------------------------------------------------------
 # 20161211 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 ##
 
 import ctypes as _ctypes
-from .queue import *
-from .tport import *
-from .api import _rv, _cstr, _pystr
+from .types import tibrv_status, tibrvTransport, tibrvQueue, tibrvEvent, tibrvEventType
+
+from .status import TIBRV_OK
+from .api import _rv, _cstr, _pystr, \
+                 _c_tibrvTransport, _c_tibrvQueue, _c_tibrvEvent, _c_tibrvEventType, \
+                 _c_tibrvEventOnComplete, _c_tibrvEventCallback, _c_tibrvEventVectorCallback, \
+                 _c_tibrv_status, _c_tibrv_f64
+
 
 # keep callback/closure object from GC
 # key = tibrvEvent
@@ -161,20 +158,21 @@ def tibrvClosure(closure) -> object:
 #                const void*                 closure
 #              );
 #
-_rv.tibrvEvent_CreateListener.argtypes = [_ctypes.POINTER(c_tibrvEvent),
-                                          c_tibrvQueue,
-                                          c_tibrvEventCallback,
-                                          c_tibrvTransport,
+_rv.tibrvEvent_CreateListener.argtypes = [_ctypes.POINTER(_c_tibrvEvent),
+                                          _c_tibrvQueue,
+                                          _c_tibrvEventCallback,
+                                          _c_tibrvTransport,
                                           _ctypes.c_char_p,
                                           _ctypes.py_object]
-_rv.tibrvEvent_CreateListener.restype = c_tibrv_status
+_rv.tibrvEvent_CreateListener.restype = _c_tibrv_status
 
-def tibrvEvent_CreateListener(queue:tibrvQueue, callback, transport:tibrvTransport, subject:str, closure) -> tibrv_status:
+def tibrvEvent_CreateListener(queue:tibrvQueue, callback, transport:tibrvTransport, subject:str, closure=None) \
+                             -> (tibrv_status, tibrvEvent):
 
-    ev = c_tibrvEvent(0)
-    que = c_tibrvQueue(queue)
-    cb = c_tibrvEventCallback(callback)
-    tx = c_tibrvTransport(transport)
+    ev = _c_tibrvEvent(0)
+    que = _c_tibrvQueue(queue)
+    cb = _c_tibrvEventCallback(callback)
+    tx = _c_tibrvTransport(transport)
     subj = _cstr(subject)
 
     cz = _ctypes.py_object(closure)
@@ -198,20 +196,21 @@ def tibrvEvent_CreateListener(queue:tibrvQueue, callback, transport:tibrvTranspo
 #                const void*                 closure
 #              );
 #
-_rv.tibrvEvent_CreateVectorListener.argtypes = [_ctypes.POINTER(c_tibrvEvent),
-                                                c_tibrvQueue,
-                                                c_tibrvEventVectorCallback,
-                                                c_tibrvTransport,
+_rv.tibrvEvent_CreateVectorListener.argtypes = [_ctypes.POINTER(_c_tibrvEvent),
+                                                _c_tibrvQueue,
+                                                _c_tibrvEventVectorCallback,
+                                                _c_tibrvTransport,
                                                 _ctypes.c_char_p,
                                                 _ctypes.py_object]
-_rv.tibrvEvent_CreateVectorListener.restype = c_tibrv_status
+_rv.tibrvEvent_CreateVectorListener.restype = _c_tibrv_status
 
-def tibrvEvent_CreateVectorListener(queue:tibrvQueue, callback, transport:tibrvTransport, subject:str, closure) -> tibrv_status :
+def tibrvEvent_CreateVectorListener(queue:tibrvQueue, callback, transport:tibrvTransport, subject:str, closure)\
+                                   -> (tibrv_status, tibrvEvent):
 
-    ev = c_tibrvEvent(0)
-    que = c_tibrvQueue(queue)
-    cb = c_tibrvEventVectorCallback(callback)
-    tx = c_tibrvTransport(transport)
+    ev = _c_tibrvEvent(0)
+    que = _c_tibrvQueue(queue)
+    cb = _c_tibrvEventVectorCallback(callback)
+    tx = _c_tibrvTransport(transport)
     subj = _cstr(subject)
     cz = _ctypes.py_object(closure)
 
@@ -244,19 +243,20 @@ def tibrvEvent_CreateVectorListener(queue:tibrvQueue, callback, transport:tibrvT
 #                const void*                 closure
 #              );
 #
-_rv.tibrvEvent_CreateTimer.argtypes = [_ctypes.POINTER(c_tibrvEvent),
-                                       c_tibrvQueue,
-                                       c_tibrvEventCallback,
-                                       c_tibrv_f64,
+_rv.tibrvEvent_CreateTimer.argtypes = [_ctypes.POINTER(_c_tibrvEvent),
+                                       _c_tibrvQueue,
+                                       _c_tibrvEventCallback,
+                                       _c_tibrv_f64,
                                        _ctypes.py_object]
-_rv.tibrvEvent_CreateTimer.restype = c_tibrv_status
+_rv.tibrvEvent_CreateTimer.restype = _c_tibrv_status
 
-def tibrvEvent_CreateTimer(queue: tibrvQueue, callback, interval: float, closure=None) -> tibrv_status:
+def tibrvEvent_CreateTimer(queue: tibrvQueue, callback, interval: float, closure=None) \
+                           -> (tibrv_status, tibrvEvent):
 
-    ev = c_tibrvEvent(0)
-    que = c_tibrvQueue(queue)
-    cb = c_tibrvEventCallback(callback)
-    n = c_tibrv_f64(interval)
+    ev = _c_tibrvEvent(0)
+    que = _c_tibrvQueue(queue)
+    cb = _c_tibrvEventCallback(callback)
+    n = _c_tibrv_f64(interval)
 
     cz = _ctypes.py_object(closure)
 
@@ -277,16 +277,16 @@ def tibrvEvent_CreateTimer(queue: tibrvQueue, callback, interval: float, closure
 #                tibrvEventOnComplete        completeCallback
 #              );
 #
-_rv.tibrvEvent_DestroyEx.argtypes = [c_tibrvEvent, c_tibrvEventOnComplete]
-_rv.tibrvEvent_DestroyEx.restype = c_tibrv_status
+_rv.tibrvEvent_DestroyEx.argtypes = [_c_tibrvEvent, _c_tibrvEventOnComplete]
+_rv.tibrvEvent_DestroyEx.restype = _c_tibrv_status
 
-def tibrvEvent_Destroy(event:tibrvEvent) -> tibrv_status :
+def tibrvEvent_Destroy(event:tibrvEvent) -> tibrv_status:
 
-    ev = c_tibrvEvent(event)
+    ev = _c_tibrvEvent(event)
 
     # tibrvEventOnComplete IS NOT SUPPORTED
     # plz refer the GC issue of callback
-    cb = c_tibrvEventOnComplete(0)
+    cb = _c_tibrvEventOnComplete(0)
 
     status = _rv.tibrvEvent_DestroyEx(ev, cb)
 
@@ -303,13 +303,13 @@ def tibrvEvent_Destroy(event:tibrvEvent) -> tibrv_status :
 #                tibrvEventType*             type
 #              );
 #
-_rv.tibrvEvent_GetType.argtypes = [c_tibrvEvent, _ctypes.POINTER(c_tibrvEventType)]
-_rv.tibrvEvent_GetType.restype = c_tibrv_status
+_rv.tibrvEvent_GetType.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_c_tibrvEventType)]
+_rv.tibrvEvent_GetType.restype = _c_tibrv_status
 
-def tibrvEvent_GetType(event:tibrvEvent) -> tibrv_status :
+def tibrvEvent_GetType(event:tibrvEvent) -> (tibrv_status, tibrvEventType):
 
-    ev = c_tibrvEvent(event)
-    ty = c_tibrvEventType(0)
+    ev = _c_tibrvEvent(event)
+    ty = _c_tibrvEventType(0)
 
     status = _rv.tibrvEvent_GetType(ev, _ctypes.byref(ty))
 
@@ -323,13 +323,13 @@ def tibrvEvent_GetType(event:tibrvEvent) -> tibrv_status :
 #                tibrvQueue*                 queue
 #              );
 #
-_rv.tibrvEvent_GetQueue.argtypes = [c_tibrvEvent, _ctypes.POINTER(c_tibrvQueue)]
-_rv.tibrvEvent_GetQueue.restype = c_tibrv_status
+_rv.tibrvEvent_GetQueue.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_c_tibrvQueue)]
+_rv.tibrvEvent_GetQueue.restype = _c_tibrv_status
 
-def tibrvEvent_GetQueue(event:tibrvEvent) -> tibrv_status :
+def tibrvEvent_GetQueue(event:tibrvEvent) -> (tibrv_status, tibrvQueue):
 
-    ev = c_tibrvEvent(event)
-    que = c_tibrvQueue()
+    ev = _c_tibrvEvent(event)
+    que = _c_tibrvQueue()
 
     status = _rv.tibrvEvent_GetQueue(ev, _ctypes.byref(que))
 
@@ -343,12 +343,12 @@ def tibrvEvent_GetQueue(event:tibrvEvent) -> tibrv_status :
 #                const char**                subject
 #              );
 #
-_rv.tibrvEvent_GetListenerSubject.argtypes = [c_tibrvEvent, _ctypes.POINTER(_ctypes.c_char_p)]
-_rv.tibrvEvent_GetListenerSubject.restype = c_tibrv_status
+_rv.tibrvEvent_GetListenerSubject.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_ctypes.c_char_p)]
+_rv.tibrvEvent_GetListenerSubject.restype = _c_tibrv_status
 
-def tibrvEvent_GetListenerSubject(event: tibrvEvent) -> tibrv_status:
+def tibrvEvent_GetListenerSubject(event: tibrvEvent) -> (tibrv_status, str):
 
-    ev = c_tibrvEvent(event)
+    ev = _c_tibrvEvent(event)
     sz = _ctypes.c_char_p(0)
 
     status = _rv.tibrvEvent_GetListenerSubject(ev, _ctypes.byref(sz))
@@ -363,13 +363,13 @@ def tibrvEvent_GetListenerSubject(event: tibrvEvent) -> tibrv_status:
 #                tibrvTransport*             transport
 #              );
 #
-_rv.tibrvEvent_GetListenerTransport.argtypes = [c_tibrvEvent, _ctypes.POINTER(c_tibrvTransport)]
-_rv.tibrvEvent_GetListenerTransport.restype = c_tibrv_status
+_rv.tibrvEvent_GetListenerTransport.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_c_tibrvTransport)]
+_rv.tibrvEvent_GetListenerTransport.restype = _c_tibrv_status
 
-def tibrvEvent_GetListenerTransport(event: tibrvEvent) -> tibrv_status:
+def tibrvEvent_GetListenerTransport(event: tibrvEvent) -> (tibrv_status, tibrvTransport):
 
-    ev = c_tibrvEvent(event)
-    tx = c_tibrvTransport(0)
+    ev = _c_tibrvEvent(event)
+    tx = _c_tibrvTransport(0)
 
     status = _rv.tibrvEvent_GetListenerTransport(ev, _ctypes.byref(tx))
 
@@ -383,13 +383,13 @@ def tibrvEvent_GetListenerTransport(event: tibrvEvent) -> tibrv_status:
 #                tibrv_f64*                  interval
 #              );
 #
-_rv.tibrvEvent_GetTimerInterval.argtypes = [c_tibrvEvent, _ctypes.POINTER(c_tibrv_f64)]
-_rv.tibrvEvent_GetTimerInterval.restype = c_tibrv_status
+_rv.tibrvEvent_GetTimerInterval.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_c_tibrv_f64)]
+_rv.tibrvEvent_GetTimerInterval.restype = _c_tibrv_status
 
-def tibrvEvent_GetTimerInterval(event: tibrvEvent) -> tibrv_status:
+def tibrvEvent_GetTimerInterval(event: tibrvEvent) -> (tibrv_status, float):
 
-    ev = c_tibrvEvent(event)
-    n = c_tibrv_f64(0)
+    ev = _c_tibrvEvent(event)
+    n = _c_tibrv_f64(0)
 
     status = _rv.tibrvEvent_GetTimerInterval(ev, _ctypes.byref(n))
 
@@ -403,202 +403,15 @@ def tibrvEvent_GetTimerInterval(event: tibrvEvent) -> tibrv_status:
 #                tibrv_f64                   newInterval
 #              );
 #
-_rv.tibrvEvent_ResetTimerInterval.argtypes = [c_tibrvEvent, c_tibrv_f64]
-_rv.tibrvEvent_ResetTimerInterval.restype = c_tibrv_status
+_rv.tibrvEvent_ResetTimerInterval.argtypes = [_c_tibrvEvent, _c_tibrv_f64]
+_rv.tibrvEvent_ResetTimerInterval.restype = _c_tibrv_status
 
 def tibrvEvent_ResetTimerInterval(event: tibrvEvent, newInterval:float) -> tibrv_status:
 
-    ev = c_tibrvEvent(event)
-    n = c_tibrv_f64(newInterval)
+    ev = _c_tibrvEvent(event)
+    n = _c_tibrv_f64(newInterval)
 
     status = _rv.tibrvEvent_ResetTimerInterval(ev, n)
 
     return status
 
-
-class TibrvTimerCallback:
-
-    def __init__(self, cb = None):
-        if cb is not None:
-            self.callback = cb
-
-    def callback(self, event, closure):
-        pass
-
-    def _register(self):
-        def _cb(event, msg, closure):
-            if event != 0:
-                ev = TibrvTimer(event)
-            else:
-                ev = None
-
-            cz = tibrvClosure(closure)
-
-            self.callback(ev, cz)
-
-        return _cb
-
-class TibrvMsgCallback:
-
-    def __init__(self, cb = None):
-        if cb is not None:
-            self.callback = cb
-
-    def callback(self, event, msg: TibrvMsg, closure):
-        pass
-
-    def _register(self):
-        def _cb(event, msg, closure):
-            if event != 0:
-                ev = TibrvListener(event)
-            else:
-                ev = None
-
-            if msg != 0:
-                m = TibrvMsg(msg)
-            else:
-                m = None
-
-            cz = tibrvClosure(closure)
-
-            self.callback(ev, m, cz)
-
-        return _cb
-
-
-class TibrvEvent:
-
-    def __init__(self, event : tibrvEvent = 0):
-        self._err = None
-        self._event = event
-
-        if event != 0 :
-            self._copied = True
-        else:
-            self._copied = False
-
-    def id(self):
-        return self._event
-
-    def destroy(self):
-        if self.id() == 0:
-            return TIBRV_INVALID_EVENT
-
-        status = tibrvEvent_Destroy(self._event)
-        self._event = 0
-        return status
-
-    @property
-    def error(self) -> TibrvError:
-        return self._err
-
-    def eventType(self):
-        ret = None
-
-        if self.id() == 0 :
-            status = TIBRV_INVALID_EVENT
-        else:
-            status, ret = tibrvEvent_GetType(self.id())
-
-        self._err = TibrvStatus.error(status)
-
-        return ret
-
-
-class TibrvTimer(TibrvEvent):
-
-    def __init__(self, event:tibrvEvent = 0):
-        super().__init__(event)
-
-
-    def create(self, que:TibrvQueue, callback: TibrvTimerCallback, interval:float, closure = None) -> tibrv_status :
-        if self._copied == True or self.id() != 0:
-            status = TIBRV_ID_IN_USE
-            self._err = TibrvStatus.error(status)
-            return status
-
-        if not isinstance(callback, TibrvTimerCallback):
-            status = TIBRV_INVALID_ARG
-            self._err = TibrvStatus.error(status)
-            return status
-
-        ret = 0
-        status, ret = tibrvEvent_CreateTimer(que.id(), callback._register(), interval, closure)
-
-        if status == TIBRV_OK:
-            self._event = ret
-
-        self._err = TibrvStatus.error(status)
-        return status
-
-    @property
-    def interval(self):
-        ret = 0
-        if self._event == 0:
-            status = TIBRV_INVALID_EVENT
-        else:
-            status, ret = tibrvEvent_GetTimerInterval(self._event)
-
-        self._err = TibrvStatus.error(status)
-
-        return ret
-
-    @interval.setter
-    def interval(self, sec: float):
-        if self._event == 0:
-            status = TIBRV_INVALID_EVENT
-        else:
-            status = tibrvEvent_ResetTimerInterval(self._event, sec)
-
-        self._err = TibrvStatus.error(status)
-
-
-
-class TibrvListener(TibrvEvent):
-
-    def __init__(self, event:tibrvEvent = 0):
-        super().__init__(event)
-
-    def create(self, que: TibrvQueue, callback: TibrvMsgCallback, tx: TibrvTx, subject: str, closure = None) -> tibrv_status :
-        if self._copied == True :
-            status = TIBRV_ID_IN_USE
-            self._err = TibrvStatus.error(status)
-            return status
-
-        if not isinstance(callback, TibrvMsgCallback):
-            status = TIBRV_INVALID_ARG
-            self._err = TibrvStatus.error(status)
-            return status
-
-        ret = 0
-        status, ret = tibrvEvent_CreateListener(que.id(), callback._register(), tx.id(), subject, closure)
-
-        if status == TIBRV_OK :
-            self._event = ret
-
-        self._err = TibrvStatus.error(status)
-        return status
-
-    def subject(self) -> str :
-        ret = None
-        if self._event == 0 :
-            status = TIBRV_INVALID_EVENT
-        else:
-            status, ret = tibrvEvent_GetListenerSubject(self._event)
-
-        self._err = TibrvStatus.error(status)
-
-        return ret
-
-    def queue(self) -> TibrvQueue :
-        ret = None
-        if self._event == 0 :
-            status = TIBRV_INVALID_EVENT
-        else:
-            status, q = tibrvEvent_GetListenerSubject(self._event)
-            if status == TIBRV_OK :
-                ret = TibrvQueue(q)
-
-        self._err = TibrvStatus.error(status)
-
-        return ret
