@@ -20,11 +20,13 @@ class MsgTest(unittest.TestCase):
 
         self.assertEqual("{}", sz)
 
-        m = msg._msg
+        m = msg.id()
 
-        del msg
+        status = msg.destroy()
+        self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
+        self.assertEqual(0, msg.id())
 
-        # tibrvMsg_Destroy() should be called at __del__
+        # destroy again
         status = tibrvMsg_Destroy(m)
         self.assertEqual(TIBRV_INVALID_MSG, status, TibrvStatus.text(status))
 
@@ -51,16 +53,18 @@ class MsgTest(unittest.TestCase):
 
         msg = TibrvMsg()
         m = msg.id()
-        del msg
+        status = msg.destroy()
+        self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
 
         # construct by invalid msg id, which just destroyed
         msg = TibrvMsg(m)
         msg.sendSubject = 'TEST'
         status = msg.error.code()
-
         self.assertEqual(TIBRV_INVALID_MSG, status, TibrvStatus.text(status))
 
-        del msg
+        status = msg.destroy()
+        self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
+
 
         # assign random msg id, ex: 12345
         # msg = TibrvMsg(12345)
@@ -75,7 +79,7 @@ class MsgTest(unittest.TestCase):
         msg.replySubject = 'TEST2'
         self.assertEqual('TEST2', msg.replySubject)\
 
-        del msg
+        msg.destroy()
 
     def test_get(self):
         msg = TibrvMsg()
@@ -132,8 +136,7 @@ class MsgTest(unittest.TestCase):
         msgx = msg.get(TibrvMsg, 'MSG')
         self.assertEqual(str(msg2), str(msgx))
 
-
-        del msg
+        msg.destroy()
 
     def test_datetime(self):
         msg = TibrvMsg()
@@ -160,7 +163,7 @@ class MsgTest(unittest.TestCase):
         self.assertIsNotNone(ret)
         self.assertEqual(dt, ret)
 
-        del msg
+        msg.destroy()
 
 
     def test_array(self):
@@ -341,7 +344,7 @@ class MsgTest(unittest.TestCase):
         for x in range(len(data)):
             self.assertEqual(str(data[x]), str(ret[x]))
 
-        del msg
+        msg.destroy()
 
 
 if __name__ == "__main__":
