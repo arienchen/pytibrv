@@ -6,7 +6,7 @@
 # LAST MODIFIED : V1.0 20161211 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
-# ---------------------------------------------------
+##-----------------------------------------------------------------------------
 # 1. TIBRV C API use tibrv_staus as return code,
 #    there is no concept for Exception. 
 #    It is simple and easy to implement. 
@@ -21,24 +21,19 @@
 #    You could get last error by calling obj.error()
 #
 # FEATURES: * = un-implement
-# ------------------------------------------------------
+##-----------------------------------------------------------------------------
 #   tibrvStatus_GetText
 #
-# Python Class
-# ------------------------------------------------------
-#   TibrvError              Exception 
-#   TibrvStatus             
-#    
 # CHANGED LOGS
-# ---------------------------------------------------
+##-----------------------------------------------------------------------------
 # 20161211 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
 ##
 
 import ctypes as _ctypes
-from .api import _rv
-from .api import *
+from .types import tibrv_status
+from .api import _rv, _pystr, _c_tibrv_status
 
 ##-----------------------------------------------------------------------------
 ## CONSTANTS
@@ -128,65 +123,11 @@ TIBRV_IPM_ONLY                  = 117
 # tibrv/status.h
 # const char * tibrv_GetText(tibrv_status)
 #
-_rv.tibrvStatus_GetText.argtypes = [c_tibrv_status]
+_rv.tibrvStatus_GetText.argtypes = [_c_tibrv_status]
 _rv.tibrvStatus_GetText.restype = _ctypes.c_char_p
 
 
 def tibrvStatus_GetText(code: tibrv_status) -> str:
-    c = c_tibrv_status(code)
+    c = _c_tibrv_status(code)
     sz = _rv.tibrvStatus_GetText(c)
-    return sz.decode()
-
-class TibrvError(Exception):
-    def __init__(self, code: tibrv_status, text = None):
-        self._err = code
-        self._text = text
-
-    def __str__(self):
-        return self.text()
-
-    def code(self) -> tibrv_status:
-        return self._err
-
-    def text(self) -> str:
-        if self._text is None:
-            return tibrvStatus_GetText(self._err)
-        else:
-            return self._text
-
-    def isOK(self) -> bool:
-        if self._err == TIBRV_OK:
-            return True
-        else:
-            return False
-
-class TibrvStatus:
-
-    _exception = False
-
-    @staticmethod
-    def exception(*args):
-        if len(args) == 0:
-            return TibrvStatus._exception
-        if args[0]:
-            TibrvStatus._exception = True
-        else:
-            TibrvStatus._exception = False
-
-    @staticmethod
-    def text(code: tibrv_status) -> str:
-        return tibrvStatus_GetText(code)
-
-    @staticmethod
-    def error(code: tibrv_status, text = None) -> TibrvError:
-        if code == TIBRV_OK:
-            return None
-
-        ex = TibrvError(code, text)
-
-        if TibrvStatus._exception:
-            raise ex
-
-        return ex
-
-
+    return _pystr(sz)
