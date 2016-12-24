@@ -15,7 +15,7 @@ class TimerTest(unittest.TestCase, TibrvTimerCallback):
     def tearDownClass(cls):
         Tibrv.close()
 
-    def callback(self, event: TibrvTimer, closure):
+    def callback(self, event: TibrvTimer, msg, closure):
         self.counter += 1
         print(self.counter, datetime.now())
         if self.counter >= 10:
@@ -48,14 +48,17 @@ class TimerTest(unittest.TestCase, TibrvTimerCallback):
                 break;
             #print('SLEEP...')
 
-        disp.destroy()
+        status = disp.destroy()
+        self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
 
         self.assertEqual(10, self.counter)
 
-        tm.destroy()
+        # Timer had been destroyed in callback
+        status = tm.destroy()
+        self.assertEqual(TIBRV_INVALID_EVENT, status, TibrvStatus.text(status))
 
-        del tm
-        del que
+        status = que.destroy()
+        self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
 
         print('TEST DONE')
 
