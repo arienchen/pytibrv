@@ -11,14 +11,6 @@
 #    there is no concept for Exception. 
 #    It is simple and easy to implement. 
 # 
-# 2. TibrvSttus support Exception handling (default is disable)
-#    When you set tibrvStatus.exception = True
-#    pytibrv would raise TibrvError when API returned tibrv_status != OK
-#    
-# 3. Property getter 
-#    If TibrvStatus.exception = False (this is default)
-#    All property getter function would return None when got ERROR,
-#    You could get last error by calling obj.error()
 #
 # FEATURES: * = un-implement
 ##-----------------------------------------------------------------------------

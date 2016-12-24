@@ -84,11 +84,11 @@
 #       wchar would decode it as UTF16 0x3132 , and it is wrong  
 # 
 # 5. Naming Convension
-#    pytibrv API use same naming like as TIBRV C
+#    pytibrv API use same naming exactly as TIBRV C
 #    lowercase -> refer to TIBRV C include files(.h) 
-#                 ex: tibrv_status, tibrv_i32, tibrv_Open(), ...
+#                 ex: tibrv_status, tibrv_Open(), ...
 #    
-#    pytibrv declare its own class, naming in capital
+#    pytibrv.Tibrv declare its own class, naming in capital
 #    ex: TibrvMsg, TibrvMSgDateTime, TibrvQueue, ... 
 #    
 #    tibrvQueue -> API, refer to tibrvId = uint32 => Python int  
