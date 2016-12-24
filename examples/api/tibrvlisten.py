@@ -4,9 +4,23 @@
 #
 # LAST MODIFIED: V1.0 2016-12-22 ARIEN arien.chen@gmail.com
 #
-import sys
+import sys, signal
 import getopt
+from pytibrv.api import *
+from pytibrv.status import *
 from pytibrv.events import *
+from pytibrv.msg import *
+from pytibrv.tport import *
+from pytibrv.queue import *
+
+# Module Variables
+_running = True         # set to False when Ctrl-C
+
+def signal_proc(signal, frame):
+    global _running
+    _running = False
+    print()
+    print('CRTL-C PRESSED')
 
 def usage():
     print('TIBRV Listener : tibrvlisten.py')
@@ -83,25 +97,26 @@ def main(argv):
 
     print("tibrvlisten: Listening to subject {}".format(subj))
 
-    err, listenID = tibrvEvent_CreateListener(TIBRV_DEFAULT_QUEUE, my_callback, tx, subj, None)
+    err, lst = tibrvEvent_CreateListener(TIBRV_DEFAULT_QUEUE, my_callback, tx, subj, None)
     if err != TIBRV_OK:
         print('{}: Error {} listening to {}'.format('', progname, tibrvStatus_GetText(err), subj))
         sys.exit(2)
 
-    while tibrvQueue_Dispatch(TIBRV_DEFAULT_QUEUE) == TIBRV_OK:
-        pass
+    # Set Signal Handler for Ctrl-C
+    signal.signal(signal.SIGINT, signal_proc)
 
-    # In Linux/OSX
-    # CTRL-C will not interrupt the process
-    # CTRL-\ (SIGQUIT) would work
+    while _running:
+        tibrvQueue_TimedDispatch(TIBRV_DEFAULT_QUEUE, 0.5)
 
+    tibrvEvent_Destroy(lst)
+    tibrvTransport_Destroy(tx)
     tibrv_Close()
 
     sys.exit(0)
 
     return
 
-if __name__ == "__main__" :
+if __name__ == "__main__":
     main(sys.argv)
 
 
