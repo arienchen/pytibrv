@@ -24,6 +24,25 @@
 #    All property getter function would return None when got ERROR,
 #    You could get last error by calling obj.error()
 #
+# 6. Python destructor __del__
+#    DON'T call TIBRV API in __del__()
+#
+#    __del__() was called by GC,
+#    it doest not means it would be called immediately after 'del obj'
+#
+#    for example of Python Code:
+#
+#    que = TibrvQueue()
+#    ...
+#    del que
+#    Tibrv.close()
+#
+#    THERE IS NO GUARANTEE que._del__() would be called immediately.
+#    So, it may be called after Tibrv.close()
+#
+#    It is caller's responsibility to call destroy() after created
+#
+#
 # CHANGED LOGS
 # -----------------------------------------------------------------------------
 # 20161224 ARIEN V1.0
@@ -242,11 +261,15 @@ class TibrvMsg:
 
         raise TibrvError(status)
 
-    def __del__(self):
+    def destroy(self) -> tibrv_status:
         if self.id() == 0 or self._copied:
-            return
+            return TIBRV_OK
 
         status = tibrvMsg_Destroy(self.id())
+        self._msg = 0
+        self._err = TibrvStatus.error(status)
+
+        return status;
 
     def __str__(self, codepage: str = None):
         if self.id() == 0:
@@ -268,7 +291,7 @@ class TibrvMsg:
         self._err = TibrvStatus.error(status)
 
         if status == TIBRV_OK:
-            # Let __del__() to call tibrvMsg_Drstroy
+            # Let destroy()  to call tibrvMsg_Drstroy
             self._copied = False
 
         return status
@@ -1398,9 +1421,6 @@ class TibrvQueue:
         self._maxEvents = 0
         self._discard = 0
 
-    def __del__(self):
-        self.destroy()
-
     def id(self):
         return self._que
 
@@ -1424,7 +1444,7 @@ class TibrvQueue:
 
         return status;
 
-    def destroy(self) -> tibrv_status :
+    def destroy(self) -> tibrv_status:
         if self._que == 0 or self._que == TIBRV_DEFAULT_QUEUE:
             status = TIBRV_INVALID_QUEUE
             self._err = TibrvStatus.error(status)
@@ -1528,9 +1548,6 @@ class TibrvTx :
     def __init__(self):
         self._tx = tibrvTransport(0)
         self._err = None
-
-    def __del__(self):
-        self.destroy()
 
     def id(self):
         return self._tx
@@ -1735,22 +1752,20 @@ class TibrvEvent:
 
     def __init__(self, event: tibrvEvent = 0):
         self._err = None
-        self._event = event
-
-        if event != 0 :
-            self._copied = True
-        else:
-            self._copied = False
+        self._event = 0
+        if event is not None:
+            self._event = event
 
     def id(self):
         return self._event
 
     def destroy(self):
-        if self.id() == 0:
+        if self._event == 0:
             return TIBRV_INVALID_EVENT
 
         status = tibrvEvent_Destroy(self._event)
         self._event = 0
+
         return status
 
     @property
@@ -1772,14 +1787,13 @@ class TibrvEvent:
 
 class TibrvTimer(TibrvEvent):
 
-    def __init__(self, event:tibrvEvent = 0):
+    def __init__(self, event: tibrvEvent = 0):
         super().__init__(event)
-
 
     def create(self, que:TibrvQueue, callback: TibrvTimerCallback, interval: float, closure = None) \
               -> tibrv_status:
 
-        if self._copied == True or self.id() != 0:
+        if self.id() != 0:
             status = TIBRV_ID_IN_USE
             self._err = TibrvStatus.error(status)
             return status
@@ -1827,9 +1841,9 @@ class TibrvListener(TibrvEvent):
         super().__init__(event)
 
     def create(self, que: TibrvQueue, callback: TibrvMsgCallback, tx: TibrvTx, subject: str, closure = None) \
-              -> tibrv_status :
+              -> tibrv_status:
 
-        if self._copied == True or self.id() != 0:
+        if self.id() != 0:
             status = TIBRV_ID_IN_USE
             self._err = TibrvStatus.error(status)
             return status
@@ -1850,10 +1864,10 @@ class TibrvListener(TibrvEvent):
 
     def subject(self) -> str:
         ret = None
-        if self._event == 0 :
+        if self.id() == 0:
             status = TIBRV_INVALID_EVENT
         else:
-            status, ret = tibrvEvent_GetListenerSubject(self._event)
+            status, ret = tibrvEvent_GetListenerSubject(self.id())
 
         self._err = TibrvStatus.error(status)
 
@@ -1885,12 +1899,6 @@ class TibrvDispatcher :
         self._disp = tibrvDispatcher(0)
         self._err = None
         self._timeout = TIBRV_WAIT_FOREVER
-
-    def __del__(self):
-        try:
-            self.destroy()
-        except:
-            pass
 
     def id(self):
         return self._disp
