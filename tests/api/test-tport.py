@@ -1,8 +1,7 @@
-import os
-import sys
-from pytibrv.tport import *
+from pytibrv.api import *
 from pytibrv.status import *
 from pytibrv.tport import *
+from pytibrv.msg import *
 import unittest
 
 class TransportTest(unittest.TestCase):
@@ -10,8 +9,7 @@ class TransportTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         status = tibrv_Open()
-        if status != TIBRV_OK:
-            raise TibrvError(status)
+        assert status == TIBRV_OK, tibrvStatus_GetText(status)
 
     @classmethod
     def tearDownClass(cls):
