@@ -1,9 +1,6 @@
-import os
-import sys
 from pytibrv.api import *
 from pytibrv.status import *
 import unittest
-
 
 class VersionTest(unittest.TestCase):
 
@@ -23,5 +20,5 @@ class VersionTest(unittest.TestCase):
         self.assertIsNotNone(ver)
         #self.assertEqual('8.4.5', ver)
 
-if __name__ == "__main__" :
-   unittest.main(verbosity=2)
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
