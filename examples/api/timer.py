@@ -6,8 +6,12 @@
 #
 import sys
 import time
+from pytibrv.api import *
+from pytibrv.status import *
 from pytibrv.events import *
+from pytibrv.msg import *
 from pytibrv.disp import *
+from pytibrv.queue import *
 from datetime import datetime
 
 
@@ -49,7 +53,7 @@ def main(argv):
     while time.time() <= timeout:
         tibrvQueue_TimedDispatch(que, 1.0)
 
-    status = tibrvEvent_DestroyEx(event)
+    status = tibrvEvent_Destroy(event)
     assert TIBRV_OK == status, tibrvStatus_GetText(status)
 
     tibrv_Close()
