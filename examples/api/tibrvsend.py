@@ -6,8 +6,10 @@
 #
 import sys
 import getopt
-from pytibrv.tport import *
+from pytibrv.api import *
+from pytibrv.status import *
 from pytibrv.msg import *
+from pytibrv.tport import *
 
 def usage():
     print('TIBRV Sender : tibrvsend.py')
