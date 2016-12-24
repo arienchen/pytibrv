@@ -197,7 +197,7 @@
 import ctypes as _ctypes
 
 from .types import *
-from .status import *
+from .status import TIBRV_OK, TIBRV_INVALID_ARG
 from .api import _rv, _cstr, _pystr, \
                  _c_tibrv_status, _c_tibrvMsg, _c_tibrvEvent, _c_tibrv_bool, \
                  _c_tibrv_i8, _c_tibrv_u8, _c_tibrv_i16, _c_tibrv_u16, \
