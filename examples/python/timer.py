@@ -6,27 +6,21 @@
 #
 import sys
 import time
-from pytibrv.events import *
-from pytibrv.disp import *
+from pytibrv.Tibrv import *
 from datetime import datetime
-
 
 class TimerApp(TibrvTimerCallback):
 
     def __init__(self, que: TibrvQueue, interval):
         self.tm = TibrvTimer()
         self.que = que
+
         status = self.tm.create(que, self, interval)
         assert TIBRV_OK == status, TibrvStatus.text(status)
 
-    def __del__(self):
-
-        if self.tm is not None:
-            self.tm.destroy()
-            del self.tm
 
     # Override TibrvTimerCallback.callback()
-    def callback(self, event, closure):
+    def callback(self, event, msg, closure):
         print('HI', datetime.now())
 
     def run(self, sec):
@@ -70,7 +64,6 @@ def main(argv):
     # Timer for 0.5 sec
     tm = TimerApp(que, 0.5)
 
-
     # Run for 10 sec by TibrvQueue.timedDispatch()
     print('run2()')
     tm.run2(10.0)
@@ -79,8 +72,9 @@ def main(argv):
     print('run()')
     tm.run(10.0)
 
-    Tibrv.close()
 
+    Tibrv.close()
+    print('TIBRV CLOSED')
 
 if __name__ == "__main__":
     main(sys.argv)
