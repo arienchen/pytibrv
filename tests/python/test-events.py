@@ -1,10 +1,6 @@
 import datetime
 import time
-from pytibrv.tport import *
-from pytibrv.status import *
-from pytibrv.tport import *
-from pytibrv.events import *
-from pytibrv.disp import *
+from pytibrv.Tibrv import *
 import unittest
 
 class EventTest(unittest.TestCase, TibrvMsgCallback):

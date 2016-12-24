@@ -1,8 +1,4 @@
-import os
-import sys
-from pytibrv.tport import *
-from pytibrv.status import *
-from pytibrv.tport import *
+from pytibrv.Tibrv import *
 import unittest
 
 class TransportTest(unittest.TestCase):

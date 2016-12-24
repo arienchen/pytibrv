@@ -1,9 +1,6 @@
-import os
-import sys
-import ctypes
-from pytibrv.msg import *
+from pytibrv.Tibrv import *
+from ctypes import c_float
 import unittest
-
 
 class MsgTest(unittest.TestCase):
 
@@ -116,8 +113,8 @@ class MsgTest(unittest.TestCase):
         self.assertEqual(0xFFFFFFFFFFFFFFFC, msg.get(tibrv_u64, 'U64'))
 
         msg.setF32('F32', 1.1)
-        self.assertEqual(ctypes.c_float(1.1).value, msg.getF32('F32'))
-        self.assertEqual(ctypes.c_float(1.1).value, msg.get(tibrv_f32, 'F32'))
+        self.assertEqual(c_float(1.1).value, msg.getF32('F32'))
+        self.assertEqual(c_float(1.1).value, msg.get(tibrv_f32, 'F32'))
 
         msg.setF64('F64', 1.2)
         self.assertEqual(1.2, msg.getF64('F64'))
@@ -284,14 +281,14 @@ class MsgTest(unittest.TestCase):
         self.assertIsNotNone(ret)
         #self.assertEqual(data, ret)
         for x in range(len(data)):
-            f = ctypes.c_float(data[x]).value   # convert to F32
+            f = c_float(data[x]).value   # convert to F32
             self.assertEqual(f, ret[x])
 
         ret = msg.list(tibrv_f32, 'F32')
         self.assertIsNotNone(ret)
         #self.assertEqual(data, ret)
         for x in range(len(data)):
-            f = ctypes.c_float(data[x]).value   # convert to F32
+            f = c_float(data[x]).value   # convert to F32
             self.assertEqual(f, ret[x])
 
         # F64

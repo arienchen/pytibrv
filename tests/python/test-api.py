@@ -1,5 +1,4 @@
-from pytibrv.api import Tibrv
-from pytibrv.status import *
+from pytibrv.Tibrv import *
 import unittest
 
 class VersionTest(unittest.TestCase):
