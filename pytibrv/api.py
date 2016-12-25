@@ -181,7 +181,7 @@ _c_tibrvMsg_p                = _ctypes.POINTER(_c_tibrvMsg)
 #                 void*               closure
 #                );
 #
-_c_tibrvEventCallback = _func(_ctypes.c_void_p, _c_tibrvEvent, _c_tibrvMsg, _ctypes.c_int64)
+_c_tibrvEventCallback = _func(_ctypes.c_void_p, _c_tibrvEvent, _c_tibrvMsg, _ctypes.c_void_p)
 
 # typedef void (*tibrvEventVectorCallback) (
 #                  tibrvMsg            messages[],
