@@ -239,6 +239,7 @@ def main(argv):
         sys.exit(5)
 
     # Set Signal Handler for Ctrl-C
+    global _running
     signal.signal(signal.SIGINT, signal_proc)
 
     while _running:
