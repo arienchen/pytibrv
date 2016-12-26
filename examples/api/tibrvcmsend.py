@@ -7,6 +7,7 @@
 #
 import sys
 import signal
+import time
 import getopt
 from pytibrv.api import *
 from pytibrv.status import *
@@ -14,6 +15,7 @@ from pytibrv.msg import *
 from pytibrv.tport import *
 from pytibrv.events import *
 from pytibrv.queue import *
+from pytibrv.disp import *
 from pytibrv.cm import *
 
 # Module Variable
@@ -117,6 +119,44 @@ def sendMsgCallback(event: tibrvEvent, message: tibrvMsg, closure):
 
     return
 
+def cm_callback(event: tibrvEvent, message: tibrvMsg, closure):
+    err, adv_subj = tibrvMsg_GetSendSubject(message)
+    #err, msg_str = tibrvMsg_ConvertToString(message)
+
+    if adv_subj is None:
+        return
+
+    if adv_subj.startswith('_RV.INFO.RVCM.DELIVERY.CONFIRM.'):
+        err, subj = tibrvMsg_GetString(message, 'subject')
+        err, cm_name = tibrvMsg_GetString(message, 'listener')
+        err, cm_seq = tibrvMsg_GetU64(message, 'seqno')
+
+        print('CONFIRM  {} - {} #{}'.format(cm_name, subj, cm_seq))
+        return
+
+    if adv_subj.startswith('_RV.INFO.RVCM.DELIVERY.COMPLETE.'):
+        err, subj = tibrvMsg_GetString(message, 'subject')
+        err, cm_seq = tibrvMsg_GetU64(message, 'seqno')
+
+        print('COMPLETE {} #{}'.format(subj, cm_seq))
+        return
+
+    if adv_subj.startswith('_RV.ERROR.RVCM.DELIVERY.FAILED.'):
+        err, subj = tibrvMsg_GetString(message, 'subject')
+        err, cm_name = tibrvMsg_GetString(message, 'listener')
+        err, cm_seq = tibrvMsg_GetU64(message, 'seqno')
+
+        print('FAILED  {} - {} #{}'.format(cm_name, subj, cm_seq))
+        return
+
+    if adv_subj.startswith('_RV.WARN.RVCM.DELIVERY.NO_RESPONSE.'):
+        err, cm_name = tibrvMsg_GetString(message, 'listener')
+
+        print('NO_RESPONSE  {}'.format(cm_name))
+        return
+
+
+
 # MAIN PROGRAM
 def main(argv):
 
@@ -172,18 +212,33 @@ def main(argv):
 
     if err != TIBRV_OK:
         print('{}: Failed to start the timer -- {}'.format(progname, tibrvStatus_GetText(err)))
-        sys.exit(1);
+        sys.exit(1)
 
     print('{}: Sending "{}" -> {} '.format(progname, params['message'], params['subject']))
+
+    # Listen CM Advisory
+    adv_subj = '_RV.*.RVCM.DELIVERY.*.' + params['subject']
+    err, event = tibrvEvent_CreateListener(TIBRV_DEFAULT_QUEUE, cm_callback, tx, adv_subj, data)
+    if err != TIBRV_OK:
+        print('{} : Failed to listen RVCM advisory {} -- {}'.format(progname, adv_subj, tibrvStatus_GetText(err)))
+        sys.exit(1)
+
+    # dispatcher thread for timer and advisory
+    err, disp = tibrvDispatcher_Create(TIBRV_DEFAULT_QUEUE)
+    if err != TIBRV_OK:
+        print('{}: Failed to create dispatcher thread -- {}'.format(progname, tibrvStatus_GetText(err)))
+        sys.exit(1)
 
     # Set Signal Handler for Ctrl-C
     signal.signal(signal.SIGINT, signal_proc)
     global _running
 
     while _running:
-        tibrvQueue_TimedDispatch(TIBRV_DEFAULT_QUEUE, 0.5)
+        time.sleep(0.5)
 
     tibrvEvent_Destroy(timerId)
+    tibrvDispatcher_Destroy(disp)
+    tibrvEvent_Destroy(event)
     tibrvMsg_Destroy(msg)
     tibrvcmTransport_Destroy(cmtx)
     tibrvTransport_Destroy(tx)
