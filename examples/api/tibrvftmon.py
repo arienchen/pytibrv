@@ -82,14 +82,13 @@ def monCB(monitor: tibrvftMonitor, groupName: bytes, numActiveMembers: int, clos
            txt
          ))
 
-    _oldNumActives = numActiveMembers;
+    _oldNumActives = numActiveMembers
 
-    return;
+    return
 
 
 # MAIN PROGRAM
 def main(argv):
-
 
     service, network, daemon = get_params(argv[1:])
     progname = argv[0]
@@ -123,7 +122,7 @@ def main(argv):
         tibrvQueue_TimedDispatch(TIBRV_DEFAULT_QUEUE, 0.5)
 
     # CTRL-C PRESSED
-    # when ftMonitor destroying,
+    # when ftMonitor destroyed,
     # callback would be triggered within numActiveMembers = 0
     # it is fault alert, and should be ignored
     tibrvftMonitor_Destroy(monitor)
