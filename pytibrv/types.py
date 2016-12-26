@@ -171,7 +171,7 @@ class tibrvMsgDateTime:
 
     @staticmethod
     def now():
-        t = _time()
+        t = _time.time()
         dt = tibrvMsgDateTime()
         dt.sec = int(t)
         dt.nsec = int((t - dt.sec) * 1000000000)
