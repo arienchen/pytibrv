@@ -116,6 +116,16 @@ _c_tibrvftMonitorCallback = _func(_ctypes.c_void_p, _c_tibrvftMonitor, _c_tibrv_
 #                   void*                       closure);
 _c_tibrvftMonitorOnComplete = _func(_ctypes.c_void_p, _c_tibrvftMonitor, _ctypes.c_void_p)
 
+##
+# tibrv/ft.h
+# const char * tibrvft_Version(void)
+#
+_rvft.tibrvft_Version.argtypes = []
+_rvft.tibrvft_Version.restype = _ctypes.c_char_p
+
+def tibrvft_Version() -> str :
+    sz = _rvft.tibrv_Version()
+    return sz.decode()
 
 ##
 # tibrv/ft.h
