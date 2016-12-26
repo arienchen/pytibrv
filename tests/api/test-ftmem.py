@@ -12,7 +12,7 @@ from pytibrv.ft import *
 import unittest
 
 
-def callback(member: tibrvftMember, groupName: bytes, action: tibrvAction, closure):
+def callback(member: tibrvftMember, groupName: bytes, action: tibrvftAction, closure):
     name = groupName.decode()
     obj = tibrvClosure(closure)
     obj.action = action

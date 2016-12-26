@@ -48,9 +48,9 @@ _rvft = _load('tibrvft')
 # Data Types
 tibrvftMember           = tibrvId
 tibrvftMonitor          = tibrvId
-tibrvAction             = int           # enum
+tibrvftAction             = int           # enum
 
-_c_tibrvAction          = _ctypes.c_int
+_c_tibrvftAction          = _ctypes.c_int
 _c_tibrvftMember        = _c_tibrvId
 _c_tibrvftMonitor       = _c_tibrvId
 
@@ -91,7 +91,7 @@ def __unreg(ft):
 #                 void*                       closure);
 #
 _c_tibrvftMemberCallback  = _func(_ctypes.c_void_p, _c_tibrvftMember, _c_tibrv_str,  \
-                                  _c_tibrvAction, _ctypes.c_void_p)
+                                  _c_tibrvftAction, _ctypes.c_void_p)
 
 ##
 #  typedef void (*tibrvftMemberOnComplete) (
