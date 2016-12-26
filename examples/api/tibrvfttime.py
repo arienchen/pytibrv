@@ -243,7 +243,7 @@ def main(argv):
     signal.signal(signal.SIGINT, signal_proc)
 
     while _running:
-        tibrvQueue_Dispatch(TIBRV_DEFAULT_QUEUE)
+        tibrvQueue_TimedDispatch(TIBRV_DEFAULT_QUEUE, 0.5)
 
     tibrvEvent_Destroy(advId)
     tibrvEvent_Destroy(ap.timerId)

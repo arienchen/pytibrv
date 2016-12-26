@@ -120,9 +120,14 @@ def main(argv):
     signal.signal(signal.SIGINT, signal_proc)
 
     while _running:
-        tibrvQueue_Dispatch(TIBRV_DEFAULT_QUEUE)
+        tibrvQueue_TimedDispatch(TIBRV_DEFAULT_QUEUE, 0.5)
 
+    # CTRL-C PRESSED
+    # when ftMonitor destroying,
+    # callback would be triggered within numActiveMembers = 0
+    # it is fault alert, and should be ignored
     tibrvftMonitor_Destroy(monitor)
+
     tibrv_Close()
 
 
