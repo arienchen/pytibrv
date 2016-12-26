@@ -104,6 +104,7 @@ def main(argv):
 
     # Set Signal Handler for Ctrl-C
     signal.signal(signal.SIGINT, signal_proc)
+    global _running
 
     while _running:
         tibrvQueue_TimedDispatch(TIBRV_DEFAULT_QUEUE, 0.5)
