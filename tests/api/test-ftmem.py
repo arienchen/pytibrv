@@ -240,5 +240,41 @@ class MemberTest(unittest.TestCase):
         ap1.close()
         ap2.close()
 
+    def test_getset(self):
+        status, tx = tibrvTransport_Create(None, None, None)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+
+        que = TIBRV_DEFAULT_QUEUE
+
+        status, ft = tibrvftMember_Create(que, callback, tx, 'MemberTest',
+                                          50, 1, 1.0, 1.5, 2.0, None)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+
+        status, q = tibrvftMember_GetQueue(ft)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+        self.assertEqual(que, q)
+
+        status, t = tibrvftMember_GetTransport(ft)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+        self.assertEqual(tx, t)
+
+        status, sz = tibrvftMember_GetGroupName(ft)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+        self.assertEqual('MemberTest', sz)
+
+        status = tibrvftMember_SetWeight(ft, 100)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+
+        status, w = tibrvftMember_GetWeight(ft)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+        self.assertEqual(100, w)
+
+        status = tibrvftMember_Destroy(ft)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+
+        status = tibrvTransport_Destroy(tx)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+
+
 if __name__ == "__main__" :
     unittest.main(verbosity=2)
