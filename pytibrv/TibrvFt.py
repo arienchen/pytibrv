@@ -1,8 +1,8 @@
 ##
-# pytibrv/Tibrv.py
+# pytibrv/TibrvFt.py
 #   TIBRV Library for PYTHON
 #
-# LAST MODIFIED : V1.0 20161224 ARIEN arien.chen@gmail.com
+# LAST MODIFIED : V1.0 20161226 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # -----------------------------------------------------------------------------
@@ -10,13 +10,17 @@
 #
 # CHANGED LOGS
 # -----------------------------------------------------------------------------
-# 20161224 ARIEN V1.0
+# 20161226 ARIEN V1.0
 #   CREATED
 #
 
-from pytibrv.status import TIBRV_ID_IN_USE, TIBRV_INVALID_ARG, TIBRV_INVALID_CALLBACK
+from pytibrv.status import TIBRV_INVALID_CALLBACK, TIBRV_INVALID_QUEUE, TIBRV_INVALID_TRANSPORT,\
+                           TIBRV_INVALID_ARG
+
 from pytibrv.events import tibrvClosure
+
 from pytibrv.Tibrv import TibrvQueue, TibrvTx, TibrvStatus, TibrvError
+
 from pytibrv.ft import *
 
 class TibrvFtMemberCallback:
@@ -46,28 +50,38 @@ class TibrvFtMember:
     def id(self):
         return self._ftmem
 
-    def create(self, que: TibrvQueue, callback: TibrvFtMemberCallback, tx: TibrvTx, groupName: str,
-               weight: int, activeGoal: int, hbt: float, prepare: float, activate: float, closure) -> tibrv_status:
+    def create(self, que: TibrvQueue, callback: TibrvFtMemberCallback, tx: TibrvTx,
+               groupName: str, weight: int = 50, activeGoal: int = 1, hbt: float = 1.0,
+               prepare: float = 2.5, activate: float = 4.0, closure = None) -> tibrv_status:
 
-        if self.id() != 0:
-            status = TIBRV_ID_IN_USE
+        if que is None or not isinstance(que, TibrvQueue):
+            status = TIBRV_INVALID_QUEUE
             self._err = TibrvStatus.error(status)
             return status
 
-        if not isinstance(callback, TibrvFtMemberCallback):
+        if tx is None or not isinstance(tx, TibrvTx):
+            status = TIBRV_INVALID_TRANSPORT
+            self._err = TibrvStatus.error(status)
+            return status
+
+        if groupName is None:
+            status = TIBRV_INVALID_ARG
+            self._err = TibrvStatus.error(status)
+            return status
+
+        if callback is None or not isinstance(callback, TibrvFtMemberCallback):
             status = TIBRV_INVALID_CALLBACK
             self._err = TibrvStatus.error(status)
             return status
 
         status, self._ftmem = tibrvftMember_Create(que.id(), callback._register(), tx.id(), groupName,
-                                 weight, activeGoal, hbt, prepare, activate, closure)
+                                                   weight, activeGoal, hbt, prepare, activate, closure)
 
         self._err = TibrvStatus.error(status)
+
         return status
 
     def destroy(self) -> tibrv_status:
-        if self._ftmem == 0:
-            return TIBRV_INVALID_ARG
 
         status = tibrvftMember_Destroy(self._ftmem)
         self._ftmem = 0
@@ -78,16 +92,13 @@ class TibrvFtMember:
     def error(self) -> TibrvError:
         return self._err
 
-
     @property
     def queue(self) -> TibrvQueue:
         ret = None
-        if self.id() == 0:
-            status = TIBRV_INVALID_ARG
-        else:
-            status, q = tibrvftMember_GetQueue(self.id())
-            if status == TIBRV_OK:
-                ret = TibrvQueue(q)
+
+        status, q = tibrvftMember_GetQueue(self.id())
+        if status == TIBRV_OK:
+            ret = TibrvQueue(q)
 
         self._err = TibrvStatus.error(status)
 
@@ -96,12 +107,10 @@ class TibrvFtMember:
     @property
     def tx(self) -> TibrvTx:
         ret = None
-        if self.id() == 0:
-            status = TIBRV_INVALID_ARG
-        else:
-            status, tx = tibrvftMember_GetTransport(self.id())
-            if status == TIBRV_OK:
-                ret = TibrvTx(tx)
+
+        status, tx = tibrvftMember_GetTransport(self.id())
+        if status == TIBRV_OK:
+            ret = TibrvTx(tx)
 
         self._err = TibrvStatus.error(status)
 
@@ -109,7 +118,7 @@ class TibrvFtMember:
 
     @property
     def name(self) -> str:
-        ret = None
+
         status, ret = tibrvftMember_GetGroupName(self.id())
         self._err = TibrvStatus.error(status)
 
@@ -117,13 +126,15 @@ class TibrvFtMember:
 
     @property
     def weight(self) -> int:
-        ret = None
+
         status, ret = tibrvftMember_GetWeight(self.id())
         self._err = TibrvStatus.error(status)
+
         return ret
 
     @weight.setter
     def weight(self, wt: int):
+
         status = tibrvftMember_SetWeight(self.id(), wt)
         self._err = TibrvStatus.error(status)
 
@@ -149,7 +160,6 @@ class TibrvFtMonitorCallback:
         return _cb
 
 
-
 class TibrvFtMonitor:
     def __init__(self, monitor: tibrvftMonitor = 0):
         self._ftmon = tibrvftMonitor(monitor)
@@ -161,25 +171,34 @@ class TibrvFtMonitor:
     def create(self, que: TibrvQueue, callback: TibrvFtMemberCallback, tx: TibrvTx, groupName: str,
                hbt: float, closure) -> tibrv_status:
 
-        if self.id() != 0:
-            status = TIBRV_ID_IN_USE
+        if que is None or not isinstance(que, TibrvQueue):
+            status = TIBRV_INVALID_QUEUE
             self._err = TibrvStatus.error(status)
             return status
 
-        if not isinstance(callback, TibrvFtMonitorCallback):
+        if callback is None or not isinstance(callback, TibrvFtMonitorCallback):
             status = TIBRV_INVALID_CALLBACK
             self._err = TibrvStatus.error(status)
             return status
 
+        if tx is None or not isinstance(tx, TibrvTx):
+            status = TIBRV_INVALID_TRANSPORT
+            self._err = TibrvStatus.error(status)
+            return status
+
+        if groupName is None or hbt is None:
+            status = TIBRV_INVALID_ARG
+            self._err = TibrvStatus.error(status)
+            return status
+
         status, self._ftmon = tibrvftMonitor_Create(que.id(), callback._register(), tx.id(), groupName,
-                                 hbt, closure)
+                                                    hbt, closure)
 
         self._err = TibrvStatus.error(status)
+
         return status
 
     def destroy(self) -> tibrv_status:
-        if self._ftmon == 0:
-            return TIBRV_INVALID_ARG
 
         status = tibrvftMonitor_Destroy(self._ftmon)
         self._ftmon = 0
@@ -193,12 +212,10 @@ class TibrvFtMonitor:
     @property
     def queue(self) -> TibrvQueue:
         ret = None
-        if self.id() == 0:
-            status = TIBRV_INVALID_ARG
-        else:
-            status, q = tibrvftMonitor_GetQueue(self.id())
-            if status == TIBRV_OK:
-                ret = TibrvQueue(q)
+
+        status, q = tibrvftMonitor_GetQueue(self.id())
+        if status == TIBRV_OK:
+            ret = TibrvQueue(q)
 
         self._err = TibrvStatus.error(status)
 
@@ -206,13 +223,12 @@ class TibrvFtMonitor:
 
     @property
     def tx(self) -> TibrvTx:
+
         ret = None
-        if self.id() == 0:
-            status = TIBRV_INVALID_ARG
-        else:
-            status, tx = tibrvftMonitor_GetTransport(self.id())
-            if status == TIBRV_OK:
-                ret = TibrvTx(tx)
+
+        status, tx = tibrvftMonitor_GetTransport(self.id())
+        if status == TIBRV_OK:
+            ret = TibrvTx(tx)
 
         self._err = TibrvStatus.error(status)
 
@@ -220,7 +236,7 @@ class TibrvFtMonitor:
 
     @property
     def name(self) -> str:
-        ret = None
+
         status, ret = tibrvftMonitor_GetGroupName(self.id())
         self._err = TibrvStatus.error(status)
 
