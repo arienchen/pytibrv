@@ -155,7 +155,6 @@ class TibrvCmTx:
     def id(self):
         return self._cmtx
 
-    @property
     def error(self) -> TibrvError:
         return self._err
 
@@ -401,7 +400,6 @@ class TibrvCmListener:
     def id(self):
         return self._event
 
-    @property
     def error(self) -> TibrvError:
         return self._err
 
