@@ -1,16 +1,21 @@
 ##
 # pytibrv/TibrvFt.py
 #   TIBRV Library for PYTHON
+#   TibrvFtMember       <- tibrvftMember_XXX
+#   TibrvFtMonitor      <- tibrvftMonitor_XXX
 #
-# LAST MODIFIED : V1.0 20161226 ARIEN arien.chen@gmail.com
+# LAST MODIFIED : V1.1 20161227 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # -----------------------------------------------------------------------------
-#
+# 1.
 #
 # CHANGED LOGS
 # -----------------------------------------------------------------------------
-# 20161226 ARIEN V1.0
+# 20161227 V1.1 ARIEN arien.chen@gmail.com
+#   change readonly property to normal function
+#
+# 20161226 V1,0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
 
@@ -88,11 +93,9 @@ class TibrvFtMember:
 
         return status
 
-    @property
     def error(self) -> TibrvError:
         return self._err
 
-    @property
     def queue(self) -> TibrvQueue:
         ret = None
 
@@ -104,7 +107,6 @@ class TibrvFtMember:
 
         return ret
 
-    @property
     def tx(self) -> TibrvTx:
         ret = None
 
@@ -116,7 +118,6 @@ class TibrvFtMember:
 
         return ret
 
-    @property
     def name(self) -> str:
 
         status, ret = tibrvftMember_GetGroupName(self.id())
@@ -205,11 +206,9 @@ class TibrvFtMonitor:
 
         return status
 
-    @property
     def error(self) -> TibrvError:
         return self._err
 
-    @property
     def queue(self) -> TibrvQueue:
         ret = None
 
@@ -221,7 +220,6 @@ class TibrvFtMonitor:
 
         return ret
 
-    @property
     def tx(self) -> TibrvTx:
 
         ret = None
@@ -234,7 +232,6 @@ class TibrvFtMonitor:
 
         return ret
 
-    @property
     def name(self) -> str:
 
         status, ret = tibrvftMonitor_GetGroupName(self.id())
