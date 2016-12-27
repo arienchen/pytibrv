@@ -154,6 +154,33 @@ class MonitorTest(unittest.TestCase):
         status = tibrvTransport_Destroy(tx)
         self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
 
+    def test_getset(self):
+        status, tx = tibrvTransport_Create(None, None, None)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+        que = TIBRV_DEFAULT_QUEUE
+
+        # pass self as closure, reset cnt = 0
+        self.cnt = 0
+        status, monitor = tibrvftMonitor_Create(que, ft_mon, tx, 'MonitorTest', 1.0, self)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+
+        status, q = tibrvftMonitor_GetQueue(monitor)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+        self.assertEqual(que, q)
+
+        status, t = tibrvftMonitor_GetTransport(monitor)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+        self.assertEqual(tx, t)
+
+        status, sz = tibrvftMonitor_GetGroupName(monitor)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+        self.assertEqual('MonitorTest', sz)
+
+        status = tibrvftMonitor_Destroy(monitor)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
+
+        status = tibrvTransport_Destroy(tx)
+        self.assertEqual(TIBRV_OK, status, tibrvStatus_GetText(status))
 
 
 if __name__ == "__main__" :
