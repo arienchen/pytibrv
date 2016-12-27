@@ -1414,8 +1414,8 @@ class TibrvQueue:
     DISCARD_LAST    = TIBRVQUEUE_DISCARD_LAST
     DISCARD_NEW     = TIBRVQUEUE_DISCARD_NEW
 
-    def __init__(self):
-        self._que = tibrvQueue(TIBRV_DEFAULT_QUEUE)
+    def __init__(self, que: tibrvQueue = TIBRV_DEFAULT_QUEUE):
+        self._que = tibrvQueue(que)
         self._err = None
         self._policy = 0
         self._maxEvents = 0
@@ -1424,7 +1424,7 @@ class TibrvQueue:
     def id(self):
         return self._que
 
-    def create(self, name : str = None) -> tibrv_status:
+    def create(self, name: str = None) -> tibrv_status:
         if self._que != 0 and self._que != TIBRV_DEFAULT_QUEUE:
             self.destroy()
 
@@ -1545,8 +1545,8 @@ from .tport import tibrvTransport, tibrvTransport_Create, tibrvTransport_Destroy
                    tibrvTransport_Send, tibrvTransport_SendRequest, tibrvTransport_SendReply
 
 class TibrvTx :
-    def __init__(self):
-        self._tx = tibrvTransport(0)
+    def __init__(self, tx: tibrvTransport = 0):
+        self._tx = tibrvTransport(tx)
         self._err = None
 
     def id(self):
