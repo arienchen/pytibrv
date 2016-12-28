@@ -48,22 +48,22 @@ def tibrvDispatcher_Create(dispatchable: tibrvDispatchable, idleTimeout: float =
                           -> (tibrv_status, tibrvDispatcher):
 
     if dispatchable is None or dispatchable == 0:
-        return TIBRV_INVALID_DISPATCHABLE
+        return TIBRV_INVALID_DISPATCHABLE, None
 
     if idleTimeout is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     disp = _c_tibrvDispatcher(0)
 
     try:
         que  = _c_tibrvDispatchable(dispatchable)
     except:
-        return TIBRV_INVALID_DISPATCHABLE
+        return TIBRV_INVALID_DISPATCHABLE, None
 
     try:
         t = _c_tibrv_f64(idleTimeout)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvDispatcher_CreateEx(_ctypes.byref(disp), que, t)
 
@@ -157,12 +157,12 @@ _rv.tibrvDispatcher_GetName.restype = _c_tibrv_status
 def tibrvDispatcher_GetName(dispatcher: tibrvDispatcher) -> (tibrv_status, str):
 
     if dispatcher is None or dispatcher == 0:
-        return TIBRV_INVALID_DISPATCHER
+        return TIBRV_INVALID_DISPATCHER, None
 
     try:
         disp = _c_tibrvDispatcher(dispatcher)
     except:
-        return TIBRV_INVALID_DISPATCHER
+        return TIBRV_INVALID_DISPATCHER, None
 
     sz = _ctypes.c_char_p()
     status = _rv.tibrvDispatcher_GetName(disp, _ctypes.byref(sz))

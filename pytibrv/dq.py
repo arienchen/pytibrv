@@ -87,19 +87,19 @@ def tibrvcmTransport_CreateDistributedQueueEx(tx: tibrvTransport, cmName: str,
         -> (tibrv_status, tibrvcmTransport):
 
     if tx is None or tx == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     if cmName is None or workerWeight is None or workerTasks is None \
        or schedulerWeight is None or schedulerHeartbeat is None \
        or schedulerActivation is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     cmtx = _c_tibrvcmTransport(0)
 
     try:
         tx = _c_tibrvTransport(tx)
     except:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     try:
         name = _cstr(cmName)
@@ -109,7 +109,7 @@ def tibrvcmTransport_CreateDistributedQueueEx(tx: tibrvTransport, cmName: str,
         sch_hbt = _c_tibrv_f64(schedulerHeartbeat)
         sch_act = _c_tibrv_f64(schedulerActivation)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rvdq.tibrvcmTransport_CreateDistributedQueueEx(
                     _ctypes.byref(cmtx), tx, name,
@@ -176,12 +176,12 @@ _rvdq.tibrvcmTransport_GetCompleteTime.restype = _c_tibrv_status
 def tibrvcmTransport_GetCompleteTime(cmTransport: tibrvcmTransport) -> (tibrv_status, float):
 
     if cmTransport is None or cmTransport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     try:
         cmtx = _c_tibrvcmTransport(cmTransport)
     except:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     ret = _c_tibrv_f64(0)
 
@@ -236,12 +236,12 @@ _rvdq.tibrvcmTransport_GetWorkerWeight.restype = _c_tibrv_status
 def tibrvcmTransport_GetWorkerWeight(cmTransport: tibrvcmTransport) -> (tibrv_status, int):
 
     if cmTransport is None or cmTransport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     try:
         cmtx = _c_tibrvcmTransport(cmTransport)
     except:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
 
     ret = _c_tibrv_u32(0)
@@ -296,12 +296,12 @@ _rvdq.tibrvcmTransport_GetWorkerTasks.restype = _c_tibrv_status
 def tibrvcmTransport_GetWorkerTasks(cmTransport: tibrvcmTransport) -> (tibrv_status, int):
 
     if cmTransport is None or cmTransport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     try:
         cmtx = _c_tibrvcmTransport(cmTransport)
     except:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     ret = _c_tibrv_u32(0)
 
@@ -405,12 +405,12 @@ _rvdq.tibrvcmTransport_GetUnassignedMessageCount.restype = _c_tibrv_status
 def tibrvcmTransport_GetUnassignedMessageCount(cmTransport: tibrvcmTransport) -> (tibrv_status, int):
 
     if cmTransport is None or cmTransport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     try:
         cmtx = _c_tibrvcmTransport(cmTransport)
     except:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     ret = _c_tibrv_u32(0)
 

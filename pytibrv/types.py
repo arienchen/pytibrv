@@ -67,7 +67,7 @@ import time as _time
 ##-----------------------------------------------------------------------------
 tibrv_status                = int
 tibrvId                     = int
-tibrvMsg                    = _ctypes.c_void_p
+tibrvMsg                    = int                   # c_void_p
 tibrvEvent                  = tibrvId
 tibrvDispatchable           = tibrvId
 tibrvQueue                  = tibrvId

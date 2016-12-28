@@ -162,10 +162,10 @@ def tibrvftMember_Create(queue: tibrvQueue, callback, transport: tibrvTransport,
                         -> (tibrv_status, tibrvftMember):
 
     if queue == 0 or queue is None:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     if transport == 0 or transport is None:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     if groupName is None or weight is None \
        or activeGoal is None or heartbeatInterval is None \
@@ -173,24 +173,24 @@ def tibrvftMember_Create(queue: tibrvQueue, callback, transport: tibrvTransport,
         return TIBRV_INVALID_ARG
 
     if callback is None:
-        return TIBRV_INVALID_CALLBACK
+        return TIBRV_INVALID_CALLBACK, None
 
     ft = _c_tibrvftMember(0)
 
     try:
         que = _c_tibrvQueue(queue)
     except:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     try:
         cb = _c_tibrvftMemberCallback(callback)
     except:
-        return TIBRV_INVALID_CALLBACK
+        return TIBRV_INVALID_CALLBACK, None
 
     try:
         tx = _c_tibrvTransport(transport)
     except:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     try:
         grp = _cstr(groupName)
@@ -202,7 +202,7 @@ def tibrvftMember_Create(queue: tibrvQueue, callback, transport: tibrvTransport,
 
         cz = _ctypes.py_object(closure)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rvft.tibrvftMember_Create(_ctypes.byref(ft), que, cb, tx, grp, wt, goal, hbt, pre, act, cz)
 
@@ -269,13 +269,13 @@ _rvft.tibrvftMember_GetQueue.restype = _c_tibrv_status
 def tibrvftMember_GetQueue(member: tibrvftMember) -> (tibrv_status, tibrvQueue):
 
     if member == 0 or member is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         ft = _c_tibrvftMember(member)
         que = _c_tibrvQueue()
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rvft.tibrvftMember_GetQueue(ft, _ctypes.byref(que))
 
@@ -294,13 +294,13 @@ _rvft.tibrvftMember_GetTransport.restype = _c_tibrv_status
 def tibrvftMember_GetTransport(member: tibrvftMember) -> (tibrv_status, tibrvTransport):
 
     if member == 0 or member is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         ft = _c_tibrvftMember(member)
         tx = _c_tibrvTransport()
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rvft.tibrvftMember_GetTransport(ft, _ctypes.byref(tx))
 
@@ -318,13 +318,13 @@ _rvft.tibrvftMember_GetGroupName.restype = _c_tibrv_status
 def tibrvftMember_GetGroupName(member: tibrvftMember) -> (tibrv_status, str):
 
     if member == 0 or member is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         ft = _c_tibrvftMember(member)
         sz = _ctypes.c_char_p(0)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rvft.tibrvftMember_GetGroupName(ft, _ctypes.byref(sz))
 
@@ -343,13 +343,13 @@ _rvft.tibrvftMember_GetWeight.restype = _c_tibrv_status
 def tibrvftMember_GetWeight(member: tibrvftMember) -> (tibrv_status, int):
 
     if member == 0 or member is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         ft = _c_tibrvftMember(member)
         n = _c_tibrv_u16(0)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rvft.tibrvftMember_GetWeight(ft, _ctypes.byref(n))
 
@@ -408,36 +408,36 @@ def tibrvftMonitor_Create(queue: tibrvQueue, callback, transport: tibrvTransport
                           lostInterval: float, closure = None) -> (tibrv_status, tibrvftMonitor):
 
     if queue == 0 or queue is None:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     if transport == 0 or transport is None:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     if groupName is None or lostInterval is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     if callback is None:
-        return TIBRV_INVALID_CALLBACK
+        return TIBRV_INVALID_CALLBACK, None
 
     try:
         ft = _c_tibrvftMonitor(0)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         que = _c_tibrvQueue(queue)
     except:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     try:
         cb = _c_tibrvftMonitorCallback(callback)
     except:
-        return TIBRV_INVALID_CALLBACK
+        return TIBRV_INVALID_CALLBACK, None
 
     try:
         tx = _c_tibrvTransport(transport)
     except:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     try:
         grp = _cstr(groupName)
@@ -445,7 +445,7 @@ def tibrvftMonitor_Create(queue: tibrvQueue, callback, transport: tibrvTransport
 
         cz = _ctypes.py_object(closure)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rvft.tibrvftMonitor_Create(_ctypes.byref(ft), que, cb, tx, grp, hbt, cz)
 
@@ -511,13 +511,13 @@ _rvft.tibrvftMonitor_GetQueue.restype = _c_tibrv_status
 def tibrvftMonitor_GetQueue(monitor: tibrvftMonitor) -> (tibrv_status, tibrvQueue):
 
     if monitor == 0 or monitor is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         ft = _c_tibrvftMonitor(monitor)
         que = _c_tibrvQueue()
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rvft.tibrvftMonitor_GetQueue(ft, _ctypes.byref(que))
 
@@ -536,13 +536,13 @@ _rvft.tibrvftMonitor_GetTransport.restype = _c_tibrv_status
 def tibrvftMonitor_GetTransport(monitor: tibrvftMonitor) -> (tibrv_status, tibrvTransport):
 
     if monitor == 0 or monitor is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         ft = _c_tibrvftMonitor(monitor)
         tx = _c_tibrvTransport()
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rvft.tibrvftMonitor_GetTransport(ft, _ctypes.byref(tx))
 
@@ -561,13 +561,13 @@ _rvft.tibrvftMonitor_GetGroupName.restype = _c_tibrv_status
 def tibrvftMonitor_GetGroupName(monitor: tibrvftMonitor) -> (tibrv_status, str):
 
     if monitor == 0 or monitor is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         ft = _c_tibrvftMonitor(monitor)
         sz = _ctypes.c_char_p(0)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rvft.tibrvftMonitor_GetGroupName(ft, _ctypes.byref(sz))
 

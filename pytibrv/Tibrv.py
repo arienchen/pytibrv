@@ -250,18 +250,21 @@ class TibrvMsg:
         # For exist msg
         if msg is not None and msg != 0:
             self._copied = True
-            self._msg = tibrvMsg(msg)
+            self._msg = msg
 
         return
 
     @staticmethod
-    def create(initBytes: int = 0):
-
+    def create(initBytes: int = 0) -> 'TibrvMsg':
+        # FAILED ONLY IF OOM., TIBRV_NO_MEMORY
+        # To be simple, return None if failed
         status, ret = tibrvMsg_Create(initBytes)
         if status == TIBRV_OK:
-            return TibrvMsg(ret), None
+            msg =  TibrvMsg(ret)
+            msg._copied = False
+            return msg
 
-        return None, TibrvError(status)
+        return None
 
     def destroy(self) -> tibrv_status:
 

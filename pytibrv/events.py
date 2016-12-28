@@ -172,39 +172,39 @@ def tibrvEvent_CreateListener(queue: tibrvQueue, callback, transport: tibrvTrans
                               subject: str, closure = None) -> (tibrv_status, tibrvEvent):
 
     if queue is None or queue == 0:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     if callback is None:
-        return TIBRV_INVALID_CALLBACK
+        return TIBRV_INVALID_CALLBACK, None
 
     if transport is None or transport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     if str is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     ev = _c_tibrvEvent(0)
 
     try:
         que = _c_tibrvQueue(queue)
     except:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     try:
         cb = _c_tibrvEventCallback(callback)
     except:
-        return TIBRV_INVALID_CALLBACK
+        return TIBRV_INVALID_CALLBACK, None
 
     try:
         tx = _c_tibrvTransport(transport)
     except:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     try:
         subj = _cstr(subject)
         cz = _ctypes.py_object(closure)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvEvent_CreateListener(_ctypes.byref(ev), que, cb, tx, subj, cz)
 
@@ -237,39 +237,39 @@ def tibrvEvent_CreateVectorListener(queue: tibrvQueue, callback, transport: tibr
                                     subject: str, closure)   -> (tibrv_status, tibrvEvent):
 
     if queue is None or queue == 0:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     if callback is None:
-        return TIBRV_INVALID_CALLBACK
+        return TIBRV_INVALID_CALLBACK, None
 
     if transport is None or transport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     if str is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     ev = _c_tibrvEvent(0)
 
     try:
         que = _c_tibrvQueue(queue)
     except:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     try:
         cb = _c_tibrvEventVectorCallback(callback)
     except:
-        return TIBRV_INVALID_CALLBACK
+        return TIBRV_INVALID_CALLBACK, None
 
     try:
         tx = _c_tibrvTransport(transport)
     except:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     try:
         subj = _cstr(subject)
         cz = _ctypes.py_object(closure)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvEvent_CreateVectorListener(_ctypes.byref(ev), que, cb, tx, subj, cz)
 
@@ -311,28 +311,28 @@ def tibrvEvent_CreateTimer(queue: tibrvQueue, callback, interval: float,
                            closure=None) -> (tibrv_status, tibrvEvent):
 
     if queue is None or queue == 0:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     if callback is None:
-        return TIBRV_INVALID_CALLBACK
+        return TIBRV_INVALID_CALLBACK, None
 
     ev = _c_tibrvEvent(0)
 
     try:
         que = _c_tibrvQueue(queue)
     except:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     try:
         cb = _c_tibrvEventCallback(callback)
     except:
-        return TIBRV_INVALID_CALLBACK
+        return TIBRV_INVALID_CALLBACK, None
 
     try:
         n = _c_tibrv_f64(interval)
         cz = _ctypes.py_object(closure)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvEvent_CreateTimer(_ctypes.byref(ev), que, cb, n, cz)
 
@@ -397,12 +397,12 @@ _rv.tibrvEvent_GetType.restype = _c_tibrv_status
 def tibrvEvent_GetType(event:tibrvEvent) -> (tibrv_status, tibrvEventType):
 
     if event is None or event == 0:
-        return TIBRV_INVALID_EVENT
+        return TIBRV_INVALID_EVENT, None
 
     try:
         ev = _c_tibrvEvent(event)
     except:
-        return TIBRV_INVALID_EVENT
+        return TIBRV_INVALID_EVENT, None
 
     ty = _c_tibrvEventType(0)
 
@@ -424,12 +424,12 @@ _rv.tibrvEvent_GetQueue.restype = _c_tibrv_status
 def tibrvEvent_GetQueue(event:tibrvEvent) -> (tibrv_status, tibrvQueue):
 
     if event is None or event == 0:
-        return TIBRV_INVALID_EVENT
+        return TIBRV_INVALID_EVENT, None
 
     try:
         ev = _c_tibrvEvent(event)
     except:
-        return TIBRV_INVALID_EVENT
+        return TIBRV_INVALID_EVENT, None
 
     que = _c_tibrvQueue(0)
 
@@ -451,12 +451,12 @@ _rv.tibrvEvent_GetListenerSubject.restype = _c_tibrv_status
 def tibrvEvent_GetListenerSubject(event: tibrvEvent) -> (tibrv_status, str):
 
     if event is None or event == 0:
-        return TIBRV_INVALID_EVENT
+        return TIBRV_INVALID_EVENT, None
 
     try:
         ev = _c_tibrvEvent(event)
     except:
-        return TIBRV_INVALID_EVENT
+        return TIBRV_INVALID_EVENT, None
 
     sz = _ctypes.c_char_p(0)
 
@@ -483,7 +483,7 @@ def tibrvEvent_GetListenerTransport(event: tibrvEvent) -> (tibrv_status, tibrvTr
     try:
         ev = _c_tibrvEvent(event)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     tx = _c_tibrvTransport(0)
 
@@ -505,12 +505,12 @@ _rv.tibrvEvent_GetTimerInterval.restype = _c_tibrv_status
 def tibrvEvent_GetTimerInterval(event: tibrvEvent) -> (tibrv_status, float):
 
     if event is None or event == 0:
-        return TIBRV_INVALID_EVENT
+        return TIBRV_INVALID_EVENT, None
 
     try:
         ev = _c_tibrvEvent(event)
     except:
-        return TIBRV_INVALID_EVENT
+        return TIBRV_INVALID_EVENT, None
 
     n = _c_tibrv_f64(0)
 

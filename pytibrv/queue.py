@@ -188,7 +188,7 @@ _rv.tibrvQueue_GetCount.restype = _c_tibrv_status
 def tibrvQueue_GetCount(eventQueue: tibrvQueue) -> (tibrv_status, int):
 
     if eventQueue is None or eventQueue == 0:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     que = _c_tibrvQueue(eventQueue)
     cnt = _c_tibrv_u32(0)
@@ -211,7 +211,7 @@ _rv.tibrvQueue_GetPriority.restype = _c_tibrv_status
 def tibrvQueue_GetPriority(eventQueue: tibrvQueue) -> (tibrv_status, int):
 
     if eventQueue is None or eventQueue == 0:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None
 
     que = _c_tibrvQueue(eventQueue)
     n = _c_tibrv_u32(0)
@@ -265,7 +265,7 @@ _rv.tibrvQueue_GetLimitPolicy.restype = _c_tibrv_status
 def tibrvQueue_GetLimitPolicy(eventQueue: tibrvQueue) -> (tibrv_status, int, int, int):
 
     if eventQueue is None or eventQueue == 0:
-        return TIBRV_INVALID_QUEUE
+        return TIBRV_INVALID_QUEUE, None, None, None
 
     que = _c_tibrvQueue(eventQueue)
     p = _c_tibrvQueueLimitPolicy(0)

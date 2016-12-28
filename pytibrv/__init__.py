@@ -62,6 +62,9 @@ from ctypes.util import find_library as __find_library
 import sys as __sys
 from platform import architecture as __arch
 
+#if __sys.version_info[0] < 3:
+#    raise SystemError('Sorry, PYTIBRV support for Python 3.x only')
+
 # module variables
 _func = None                # ctype func cast, OS dependent
 

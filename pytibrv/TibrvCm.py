@@ -17,6 +17,8 @@
 from .status import TIBRV_OK, TIBRV_ID_IN_USE, TIBRV_INVALID_ARG, TIBRV_INVALID_CALLBACK, \
                     TIBRV_INVALID_TRANSPORT, TIBRV_INVALID_MSG
 
+from .msg import tibrvMsg_Create
+
 from .Tibrv import tibrv_status, tibrvMsg, tibrvClosure, \
                    tibrvMsg_SetSendSubject, \
                    TibrvQueue, TibrvTx, TibrvStatus, TibrvError, TibrvMsg
@@ -112,6 +114,17 @@ class TibrvCm:
 ## TibrvCmMsg
 ##-----------------------------------------------------------------------------
 class TibrvCmMsg(TibrvMsg):
+
+    @staticmethod
+    def create(initBytes: int = 0) -> 'TibrvCmMsg':
+        # FAILED ONLY IF OOM, TIBRV_NO_MEMORY
+        # return None if failed
+        status, ret = tibrvMsg_Create(initBytes)
+        if status == TIBRV_OK:
+            return TibrvCmMsg(ret)
+
+        return None
+
     def sender(self) -> str:
 
         status, ret = tibrvMsg_GetCMSender(self.id())

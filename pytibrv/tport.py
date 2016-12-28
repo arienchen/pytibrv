@@ -119,13 +119,13 @@ def tibrvTransport_SendRequest(transport: tibrvTransport, message: tibrvMsg, idl
                               -> (tibrv_status, tibrvMsg):
 
     if transport is None or transport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if idleTimeout is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     tx = _c_tibrvTransport(transport)
     msg = _c_tibrvMsg(message)
@@ -203,7 +203,7 @@ _rv.tibrvTransport_CreateInbox.restype = _c_tibrv_status
 def tibrvTransport_CreateInbox(transport: tibrvTransport) -> (tibrv_status, str):
 
     if transport is None or transport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     tx = _c_tibrvTransport(transport)
     subj = _ctypes.create_string_buffer(TIBRV_SUBJECT_MAX)
@@ -226,7 +226,7 @@ _rv.tibrvTransport_GetService.restype = _c_tibrv_status
 def tibrvTransport_GetService(transport: tibrvTransport) -> (tibrv_status, str):
 
     if transport is None or transport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     tx = _c_tibrvTransport(transport)
     sz = _ctypes.c_char_p(0)
@@ -248,7 +248,7 @@ _rv.tibrvTransport_GetNetwork.restype = _c_tibrv_status
 def tibrvTransport_GetNetwork(transport: tibrvTransport) -> (tibrv_status, str):
 
     if transport is None or transport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     tx = _c_tibrvTransport(transport)
     sz = _ctypes.c_char_p(0)
@@ -270,7 +270,7 @@ _rv.tibrvTransport_GetDaemon.restype = _c_tibrv_status
 def tibrvTransport_GetDaemon(transport: tibrvTransport) -> (tibrv_status, str):
 
     if transport is None or transport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     tx = _c_tibrvTransport(transport)
     sz = _ctypes.c_char_p(0)
@@ -316,7 +316,7 @@ _rv.tibrvTransport_GetDescription.restype = _c_tibrv_status
 def tibrvTransport_GetDescription(transport: tibrvTransport) -> (tibrv_status, str):
 
     if transport is None or transport == 0:
-        return TIBRV_INVALID_TRANSPORT
+        return TIBRV_INVALID_TRANSPORT, None
 
     tx = _c_tibrvTransport(transport)
     sz = _ctypes.c_char_p(0)

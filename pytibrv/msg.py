@@ -371,14 +371,14 @@ _rv.tibrvMsg_CreateEx.restype = _c_tibrv_status
 def tibrvMsg_Create(initialStorage: int=0) -> (tibrv_status, tibrvMsg):
 
     msg = _c_tibrvMsg(0)
+
     if initialStorage == 0:
         status = _rv.tibrvMsg_Create(_ctypes.byref(msg))
     else:
         try:
             n = _c_tibrv_u32(initialStorage)
-
         except:
-            return TIBRV_INVALID_ARG
+            return TIBRV_INVALID_ARG, None
 
         status = _rv.tibrvMsg_CreateEx(_ctypes.byref(msg), n)
 
@@ -446,12 +446,12 @@ _rv.tibrvMsg_CreateCopy.restype = _c_tibrv_status
 def tibrvMsg_CreateCopy(message: tibrvMsg) -> (tibrv_status, tibrvMsg):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     cc  = _c_tibrvMsg(0)
 
@@ -560,12 +560,12 @@ _rv.tibrvMsg_GetSendSubject.restype = _c_tibrv_status
 def tibrvMsg_GetSendSubject(message: tibrvMsg) -> (tibrv_status, str):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     sz = _c_tibrv_str(0)
     status = _rv.tibrvMsg_GetSendSubject(msg, _ctypes.byref(sz))
@@ -618,12 +618,12 @@ _rv.tibrvMsg_GetReplySubject.restype = _c_tibrv_status
 def tibrvMsg_GetReplySubject(message: tibrvMsg) -> (tibrv_status, str):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     sz = _c_tibrv_str(0)
     status = _rv.tibrvMsg_GetReplySubject(msg, _ctypes.byref(sz))
@@ -644,12 +644,12 @@ _rv.tibrvMsg_GetEvent.restype = _c_tibrv_status
 def tibrvMsg_GetEvent(message: tibrvMsg) -> (tibrv_status, tibrvEvent):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     n = _c_tibrvEvent(0)
 
@@ -671,12 +671,12 @@ _rv.tibrvMsg_GetClosure.restype = _c_tibrv_status
 def tibrvMsg_GetClosure(message: tibrvMsg) -> (tibrv_status, object):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
     cz = _ctypes.py_object
@@ -701,12 +701,12 @@ _rv.tibrvMsg_GetNumFields.restype = _c_tibrv_status
 def tibrvMsg_GetNumFields(message: tibrvMsg) -> (tibrv_status, int):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     n = _c_tibrv_u32(0)
     status = _rv.tibrvMsg_GetNumFields(msg, _ctypes.byref(n))
@@ -727,12 +727,12 @@ _rv.tibrvMsg_GetByteSize.restype = _c_tibrv_status
 def tibrvMsg_GetByteSize(message: tibrvMsg) -> (tibrv_status, int):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     n = _c_tibrv_u32(0)
     status = _rv.tibrvMsg_GetByteSize(msg, _ctypes.byref(n))
@@ -753,12 +753,12 @@ _rv.tibrvMsg_ConvertToString.restype = _c_tibrv_status
 def tibrvMsg_ConvertToString(message: tibrvMsg, codepage: str=None) -> (tibrv_status, str):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     sz = _c_tibrv_str(0)
     status = _rv.tibrvMsg_ConvertToString(msg, _ctypes.byref(sz))
@@ -914,15 +914,15 @@ def tibrvMsg_GetDateTime(message: tibrvMsg, fieldName: str,
                          optIdentifier: int = 0) -> (tibrv_status, tibrvMsgDateTime):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -931,7 +931,7 @@ def tibrvMsg_GetDateTime(message: tibrvMsg, fieldName: str,
         val = _c_tibrvMsgDateTime()
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetDateTimeEx(msg, name, _ctypes.byref(val), id)
 
@@ -1030,15 +1030,15 @@ _rv.tibrvMsg_GetBoolEx.restype = _c_tibrv_status
 def tibrvMsg_GetBool(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, bool):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -1047,7 +1047,7 @@ def tibrvMsg_GetBool(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) 
         val = _c_tibrv_bool()
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetBoolEx(msg, name, _ctypes.byref(val), id)
 
@@ -1169,15 +1169,15 @@ _rv.tibrvMsg_GetI8Ex.restype = _c_tibrv_status
 def tibrvMsg_GetI8(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -1186,7 +1186,7 @@ def tibrvMsg_GetI8(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) ->
         val = _c_tibrv_i8()
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetI8Ex(msg, name, _ctypes.byref(val), id)
 
@@ -1298,15 +1298,15 @@ _rv.tibrvMsg_GetI8ArrayEx.restype = _c_tibrv_status
 def tibrvMsg_GetI8Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -1316,7 +1316,7 @@ def tibrvMsg_GetI8Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 
         num = _c_tibrv_u32(0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetI8ArrayEx(msg, name, _ctypes.byref(val), _ctypes.byref(num), id)
 
@@ -1433,15 +1433,15 @@ _rv.tibrvMsg_GetU8Ex.restype = _c_tibrv_status
 def tibrvMsg_GetU8(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -1450,7 +1450,7 @@ def tibrvMsg_GetU8(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) ->
         val = _c_tibrv_u8()
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetU8Ex(msg, name, _ctypes.byref(val), id)
 
@@ -1562,15 +1562,15 @@ _rv.tibrvMsg_GetU8ArrayEx.restype = _c_tibrv_status
 def tibrvMsg_GetU8Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -1580,7 +1580,7 @@ def tibrvMsg_GetU8Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 
         num = _c_tibrv_u32(0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetU8ArrayEx(msg, name, _ctypes.byref(val), _ctypes.byref(num), id)
 
@@ -1696,15 +1696,15 @@ _rv.tibrvMsg_GetI16Ex.restype = _c_tibrv_status
 def tibrvMsg_GetI16(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -1713,7 +1713,7 @@ def tibrvMsg_GetI16(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
         val = _c_tibrv_i16(0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetI16Ex(msg, name, _ctypes.byref(val), id)
 
@@ -1826,15 +1826,15 @@ def tibrvMsg_GetI16Array(message: tibrvMsg, fieldName:str, optIdentifier:int = 0
 
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -1844,7 +1844,7 @@ def tibrvMsg_GetI16Array(message: tibrvMsg, fieldName:str, optIdentifier:int = 0
         num = _c_tibrv_u32(0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetI16ArrayEx(msg, name, _ctypes.byref(val), _ctypes.byref(num), id)
 
@@ -1961,15 +1961,15 @@ _rv.tibrvMsg_GetU16Ex.restype = _c_tibrv_status
 def tibrvMsg_GetU16(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (tibrv_status, int):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -1978,7 +1978,7 @@ def tibrvMsg_GetU16(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (
         val = _c_tibrv_u16(0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetU16Ex(msg, name, _ctypes.byref(val), id)
 
@@ -2090,15 +2090,15 @@ _rv.tibrvMsg_GetU16ArrayEx.restype = _c_tibrv_status
 def tibrvMsg_GetU16Array(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (tibrv_status, list):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -2108,7 +2108,7 @@ def tibrvMsg_GetU16Array(message:tibrvMsg, fieldName:str, optIdentifier:int = 0)
         num = _c_tibrv_u32(0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetU16ArrayEx(msg, name, _ctypes.byref(val), _ctypes.byref(num), id)
 
@@ -2225,15 +2225,15 @@ _rv.tibrvMsg_GetI32Ex.restype = _c_tibrv_status
 def tibrvMsg_GetI32(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (tibrv_status, int):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -2242,7 +2242,7 @@ def tibrvMsg_GetI32(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (
         val = _c_tibrv_i32(0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetI32Ex(msg, name, _ctypes.byref(val), id)
 
@@ -2355,15 +2355,15 @@ _rv.tibrvMsg_GetI32ArrayEx.restype = _c_tibrv_status
 def tibrvMsg_GetI32Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -2373,7 +2373,7 @@ def tibrvMsg_GetI32Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
         num = _c_tibrv_u32(0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetI32ArrayEx(msg, name, _ctypes.byref(val), _ctypes.byref(num), id)
 
@@ -2491,15 +2491,15 @@ _rv.tibrvMsg_GetU32Ex.restype = _c_tibrv_status
 def tibrvMsg_GetU32(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -2508,7 +2508,7 @@ def tibrvMsg_GetU32(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
         val = _c_tibrv_u32()
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetU32Ex(msg, name, _ctypes.byref(val), id)
 
@@ -2620,15 +2620,15 @@ _rv.tibrvMsg_GetU32ArrayEx.restype = _c_tibrv_status
 def tibrvMsg_GetU32Array(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (tibrv_status, list):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -2638,7 +2638,7 @@ def tibrvMsg_GetU32Array(message:tibrvMsg, fieldName:str, optIdentifier:int = 0)
         num = _c_tibrv_u32(0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetU32ArrayEx(msg, name, _ctypes.byref(val), _ctypes.byref(num), id)
 
@@ -2761,15 +2761,15 @@ _rv.tibrvMsg_GetI64Ex.restype = _c_tibrv_status
 def tibrvMsg_GetI64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -2778,7 +2778,7 @@ def tibrvMsg_GetI64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
         val = _c_tibrv_i64(0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetI64Ex(msg, name, _ctypes.byref(val), id)
 
@@ -2890,15 +2890,15 @@ _rv.tibrvMsg_GetI64ArrayEx.restype = _c_tibrv_status
 def tibrvMsg_GetI64Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -2908,7 +2908,7 @@ def tibrvMsg_GetI64Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
         num = _c_tibrv_u32(0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetI64ArrayEx(msg, name, _ctypes.byref(val), _ctypes.byref(num), id)
 
@@ -3024,15 +3024,15 @@ _rv.tibrvMsg_GetU64Ex.restype = _c_tibrv_status
 def tibrvMsg_GetU64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -3041,7 +3041,7 @@ def tibrvMsg_GetU64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
         val = _c_tibrv_u64()
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetU64Ex(msg, name, _ctypes.byref(val), id)
 
@@ -3153,15 +3153,15 @@ _rv.tibrvMsg_GetU64ArrayEx.restype = _c_tibrv_status
 def tibrvMsg_GetU64Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -3172,7 +3172,7 @@ def tibrvMsg_GetU64Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
         id = _c_tibrv_u16(optIdentifier)
 
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetU64ArrayEx(msg, name, _ctypes.byref(val), _ctypes.byref(num), id)
 
@@ -3297,17 +3297,16 @@ _rv.tibrvMsg_GetF32Ex.restype = _c_tibrv_status
 
 def tibrvMsg_GetF32(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, float):
 
-
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -3315,9 +3314,8 @@ def tibrvMsg_GetF32(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
         name = _cstr(fieldName)
         val = _c_tibrv_f32(0.0)
         id = _c_tibrv_u16(optIdentifier)
-
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetF32Ex(msg, name, _ctypes.byref(val), id)
 
@@ -3365,7 +3363,6 @@ def tibrvMsg_AddF32Array(message: tibrvMsg, fieldName: str, value: list,
         n = len(value)
         val = (_c_tibrv_f32 * n)(*value)
         num = _c_tibrv_u32(n)
-
     except:
         return TIBRV_INVALID_ARG
 
@@ -3412,7 +3409,6 @@ def tibrvMsg_UpdateF32Array(message: tibrvMsg, fieldName: str, value: list,
         n = len(value)
         val = (_c_tibrv_f32 * n)(*value)
         num = _c_tibrv_u32(n)
-
     except:
         return TIBRV_INVALID_ARG
 
@@ -3431,15 +3427,15 @@ _rv.tibrvMsg_GetF32ArrayEx.restype = _c_tibrv_status
 def tibrvMsg_GetF32Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -3450,7 +3446,7 @@ def tibrvMsg_GetF32Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
         id = _c_tibrv_u16(optIdentifier)
 
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetF32ArrayEx(msg, name, _ctypes.byref(val), _ctypes.byref(num), id)
 
@@ -3520,10 +3516,8 @@ def tibrvMsg_AddF64(message: tibrvMsg, fieldName: str, value: float,
 
     try:
         name = _cstr(fieldName)
-
         val = _c_tibrv_f64(value)
         id = _c_tibrv_u16(optIdentifier)
-
     except:
         return TIBRV_INVALID_ARG
 
@@ -3554,10 +3548,8 @@ def tibrvMsg_UpdateF64(message: tibrvMsg, fieldName: str, value: float,
 
     try:
         name = _cstr(fieldName)
-
         val = _c_tibrv_f64(value)
         id = _c_tibrv_u16(optIdentifier)
-
     except:
         return TIBRV_INVALID_ARG
 
@@ -3575,15 +3567,15 @@ _rv.tibrvMsg_GetF64Ex.restype = _c_tibrv_status
 def tibrvMsg_GetF64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, float):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -3592,7 +3584,7 @@ def tibrvMsg_GetF64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
         val = _c_tibrv_f64(0.0)
         id = _c_tibrv_u16(optIdentifier)
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetF64Ex(msg, name, _ctypes.byref(val), id)
 
@@ -3705,27 +3697,25 @@ def tibrvMsg_GetF64Array(message: tibrvMsg, fieldName: str,
                          optIdentifier: int = 0)  -> (tibrv_status, list):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
     try:
         name = _cstr(fieldName)
-
-        val = _c_tibrv_f64_p(0)
+        val = _c_tibrv_f64_p()
         num = _c_tibrv_u32(0)
         id = _c_tibrv_u16(optIdentifier)
-
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetF64ArrayEx(msg, name, _ctypes.byref(val), _ctypes.byref(num), id)
 
@@ -3852,15 +3842,15 @@ def tibrvMsg_GetString(message: tibrvMsg, fieldName: str, optIdentifier: int = 0
                        codepage: str = None) -> (tibrv_status, str):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -3868,9 +3858,8 @@ def tibrvMsg_GetString(message: tibrvMsg, fieldName: str, optIdentifier: int = 0
         name = _cstr(fieldName)
         val = _c_tibrv_str(0)
         id = _c_tibrv_u16(optIdentifier)
-
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetStringEx(msg, name, _ctypes.byref(val), id)
 
@@ -3916,13 +3905,10 @@ def tibrvMsg_AddStringArray(message: tibrvMsg, fieldName: str, value: list,
 
     try:
         n = len(value)
-
         val = (_c_tibrv_str * n)()
         for x in range(n):
             val[x] = _cstr(value[x], codepage)
-
         num = _c_tibrv_u32(n)
-
     except:
         return TIBRV_INVALID_ARG
 
@@ -3967,13 +3953,10 @@ def tibrvMsg_UpdateStringArray(message: tibrvMsg, fieldName: str, value: list,
 
     try:
         n = len(value)
-
         val = (_c_tibrv_str * n)()
         for x in range(n):
             val[x] = _cstr(value[x], codepage)
-
         num = _c_tibrv_u32(n)
-
     except:
         return TIBRV_INVALID_ARG
 
@@ -3993,26 +3976,23 @@ def tibrvMsg_GetStringArray(message: tibrvMsg, fieldName: str, optIdentifier: in
                             codepage: str = None) -> (tibrv_status, list):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
-
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
     try:
         name = _cstr(fieldName)
-
         val = _c_tibrv_str_p()
         num = _c_tibrv_u32(0)
         id = _c_tibrv_u16(optIdentifier)
-
     except:
         return TIBRV_INVALID_ARG
 
@@ -4136,15 +4116,15 @@ _rv.tibrvMsg_GetMsgEx.restype = _c_tibrv_status
 def tibrvMsg_GetMsg(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, tibrvMsg):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     try:
         msg = _c_tibrvMsg(message)
     except:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     ret = None
 
@@ -4169,8 +4149,8 @@ _rv.tibrvMsg_AddMsgArrayEx.argtypes = [_c_tibrvMsg,
                                        _c_tibrv_u16]
 _rv.tibrvMsg_AddMsgArrayEx.restype = _c_tibrv_status
 
-def tibrvMsg_AddMsgArray(message: tibrvMsg, fieldName: str, value: list, optIdentifier: int = 0) \
-                        -> tibrv_status:
+def tibrvMsg_AddMsgArray(message: tibrvMsg, fieldName: str, value: list,
+                         optIdentifier: int = 0) -> tibrv_status:
 
     if message is None or message == 0:
         return TIBRV_INVALID_MSG
@@ -4185,6 +4165,7 @@ def tibrvMsg_AddMsgArray(message: tibrvMsg, fieldName: str, value: list, optIden
 
     try:
         name = _cstr(fieldName)
+        id = _c_tibrv_u16(optIdentifier)
     except:
         return TIBRV_INVALID_ARG
 
@@ -4197,13 +4178,8 @@ def tibrvMsg_AddMsgArray(message: tibrvMsg, fieldName: str, value: list, optIden
 
     try:
         n = len(value)
-
         val = (_c_tibrvMsg * n)(*value)
-
         num = _c_tibrv_u32(n)
-
-        id = _c_tibrv_u16(optIdentifier)
-
     except:
         return TIBRV_INVALID_ARG
 
@@ -4235,6 +4211,7 @@ def tibrvMsg_UpdateMsgArray(message: tibrvMsg, fieldName: str, value: list,
 
     try:
         name = _cstr(fieldName)
+        id = _c_tibrv_u16(optIdentifier)
     except:
         return TIBRV_INVALID_ARG
 
@@ -4247,13 +4224,8 @@ def tibrvMsg_UpdateMsgArray(message: tibrvMsg, fieldName: str, value: list,
 
     try:
         n = len(value)
-
         val = (_c_tibrvMsg * n)(*value)
-
         num = _c_tibrv_u32(n)
-
-        id = _c_tibrv_u16(optIdentifier)
-
     except:
         return TIBRV_INVALID_ARG
 
@@ -4272,23 +4244,25 @@ _rv.tibrvMsg_GetMsgArrayEx.restype = _c_tibrv_status
 def tibrvMsg_GetMsgArray(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None or optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     ret = None
 
     try:
         msg = _c_tibrvMsg(message)
-        name = _cstr(fieldName)
+    except:
+        return TIBRV_INVALID_MSG, None
 
+    try:
+        name = _cstr(fieldName)
         val = _c_tibrvMsg_p()
         num = _c_tibrv_u32(0)
         id = _c_tibrv_u16(optIdentifier)
-
     except:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     status = _rv.tibrvMsg_GetMsgArrayEx(msg, name, _ctypes.byref(val), _ctypes.byref(num), id)
 
@@ -4381,13 +4355,13 @@ def tibrvMsg_GetField(message: tibrvMsg, fieldName: str, optIdentifier: int = 0)
                      -> (tibrv_status, tibrvMsgField):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldName is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     if optIdentifier is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     ret = None
     msg = _c_tibrvMsg(message)
@@ -4444,10 +4418,10 @@ _rv.tibrvMsg_GetFieldByIndex.restype = _c_tibrv_status
 def tibrvMsg_GetFieldByIndex(message: tibrvMsg, fieldIndex: int ) -> (tibrv_status, tibrvMsgField):
 
     if message is None or message == 0:
-        return TIBRV_INVALID_MSG
+        return TIBRV_INVALID_MSG, None
 
     if fieldIndex is None:
-        return TIBRV_INVALID_ARG
+        return TIBRV_INVALID_ARG, None
 
     ret = None
     msg = _c_tibrvMsg(message)
