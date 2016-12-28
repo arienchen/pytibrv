@@ -15,7 +15,9 @@ class MsgTest(unittest.TestCase):
 
     def test_new(self):
         # Default Constructor
-        msg = TibrvMsg()
+        msg = TibrvMsg.create()
+        self.assertIsNotNone(msg)
+
         sz = str(msg)
 
         self.assertEqual("{}", sz)
@@ -31,7 +33,9 @@ class MsgTest(unittest.TestCase):
         self.assertEqual(TIBRV_INVALID_MSG, status, TibrvStatus.text(status))
 
     def test_copy(self):
-        msg = TibrvMsg()
+        msg = TibrvMsg.create()
+        self.assertIsNotNone(msg)
+
         msg.setStr('A', 'TEST')
         m = msg.id()
         msg2 = msg.copy()
@@ -51,7 +55,9 @@ class MsgTest(unittest.TestCase):
 
     def test_invalid(self):
 
-        msg = TibrvMsg()
+        msg = TibrvMsg.create()
+        self.assertIsNotNone(msg)
+
         m = msg.id()
         status = msg.destroy()
         self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
@@ -59,11 +65,11 @@ class MsgTest(unittest.TestCase):
         # construct by invalid msg id, which just destroyed
         msg = TibrvMsg(m)
         msg.sendSubject = 'TEST'
-        status = msg.error.code()
+        status = msg.error().code()
         self.assertEqual(TIBRV_INVALID_MSG, status, TibrvStatus.text(status))
 
         status = msg.destroy()
-        self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
+        self.assertEqual(TIBRV_INVALID_MSG, status, TibrvStatus.text(status))
 
 
         # assign random msg id, ex: 12345
@@ -72,7 +78,9 @@ class MsgTest(unittest.TestCase):
         #
 
     def test_subject(self):
-        msg = TibrvMsg()
+        msg = TibrvMsg.create()
+        self.assertIsNotNone(msg)
+
         msg.sendSubject = 'TEST'
         self.assertEqual('TEST', msg.sendSubject)\
 
@@ -82,7 +90,8 @@ class MsgTest(unittest.TestCase):
         msg.destroy()
 
     def test_get(self):
-        msg = TibrvMsg()
+        msg = TibrvMsg.create()
+        self.assertIsNotNone(msg)
 
         msg.setI8('I8', 0xFFFF)
         self.assertEqual(-1, msg.getI8('I8'))
@@ -128,7 +137,7 @@ class MsgTest(unittest.TestCase):
         self.assertEqual('TEST', msg.getStr('STR'))
         self.assertEqual('TEST', msg.get(tibrv_str, 'STR'))
 
-        msg2 = TibrvMsg()
+        msg2 = TibrvMsg.create()
         msg2.set(tibrv_str, 'DATA', 'TEST')
         msg.setMsg('MSG', msg2)
         msgx = msg.getMsg('MSG')
@@ -137,9 +146,12 @@ class MsgTest(unittest.TestCase):
         self.assertEqual(str(msg2), str(msgx))
 
         msg.destroy()
+        msg2.destroy()
+        msgx.destroy()
+
 
     def test_datetime(self):
-        msg = TibrvMsg()
+        msg = TibrvMsg.create()
         self.assertIsNotNone(msg)
 
         status = msg.addDateTime('DT', None)
@@ -168,7 +180,7 @@ class MsgTest(unittest.TestCase):
 
     def test_array(self):
 
-        msg = TibrvMsg()
+        msg = TibrvMsg.create()
         self.assertIsNotNone(msg)
 
         # I8
@@ -321,13 +333,13 @@ class MsgTest(unittest.TestCase):
         self.assertEqual(data, ret)
 
         # msg
-        msg1 = TibrvMsg()
+        msg1 = TibrvMsg.create()
         msg1.setStr('STR', 'MSG 1')
 
-        msg2 = TibrvMsg()
+        msg2 = TibrvMsg.create()
         msg2.setStr('STR', 'MSG 2')
 
-        msg3 = TibrvMsg()
+        msg3 = TibrvMsg.create()
         msg3.setStr('STR', 'MSG 3')
 
         data = [msg1, msg2, msg3]
@@ -345,7 +357,9 @@ class MsgTest(unittest.TestCase):
             self.assertEqual(str(data[x]), str(ret[x]))
 
         msg.destroy()
-
+        msg1.destroy()
+        msg2.destroy()
+        msg3.destroy()
 
 if __name__ == "__main__":
-   unittest.main(verbosity=2)
+    unittest.main(verbosity=2)
