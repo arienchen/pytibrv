@@ -32,11 +32,15 @@
 #
 import ctypes as _ctypes
 from .types import tibrv_status
-from . import _load, _func
+
+from . import _load
+
 from .api import _cstr, _pystr, \
                  _c_tibrv_status, _c_tibrvTransport, \
                  _c_tibrv_u16, _c_tibrv_i32, _c_tibrv_u32, _c_tibrv_f64, \
                  _c_tibrv_str, tibrvTransport
+
+from .status import TIBRV_INVALID_TRANSPORT, TIBRV_INVALID_ARG
 
 from .cm import _c_tibrvcmTransport, tibrvcmTransport
 
@@ -82,21 +86,36 @@ def tibrvcmTransport_CreateDistributedQueueEx(tx: tibrvTransport, cmName: str,
                             schedulerHeartbeat: float, schedulerActivation: float) \
         -> (tibrv_status, tibrvcmTransport):
 
+    if tx is None or tx == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if cmName is None or workerWeight is None or workerTasks is None \
+       or schedulerWeight is None or schedulerHeartbeat is None \
+       or schedulerActivation is None:
+        return TIBRV_INVALID_ARG
+
     cmtx = _c_tibrvcmTransport(0)
-    tx = _c_tibrvTransport(tx)
-    name = _cstr(cmName)
-    wrk_wt = _c_tibrv_u32(workerWeight)
-    wrk_tasks = _c_tibrv_u32(workerTasks)
-    sch_wt = _c_tibrv_u16(schedulerWeight)
-    sch_hbt = _c_tibrv_f64(schedulerHeartbeat)
-    sch_act = _c_tibrv_f64(schedulerActivation)
+
+    try:
+        tx = _c_tibrvTransport(tx)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        name = _cstr(cmName)
+        wrk_wt = _c_tibrv_u32(workerWeight)
+        wrk_tasks = _c_tibrv_u32(workerTasks)
+        sch_wt = _c_tibrv_u16(schedulerWeight)
+        sch_hbt = _c_tibrv_f64(schedulerHeartbeat)
+        sch_act = _c_tibrv_f64(schedulerActivation)
+    except:
+        return TIBRV_INVALID_ARG
 
     status = _rvdq.tibrvcmTransport_CreateDistributedQueueEx(
                     _ctypes.byref(cmtx), tx, name,
                     wrk_wt, wrk_tasks, sch_wt, sch_hbt, sch_act)
 
     return status, cmtx.value
-
 
 
 def tibrvcmTransport_CreateDistributedQueue(tx: tibrvTransport, cmName: str) \
@@ -123,8 +142,21 @@ _rvdq.tibrvcmTransport_SetCompleteTime.restype = _c_tibrv_status
 
 def tibrvcmTransport_SetCompleteTime(cmTransport: tibrvcmTransport, completeTime: float) -> tibrv_status:
 
-    cmtx = _c_tibrvcmTransport(cmTransport)
-    tt = _c_tibrv_f64(completeTime)
+    if cmTransport is None or cmTransport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if completeTime is None:
+        return TIBRV_INVALID_ARG
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        tt = _c_tibrv_f64(completeTime)
+    except:
+        return TIBRV_INVALID_ARG
 
     status = _rvdq.tibrvcmTransport_SetCompleteTime(cmtx, tt)
 
@@ -143,7 +175,14 @@ _rvdq.tibrvcmTransport_GetCompleteTime.restype = _c_tibrv_status
 
 def tibrvcmTransport_GetCompleteTime(cmTransport: tibrvcmTransport) -> (tibrv_status, float):
 
-    cmtx = _c_tibrvcmTransport(cmTransport)
+    if cmTransport is None or cmTransport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
     ret = _c_tibrv_f64(0)
 
     status = _rvdq.tibrvcmTransport_GetCompleteTime(cmtx, _ctypes.byref(ret))
@@ -163,8 +202,21 @@ _rvdq.tibrvcmTransport_SetWorkerWeight.restype = _c_tibrv_status
 
 def tibrvcmTransport_SetWorkerWeight(cmTransport: tibrvcmTransport, workerWeight: int) -> tibrv_status:
 
-    cmtx = _c_tibrvcmTransport(cmTransport)
-    val = _c_tibrv_u32(workerWeight)
+    if cmTransport is None or cmTransport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if workerWeight is None:
+        return TIBRV_INVALID_ARG
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        val = _c_tibrv_u32(workerWeight)
+    except:
+        return TIBRV_INVALID_ARG
 
     status = _rvdq.tibrvcmTransport_SetWorkerWeight(cmtx, val)
 
@@ -183,7 +235,15 @@ _rvdq.tibrvcmTransport_GetWorkerWeight.restype = _c_tibrv_status
 
 def tibrvcmTransport_GetWorkerWeight(cmTransport: tibrvcmTransport) -> (tibrv_status, int):
 
-    cmtx = _c_tibrvcmTransport(cmTransport)
+    if cmTransport is None or cmTransport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
+
     ret = _c_tibrv_u32(0)
 
     status = _rvdq.tibrvcmTransport_GetWorkerWeight(cmtx, _ctypes.byref(ret))
@@ -202,8 +262,21 @@ _rvdq.tibrvcmTransport_SetWorkerTasks.restype = _c_tibrv_status
 
 def tibrvcmTransport_SetWorkerTasks(cmTransport: tibrvcmTransport, listenerTasks: int) -> tibrv_status:
 
-    cmtx = _c_tibrvcmTransport(cmTransport)
-    val = _c_tibrv_u32(listenerTasks)
+    if cmTransport is None or cmTransport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if listenerTasks is None:
+        return TIBRV_INVALID_ARG
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        val = _c_tibrv_u32(listenerTasks)
+    except:
+        return TIBRV_INVALID_ARG
 
     status = _rvdq.tibrvcmTransport_SetWorkerTasks(cmtx, val)
 
@@ -222,7 +295,14 @@ _rvdq.tibrvcmTransport_GetWorkerTasks.restype = _c_tibrv_status
 
 def tibrvcmTransport_GetWorkerTasks(cmTransport: tibrvcmTransport) -> (tibrv_status, int):
 
-    cmtx = _c_tibrvcmTransport(cmTransport)
+    if cmTransport is None or cmTransport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
     ret = _c_tibrv_u32(0)
 
     status = _rvdq.tibrvcmTransport_GetWorkerTasks(cmtx, _ctypes.byref(ret))
@@ -244,9 +324,22 @@ _rvdq.tibrvcmTransport_SetTaskBacklogLimit.restype = _c_tibrv_status
 def tibrvcmTransport_SetTaskBacklogLimit(cmTransport: tibrvcmTransport, limitType: int,
                                          limitValue: int) -> tibrv_status:
 
-    cmtx = _c_tibrvcmTransport(cmTransport)
-    ty = _c_tibrv_u32(limitType)
-    val = _c_tibrv_u32(limitValue)
+    if cmTransport is None or cmTransport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if limitValue is None:
+        return TIBRV_INVALID_ARG
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        ty = _c_tibrv_u32(limitType)
+        val = _c_tibrv_u32(limitValue)
+    except:
+        return TIBRV_INVALID_ARG
 
     status = _rvdq.tibrvcmTransport_SetTaskBacklogLimit(cmtx, ty, val)
 
@@ -278,8 +371,22 @@ _rvdq.tibrvcmTransport_SetPublisherInactivityDiscardInterval.restype = _c_tibrv_
 
 def tibrvcmTransport_SetPublisherInactivityDiscardInterval(cmTransport: tibrvcmTransport,
                                                            timeout: int) -> tibrv_status:
-    cmtx = _c_tibrvcmTransport(cmTransport)
-    val = _c_tibrv_i32(timeout)
+
+    if cmTransport is None or cmTransport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if timeout is None:
+        return TIBRV_INVALID_ARG
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        val = _c_tibrv_i32(timeout)
+    except:
+        return TIBRV_INVALID_ARG
 
     status = _rvdq.tibrvcmTransport_SetPublisherInactivityDiscardInterval(cmtx, val)
 
@@ -297,7 +404,14 @@ _rvdq.tibrvcmTransport_GetUnassignedMessageCount.restype = _c_tibrv_status
 
 def tibrvcmTransport_GetUnassignedMessageCount(cmTransport: tibrvcmTransport) -> (tibrv_status, int):
 
-    cmtx = _c_tibrvcmTransport(cmTransport)
+    if cmTransport is None or cmTransport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
     ret = _c_tibrv_u32(0)
 
     status = _rvdq.tibrvcmTransport_GetUnassignedMessageCount(cmtx, _ctypes.byref(ret))
