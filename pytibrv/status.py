@@ -120,6 +120,10 @@ _rv.tibrvStatus_GetText.restype = _ctypes.c_char_p
 
 
 def tibrvStatus_GetText(code: tibrv_status) -> str:
+
+    if code is None:
+        return None
+
     c = _c_tibrv_status(code)
     sz = _rv.tibrvStatus_GetText(c)
     return _pystr(sz)
