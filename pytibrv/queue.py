@@ -42,11 +42,25 @@ from .types import tibrv_status, tibrvQueue, tibrvQueueGroup, tibrvQueueLimitPol
                    TIBRV_WAIT_FOREVER, TIBRV_NO_WAIT, \
                    TIBRV_DEFAULT_QUEUE
 
-from .status import TIBRV_INVALID_QUEUE
+from .status import TIBRV_OK, TIBRV_INVALID_QUEUE, TIBRV_INVALID_ARG, TIBRV_INVALID_CALLBACK
 
 from .api import _rv, _cstr, _pystr, \
                  _c_tibrvQueue, _c_tibrvQueueLimitPolicy, \
+                 _c_tibrvQueueOnComplete, _c_tibrvQueueHook, \
                  _c_tibrv_status, _c_tibrv_u32, _c_tibrv_f64
+
+
+# keep callback/closure object from GC
+# key = tibrvEvent
+__callback = {}
+__closure  = {}
+
+def __reg(key, func, closure):
+    __callback[key] = func
+    if closure is not None:
+        __closure[key] = closure
+
+    return
 
 
 ## tibrv/queue.h
@@ -56,7 +70,6 @@ from .api import _rv, _cstr, _pystr, \
 #
 _rv.tibrvQueue_Create.argtypes = [_ctypes.POINTER(_c_tibrvQueue)]
 _rv.tibrvQueue_Create.restype = _c_tibrv_status
-
 
 def tibrvQueue_Create() -> (tibrv_status, tibrvQueue):
 
@@ -76,7 +89,13 @@ def tibrvQueue_Create() -> (tibrv_status, tibrvQueue):
 _rv.tibrvQueue_TimedDispatch.argtypes = [_c_tibrvQueue, _c_tibrv_f64]
 _rv.tibrvQueue_TimedDispatch.restype = _c_tibrv_status
 
-def tibrvQueue_TimedDispatch(eventQueue:tibrvQueue, timeout: float) -> tibrv_status :
+def tibrvQueue_TimedDispatch(eventQueue: tibrvQueue, timeout: float) -> tibrv_status:
+
+    if eventQueue is None or eventQueue == 0:
+        return TIBRV_INVALID_QUEUE
+
+    if timeout is None:
+        return TIBRV_INVALID_ARG
 
     que = _c_tibrvQueue(eventQueue)
     t = _c_tibrv_f64(timeout)
@@ -85,10 +104,10 @@ def tibrvQueue_TimedDispatch(eventQueue:tibrvQueue, timeout: float) -> tibrv_sta
 
     return status
 
-def tibrvQueue_Dispatch(eventQueue:tibrvQueue) -> tibrv_status :
+def tibrvQueue_Dispatch(eventQueue: tibrvQueue) -> tibrv_status:
     return tibrvQueue_TimedDispatch(eventQueue, TIBRV_WAIT_FOREVER)
 
-def tibrvQueue_Poll(eventQueue:tibrvQueue) -> tibrv_status :
+def tibrvQueue_Poll(eventQueue: tibrvQueue) -> tibrv_status:
     return tibrvQueue_TimedDispatch(eventQueue, TIBRV_NO_WAIT)
 
 
@@ -104,6 +123,12 @@ _rv.tibrvQueue_TimedDispatchOneEvent.restype = _c_tibrv_status
 
 
 def tibrvQueue_TimedDispatchOneEvent(eventQueue: tibrvQueue, waitTime: float) -> tibrv_status:
+
+    if eventQueue is None or eventQueue == 0:
+        return TIBRV_INVALID_QUEUE
+
+    if waitTime is None:
+        return TIBRV_INVALID_ARG
 
     que = _c_tibrvQueue(eventQueue)
     t = _c_tibrv_f64(waitTime)
@@ -124,10 +149,29 @@ def tibrvQueue_TimedDispatchOneEvent(eventQueue: tibrvQueue, waitTime: float) ->
 _rv.tibrvQueue_DestroyEx.argtypes = [_c_tibrvQueue, _ctypes.c_void_p, _ctypes.c_void_p]
 _rv.tibrvQueue_DestroyEx.restype = _c_tibrv_status
 
-def tibrvQueue_Destroy(eventQueue:tibrvQueue) -> tibrv_status :
+def tibrvQueue_Destroy(eventQueue: tibrvQueue, callback = None, closure = None) -> tibrv_status:
+
+    if eventQueue is None or eventQueue == 0:
+        return TIBRV_INVALID_QUEUE
+
     que = _c_tibrvQueue(eventQueue)
 
-    status = _rv.tibrvQueue_DestroyEx(que, None, None)
+    if callback is None:
+        cb = None
+        cz = None
+    else:
+        try:
+            cb = _c_tibrvQueueOnComplete(callback)
+        except:
+            return TIBRV_INVALID_CALLBACK
+
+        cz = _ctypes.py_object(closure)
+
+    status = _rv.tibrvQueue_DestroyEx(que, cb, cz)
+
+    # THIS MAY CAUSE MEMORY LEAK
+    if status == TIBRV_OK and callback is not None:
+        __reg(eventQueue, cb, closure)
 
     return status
 
@@ -141,8 +185,10 @@ def tibrvQueue_Destroy(eventQueue:tibrvQueue) -> tibrv_status :
 _rv.tibrvQueue_GetCount.argtypes = [_c_tibrvQueue, _ctypes.POINTER(_c_tibrv_u32)]
 _rv.tibrvQueue_GetCount.restype = _c_tibrv_status
 
+def tibrvQueue_GetCount(eventQueue: tibrvQueue) -> (tibrv_status, int):
 
-def tibrvQueue_GetCount(eventQueue:tibrvQueue) -> (tibrv_status, int):
+    if eventQueue is None or eventQueue == 0:
+        return TIBRV_INVALID_QUEUE
 
     que = _c_tibrvQueue(eventQueue)
     cnt = _c_tibrv_u32(0)
@@ -162,7 +208,10 @@ def tibrvQueue_GetCount(eventQueue:tibrvQueue) -> (tibrv_status, int):
 _rv.tibrvQueue_GetPriority.argtypes = [_c_tibrvQueue, _ctypes.POINTER(_c_tibrv_u32)]
 _rv.tibrvQueue_GetPriority.restype = _c_tibrv_status
 
-def tibrvQueue_GetPriority(eventQueue:tibrvQueue) -> (tibrv_status, int):
+def tibrvQueue_GetPriority(eventQueue: tibrvQueue) -> (tibrv_status, int):
+
+    if eventQueue is None or eventQueue == 0:
+        return TIBRV_INVALID_QUEUE
 
     que = _c_tibrvQueue(eventQueue)
     n = _c_tibrv_u32(0)
@@ -182,10 +231,16 @@ def tibrvQueue_GetPriority(eventQueue:tibrvQueue) -> (tibrv_status, int):
 _rv.tibrvQueue_SetPriority.argtypes = [_c_tibrvQueue, _c_tibrv_u32]
 _rv.tibrvQueue_SetPriority.restype = _c_tibrv_status
 
-def tibrvQueue_SetPriority(eventQueue:tibrvQueue, priority: int) -> tibrv_status:
+def tibrvQueue_SetPriority(eventQueue: tibrvQueue, priority: int) -> tibrv_status:
+
+    if eventQueue is None or eventQueue == 0:
+        return TIBRV_INVALID_QUEUE
+
+    if priority is None:
+        return TIBRV_INVALID_ARG
 
     que = _c_tibrvQueue(eventQueue)
-    p = _c_tibrv_u32(int(priority))
+    p = _c_tibrv_u32(priority)
 
     status = _rv.tibrvQueue_SetPriority(que, p)
 
@@ -207,7 +262,10 @@ _rv.tibrvQueue_GetLimitPolicy.argtypes = [_c_tibrvQueue,
                                           _ctypes.POINTER(_c_tibrv_u32)]
 _rv.tibrvQueue_GetLimitPolicy.restype = _c_tibrv_status
 
-def tibrvQueue_GetLimitPolicy(eventQueue:tibrvQueue) -> (tibrv_status, int, int, int):
+def tibrvQueue_GetLimitPolicy(eventQueue: tibrvQueue) -> (tibrv_status, int, int, int):
+
+    if eventQueue is None or eventQueue == 0:
+        return TIBRV_INVALID_QUEUE
 
     que = _c_tibrvQueue(eventQueue)
     p = _c_tibrvQueueLimitPolicy(0)
@@ -234,11 +292,17 @@ _rv.tibrvQueue_SetLimitPolicy.argtypes = [_c_tibrvQueue,
                                           _c_tibrv_u32]
 _rv.tibrvQueue_SetLimitPolicy.restype = _c_tibrv_status
 
-def tibrvQueue_SetLimitPolicy(eventQueue:tibrvQueue, policy:int, maxEvents:int, discardAmount: int) \
-                             -> tibrv_status:
+def tibrvQueue_SetLimitPolicy(eventQueue: tibrvQueue, policy: int, maxEvents: int,
+                              discardAmount: int) -> tibrv_status:
+
+    if eventQueue is None or eventQueue == 0:
+        return TIBRV_INVALID_QUEUE
 
     if eventQueue == TIBRV_DEFAULT_QUEUE:
         return TIBRV_INVALID_QUEUE
+
+    if policy is None or maxEvents is None or discardAmount is None:
+        return TIBRV_INVALID_ARG
 
     que = _c_tibrvQueue(eventQueue)
     p = _c_tibrvQueueLimitPolicy(int(policy))
@@ -260,10 +324,16 @@ def tibrvQueue_SetLimitPolicy(eventQueue:tibrvQueue, policy:int, maxEvents:int, 
 _rv.tibrvQueue_SetName.argtypes = [_c_tibrvQueue, _ctypes.c_char_p]
 _rv.tibrvQueue_SetName.restype = _c_tibrv_status
 
-def tibrvQueue_SetName(eventQueue:tibrvQueue, queueName:str) -> tibrv_status:
+def tibrvQueue_SetName(eventQueue: tibrvQueue, queueName: str) -> tibrv_status:
+
+    if eventQueue is None or eventQueue == 0:
+        return TIBRV_INVALID_QUEUE
 
     if eventQueue == TIBRV_DEFAULT_QUEUE:
         return TIBRV_INVALID_QUEUE
+
+    if queueName is None:
+        return TIBRV_INVALID_ARG
 
     que = _c_tibrvQueue(eventQueue)
     sz = _cstr(queueName)
@@ -282,7 +352,10 @@ def tibrvQueue_SetName(eventQueue:tibrvQueue, queueName:str) -> tibrv_status:
 _rv.tibrvQueue_GetName.argtypes = [_c_tibrvQueue, _ctypes.POINTER(_ctypes.c_char_p)]
 _rv.tibrvQueue_GetName.restype = _c_tibrv_status
 
-def tibrvQueue_GetName(eventQueue:tibrvQueue) -> (tibrv_status, str):
+def tibrvQueue_GetName(eventQueue: tibrvQueue) -> (tibrv_status, str):
+
+    if eventQueue is None or eventQueue == 0:
+        return TIBRV_INVALID_QUEUE
 
     que = _c_tibrvQueue(eventQueue)
     sz = _ctypes.c_char_p()
