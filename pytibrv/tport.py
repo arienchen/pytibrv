@@ -6,11 +6,11 @@
 # LAST MODIFIED : V1.0 20161211 ARIEN arien.chen@gmail.com 
 #
 # DESCRIPTIONS
-##-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #
 #
 # FEATURES: * = un-implement
-##-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #   tibrvTransport_Create
 #   tibrvTransport_CreateInbox
 #   tibrvTransport_Destroy
@@ -36,7 +36,7 @@
 #
 #
 # CHANGED LOGS
-##-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # 20161211 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
@@ -50,6 +50,7 @@ from .api import _rv, _cstr, _pystr, \
                  _c_tibrvTransport, _c_tibrvMsg, \
                  _c_tibrv_status, _c_tibrv_u32, _c_tibrv_f64
 
+from .status import TIBRV_INVALID_MSG, TIBRV_INVALID_ARG, TIBRV_INVALID_TRANSPORT
 
 # tibrv/tport.h
 # tibrv_status tibrvTransport_Create(
@@ -83,8 +84,13 @@ def tibrvTransport_Create(service: str, network: str, daemon: str) -> (tibrv_sta
 _rv.tibrvTransport_Send.argtypes = [_c_tibrvTransport, _c_tibrvMsg]
 _rv.tibrvTransport_Send.restype = _c_tibrv_status
 
-
 def tibrvTransport_Send(transport: tibrvTransport, message: tibrvMsg) -> tibrv_status:
+
+    if transport is None or transport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if message is None or message == 0:
+        return TIBRV_INVALID_MSG
 
     tx = _c_tibrvTransport(transport)
     msg = _c_tibrvMsg(message)
@@ -112,6 +118,15 @@ _rv.tibrvTransport_SendRequest.restype = _c_tibrv_status
 def tibrvTransport_SendRequest(transport: tibrvTransport, message: tibrvMsg, idleTimeout: float) \
                               -> (tibrv_status, tibrvMsg):
 
+    if transport is None or transport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if message is None or message == 0:
+        return TIBRV_INVALID_MSG
+
+    if idleTimeout is None:
+        return TIBRV_INVALID_ARG
+
     tx = _c_tibrvTransport(transport)
     msg = _c_tibrvMsg(message)
     r = _c_tibrvMsg(0)
@@ -136,6 +151,15 @@ _rv.tibrvTransport_SendReply.restype = _c_tibrv_status
 def tibrvTransport_SendReply(transport: tibrvTransport, message: tibrvMsg, requestMessage: tibrvMsg) \
                             -> tibrv_status:
 
+    if transport is None or transport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if message is None or message == 0:
+        return TIBRV_INVALID_MSG
+
+    if requestMessage is None or requestMessage == 0:
+        return TIBRV_INVALID_MSG
+
     tx = _c_tibrvTransport(transport)
     msg = _c_tibrvMsg(message)
     req = _c_tibrvMsg(requestMessage)
@@ -154,8 +178,10 @@ def tibrvTransport_SendReply(transport: tibrvTransport, message: tibrvMsg, reque
 _rv.tibrvTransport_Destroy.argtypes = [_c_tibrvTransport]
 _rv.tibrvTransport_Destroy.restype = _c_tibrv_status
 
-
 def tibrvTransport_Destroy(transport: tibrvTransport) -> tibrv_status:
+
+    if transport is None or transport == 0:
+        return TIBRV_INVALID_TRANSPORT
 
     tx = _c_tibrvTransport(transport)
 
@@ -175,6 +201,9 @@ _rv.tibrvTransport_CreateInbox.argtypes = [_c_tibrvTransport, _ctypes.c_char_p, 
 _rv.tibrvTransport_CreateInbox.restype = _c_tibrv_status
 
 def tibrvTransport_CreateInbox(transport: tibrvTransport) -> (tibrv_status, str):
+
+    if transport is None or transport == 0:
+        return TIBRV_INVALID_TRANSPORT
 
     tx = _c_tibrvTransport(transport)
     subj = _ctypes.create_string_buffer(TIBRV_SUBJECT_MAX)
@@ -196,6 +225,9 @@ _rv.tibrvTransport_GetService.restype = _c_tibrv_status
 
 def tibrvTransport_GetService(transport: tibrvTransport) -> (tibrv_status, str):
 
+    if transport is None or transport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
     tx = _c_tibrvTransport(transport)
     sz = _ctypes.c_char_p(0)
     status = _rv.tibrvTransport_GetService(tx, _ctypes.byref(sz))
@@ -214,6 +246,9 @@ _rv.tibrvTransport_GetNetwork.argtypes = [_c_tibrvTransport, _ctypes.POINTER(_ct
 _rv.tibrvTransport_GetNetwork.restype = _c_tibrv_status
 
 def tibrvTransport_GetNetwork(transport: tibrvTransport) -> (tibrv_status, str):
+
+    if transport is None or transport == 0:
+        return TIBRV_INVALID_TRANSPORT
 
     tx = _c_tibrvTransport(transport)
     sz = _ctypes.c_char_p(0)
@@ -234,6 +269,9 @@ _rv.tibrvTransport_GetDaemon.restype = _c_tibrv_status
 
 def tibrvTransport_GetDaemon(transport: tibrvTransport) -> (tibrv_status, str):
 
+    if transport is None or transport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
     tx = _c_tibrvTransport(transport)
     sz = _ctypes.c_char_p(0)
     status = _rv.tibrvTransport_GetDaemon(tx, _ctypes.byref(sz))
@@ -251,6 +289,12 @@ _rv.tibrvTransport_SetDescription.argtypes = [_c_tibrvTransport, _ctypes.c_char_
 _rv.tibrvTransport_SetDescription.restype = _c_tibrv_status
 
 def tibrvTransport_SetDescription(transport: tibrvTransport, description: str) -> tibrv_status:
+
+    if transport is None or transport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if description is None:
+        return TIBRV_INVALID_ARG
 
     tx = _c_tibrvTransport(transport)
     sz = _cstr(description)
@@ -271,6 +315,9 @@ _rv.tibrvTransport_GetDescription.restype = _c_tibrv_status
 
 def tibrvTransport_GetDescription(transport: tibrvTransport) -> (tibrv_status, str):
 
+    if transport is None or transport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
     tx = _c_tibrvTransport(transport)
     sz = _ctypes.c_char_p(0)
     status = _rv.tibrvTransport_GetDescription(tx, _ctypes.byref(sz))
@@ -287,7 +334,13 @@ def tibrvTransport_GetDescription(transport: tibrvTransport) -> (tibrv_status, s
 _rv.tibrvTransport_RequestReliability.argtypes = [_c_tibrvTransport, _c_tibrv_f64]
 _rv.tibrvTransport_RequestReliability.restype = _c_tibrv_status
 
-def tibrvTransport_RequestReliability(transport:tibrvTransport, reliability: float) -> tibrv_status:
+def tibrvTransport_RequestReliability(transport: tibrvTransport, reliability: float) -> tibrv_status:
+
+    if transport is None or transport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if reliability is None:
+        return TIBRV_INVALID_ARG
 
     tx = _c_tibrvTransport(transport)
     n = _c_tibrv_f64(reliability)
