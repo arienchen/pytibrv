@@ -205,8 +205,12 @@ _c_tibrvEventOnComplete = _func(None, _c_tibrvEvent, _ctypes.c_void_p)
 #
 _c_tibrvQueueOnComplete = _func(None, _c_tibrvQueue, _ctypes.c_void_p)
 
+##
+# typedef void (*tibrvQueueHook) (
+#                   tibrvQueue          eventQueue,
+#                   void*               closure
+#                   );
 _c_tibrvQueueHook = _func(None, _c_tibrvQueue, _ctypes.c_void_p)
-
 
 # Helper Functions
 def _cstr(sz: str, codepage = None) -> str:
