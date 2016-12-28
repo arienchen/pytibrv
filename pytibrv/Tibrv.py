@@ -2,7 +2,7 @@
 # pytibrv/Tibrv.py
 #   TIBRV Library for PYTHON
 #
-# LAST MODIFIED : V1.0 20161224 ARIEN arien.chen@gmail.com
+# LAST MODIFIED : V1.1 20161227 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # -----------------------------------------------------------------------------
@@ -45,7 +45,11 @@
 #
 # CHANGED LOGS
 # -----------------------------------------------------------------------------
-# 20161224 ARIEN V1.0
+# 20161227 V1.1 ARIEN arien.chen@gmail.com
+#   change readonly property to normal function
+#   add TibrvMsg.create() as static method
+#
+# 20161224 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
 import inspect as _inspect
@@ -124,8 +128,6 @@ from .api import tibrv_Open, tibrv_Close, tibrv_Version
 
 class Tibrv:
 
-    _exception = False
-
     @staticmethod
     def open() -> tibrv_status :
         status = tibrv_Open()
@@ -198,7 +200,6 @@ class TibrvStatus:
         return ex
 
 
-
 ##-----------------------------------------------------------------------------
 #  TibrvMsg
 ##-----------------------------------------------------------------------------
@@ -244,26 +245,30 @@ class TibrvMsg:
 
     def __init__(self, msg: tibrvMsg = 0):
         self._err = None
+        self._msg = 0
 
         # For exist msg
-        if msg != 0:
+        if msg is not None and msg != 0:
             self._copied = True
-            self._msg = msg
-            return
+            self._msg = tibrvMsg(msg)
 
-        # Create a new instance
-        self._copied = False
+        return
 
-        status, ret = tibrvMsg_Create()
+    @staticmethod
+    def create(initBytes: int = 0):
+
+        status, ret = tibrvMsg_Create(initBytes)
         if status == TIBRV_OK:
-            self._msg = ret
-            return
+            return TibrvMsg(ret), None
 
-        raise TibrvError(status)
+        return None, TibrvError(status)
 
     def destroy(self) -> tibrv_status:
+
         if self.id() == 0 or self._copied:
-            return TIBRV_OK
+            status = TIBRV_INVALID_MSG
+            self._err = TibrvStatus.error(status)
+            return status
 
         status = tibrvMsg_Destroy(self.id())
         self._msg = 0
@@ -275,7 +280,6 @@ class TibrvMsg:
         if self.id() == 0:
             return None
 
-        sz = None
         status, sz = tibrvMsg_ConvertToString(self.id(), codepage)
         self._err = TibrvStatus.error(status)
 
@@ -283,11 +287,8 @@ class TibrvMsg:
 
 
     def detach(self) -> tibrv_status:
-        if self.id() == 0:
-            status = TIBRV_INVALID_MSG
-        else:
-            status = tibrvMsg_Detach(self.id())
 
+        status = tibrvMsg_Detach(self.id())
         self._err = TibrvStatus.error(status)
 
         if status == TIBRV_OK:
@@ -297,126 +298,87 @@ class TibrvMsg:
         return status
 
     def expend(self, bytes: int ) -> tibrv_status:
-        if self.id() == 0 or self._copied:
-            status = TIBRV_INVALID_MSG
-        else:
-            status = tibrvMsg_Expand(self.id(), bytes)
 
+        status = tibrvMsg_Expand(self.id(), bytes)
         self._err = TibrvStatus.error(status)
 
         return status
 
     def bytes(self) -> int:
-        ret = None
-        if self.id() == 0 :
-            status = TIBRV_INVALID_MSG
-        else:
-            status, ret = tibrvMsg_GetByteSize(self.id())
 
+        status, ret = tibrvMsg_GetByteSize(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
     def copy(self):
-        ret = None
-        if self.id() == 0:
-            status = TIBRV_INVALID_MSG
-        else:
-            status, m = tibrvMsg_CreateCopy(self.id())
 
-            if status == TIBRV_OK:
-                #msg = type(self.__class__)(n[0])
-                ret = TibrvMsg(m)
-                ret._copied = False
+        status, m = tibrvMsg_CreateCopy(self.id())
+
+        if status == TIBRV_OK:
+            ret = TibrvMsg(m)
+            ret._copied = False
 
         self._err = TibrvStatus.error(status)
 
         return ret
 
     def count(self) -> int:
-        ret = None
-        if self.id() == 0:
-            status = TIBRV_INVALID_MSG
-        else:
-            status, ret = tibrvMsg_GetNumFields(self.id())
 
+        status, ret = tibrvMsg_GetNumFields(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
     def reset(self):
-        if self.id() == 0:
-            status = TIBRV_INVALID_MSG
-        else:
-            status = tibrvMsg_Reset(self.id())
 
+        status = tibrvMsg_Reset(self.id())
         self._err = TibrvStatus.error(status)
 
         return
 
     @property
     def sendSubject(self):
-        ret = None
-        if self.id() == 0:
-            status = TIBRV_INVALID_MSG
-        else:
-            status, ret = tibrvMsg_GetSendSubject(self.id())
 
+        status, ret = tibrvMsg_GetSendSubject(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
     @sendSubject.setter
     def sendSubject(self, subj: str):
-        if self.id() == 0:
-            status = TIBRV_INVALID_MSG
-        else:
-            status = tibrvMsg_SetSendSubject(self.id(), subj)
 
+        status = tibrvMsg_SetSendSubject(self.id(), subj)
         self._err = TibrvStatus.error(status)
 
     @property
     def replySubject(self):
-        ret = None
-        if self.id() == 0:
-            status = TIBRV_INVALID_MSG
-        else:
-            status, ret = tibrvMsg_GetReplySubject(self.id())
 
+        status, ret = tibrvMsg_GetReplySubject(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
     @replySubject.setter
     def replySubject(self, subj: str):
-        if self.id() == 0:
-            status = TIBRV_INVALID_MSG
-        else:
-            status = tibrvMsg_SetReplySubject(self.id(), subj)
+
+        status = tibrvMsg_SetReplySubject(self.id(), subj)
 
         self._err = TibrvStatus.error(status)
 
     @staticmethod
     def now() -> TibrvMsgDateTime:
-        ret = None
-        status, ret = tibrvMsg_GetCurrentTime()
 
-        if status != TIBRV_OK:
-            ret = None
-            if TibrvStatus.exception():
-                raise TibrvError(status)
+        status, ret = tibrvMsg_GetCurrentTime()
+        TibrvStatus.error(status)
 
         return ret
 
     @staticmethod
     def nowString() -> (str, str):
-        lct = None
-        gmt = None
 
         status, lct, gmt = tibrvMsg_GetCurrentTimeString()
-        if status != TIBRV_OK:
-            if TibrvStatus.exception():
-                raise TibrvError(status)
+        TibrvStatus.error(status)
 
         return lct, gmt
 
@@ -1093,9 +1055,7 @@ class TibrvMsg:
     def add(self,  data_type, name:str, id: int = 0, **kwargs):
 
         if not _inspect.isclass(data_type):
-            self._err = TibrvError(TIBRV_INVALID_ARG, data_type.__name__ + ' is not a class')
-            if TibrvStatus.exception():
-                raise self._err
+            self._err = TibrvStatus.error(TIBRV_INVALID_ARG, data_type.__name__ + ' is not a class')
             return None
 
         if data_type is tibrv_i8:
@@ -1143,9 +1103,7 @@ class TibrvMsg:
         if data_type is TibrvMsgField or TibrvMsgField in data_type.__bases__:
             return self.addField(name, id, **kwargs)
 
-        self._err = TibrvError(TIBRV_INVALID_ARG, data_type.__name__ + ' is not supported')
-        if TibrvStatus.exception():
-            raise self._err
+        self._err = TibrvStatus.error(TIBRV_INVALID_ARG, data_type.__name__ + ' is not supported')
 
         return None
 
@@ -1153,9 +1111,7 @@ class TibrvMsg:
     def set(self,  data_type, name:str, id: int = 0, **kwargs):
 
         if not _inspect.isclass(data_type):
-            self._err = TibrvError(TIBRV_INVALID_ARG, data_type.__name__ + ' is not a class')
-            if TibrvStatus.exception():
-                raise self._err
+            self._err = TibrvStatus.error(TIBRV_INVALID_ARG, data_type.__name__ + ' is not a class')
             return None
 
         if data_type is tibrv_i8:
@@ -1203,18 +1159,14 @@ class TibrvMsg:
         if data_type is TibrvMsgField or TibrvMsgField in data_type.__bases__:
             return self.setField(name, id, **kwargs)
 
-        self._err = TibrvError(TIBRV_INVALID_ARG, data_type.__name__ + ' is not supported')
-        if TibrvStatus.exception():
-            raise self._err
+        self._err = TibrvStatus.error(TIBRV_INVALID_ARG, data_type.__name__ + ' is not supported')
 
         return None
 
     def get(self,  data_type, name:str, id: int = 0, **kwargs):
 
         if not _inspect.isclass(data_type):
-            self._err = TibrvError(TIBRV_INVALID_ARG, data_type.__name__ + ' is not a class')
-            if TibrvStatus.exception():
-                raise self._err
+            self._err = TibrvStatus.error(TIBRV_INVALID_ARG, data_type.__name__ + ' is not a class')
             return None
 
         if data_type is tibrv_i8:
@@ -1262,9 +1214,7 @@ class TibrvMsg:
         if data_type is TibrvMsgField or TibrvMsgField in data_type.__bases__:
             return self.getField(name, id, **kwargs)
 
-        self._err = TibrvError(TIBRV_INVALID_ARG, data_type.__name__ + ' is not supported')
-        if TibrvStatus.exception():
-            raise self._err
+        self._err = TibrvStatus.error(TIBRV_INVALID_ARG, data_type.__name__ + ' is not supported')
 
         return None
 
@@ -1317,9 +1267,7 @@ class TibrvMsg:
         # TibrvMsgDateTime, TibrvMsgField
         # array not supported in TIBRV/C
 
-        self._err = TibrvError(TIBRV_INVALID_ARG, data_type.__name__ + ' is not supported')
-        if TibrvStatus.exception():
-            raise self._err
+        self._err = TibrvStatus.error(TIBRV_INVALID_ARG, data_type.__name__ + ' is not supported')
 
         return None
 
@@ -1332,7 +1280,6 @@ class TibrvMsg:
                 self._err = TibrvStatus.error(status)
                 return None
 
-            ret = None
             status, ret = tibrvMsg_GetFieldByIndex(self.id(), item)
 
             self._err = TibrvStatus.error(status)
@@ -1390,7 +1337,6 @@ class TibrvMsg:
         self._err = TibrvStatus.error(status)
         return
 
-    @property
     def error(self) -> TibrvError:
         return self._err
 
@@ -1415,21 +1361,26 @@ class TibrvQueue:
     DISCARD_NEW     = TIBRVQUEUE_DISCARD_NEW
 
     def __init__(self, que: tibrvQueue = TIBRV_DEFAULT_QUEUE):
-        self._que = tibrvQueue(que)
+        self._que = 0
         self._err = None
         self._policy = 0
         self._maxEvents = 0
         self._discard = 0
 
+        if que is not None:
+            self._que = tibrvQueue(que)
+
     def id(self):
         return self._que
 
     def create(self, name: str = None) -> tibrv_status:
-        if self._que != 0 and self._que != TIBRV_DEFAULT_QUEUE:
-            self.destroy()
 
-        status, que = tibrvQueue_Create();
-        self._err = TibrvStatus.error(status)
+        if self._que != 0 and self._que != TIBRV_DEFAULT_QUEUE:
+            status = TIBRV_ID_IN_USE
+            self._err = TibrvStatus.error(status)
+            return status
+
+        status, que = tibrvQueue_Create()
         if status == TIBRV_OK:
             self._que = que
 
@@ -1439,54 +1390,60 @@ class TibrvQueue:
                 self._maxEvents = m
                 self._discard = d
 
-            if name is not None :
+            if name is not None:
                 tibrvQueue_SetName(que, name)
 
-        return status;
+        self._err = TibrvStatus.error(status)
+
+        return status
 
     def destroy(self) -> tibrv_status:
+
         if self._que == 0 or self._que == TIBRV_DEFAULT_QUEUE:
             status = TIBRV_INVALID_QUEUE
             self._err = TibrvStatus.error(status)
             return status
 
         status = tibrvQueue_Destroy(self._que)
-        self._err = TibrvStatus.error(status)
-
         self._que = 0
+        self._err = TibrvStatus.error(status)
 
         return status
 
 
     @property
     def name(self) -> str:
-        ret = None
-        status, ret = tibrvQueue_GetName(self._que)
+
+        status, ret = tibrvQueue_GetName(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
     @name.setter
-    def name(self, sz : str) -> None:
-        status = tibrvQueue_SetName(self._que, sz)
+    def name(self, sz: str) -> None:
+        status = tibrvQueue_SetName(self.id(), sz)
         self._err = TibrvStatus.error(status)
 
     def dispatch(self) -> int:
-        status = tibrvQueue_Dispatch(self._que)
+
+        status = tibrvQueue_Dispatch(self.id())
         self._err = TibrvStatus.error(status)
+
         return status
 
     @property
     def count(self) -> int:
-        ret = None
-        status, ret = tibrvQueue_GetCount(self._que)
+
+        status, ret = tibrvQueue_GetCount(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
-    def setPolicy(self, policy : int , maxEvents : int , discardAmount : int ) -> tibrv_status :
-        status = tibrvQueue_SetLimitPolicy(self._que, policy, maxEvents, discardAmount)
+    def setPolicy(self, policy: int, maxEvents: int, discardAmount: int) -> tibrv_status:
+
+        status = tibrvQueue_SetLimitPolicy(self.id(), policy, maxEvents, discardAmount)
         self._err = TibrvStatus.error(status)
+
         if status == TIBRV_OK:
             self._policy = int(policy)
             self._maxEvents = int(maxEvents)
@@ -1494,43 +1451,44 @@ class TibrvQueue:
 
         return status
 
-    @property
     def policy(self) -> str:
         return self._policy
 
-    @property
     def maxEvents(self) -> str:
         return self._maxEvents
 
-    @property
     def discardAmount(self) -> str:
         return self._discard
 
     @property
     def priority(self) -> str:
-        ret = None
-        status, ret = tibrvQueue_GetPriority(self._que)
+
+        status, ret = tibrvQueue_GetPriority(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
     @priority.setter
     def priority(self, val: int) -> None:
-        status = tibrvQueue_SetPriority(self._que, val)
+
+        status = tibrvQueue_SetPriority(self.id(), val)
         self._err = TibrvStatus.error(status)
 
     def poll(self) -> tibrv_status:
-        status = tibrvQueue_Poll(self._que)
+
+        status = tibrvQueue_Poll(self.id())
         self._err = TibrvStatus.error(status)
+
         return status
 
 
-    def timedDispatch(self, timeout : float) -> tibrv_status:
-        status = tibrvQueue_TimedDispatch(self._que, timeout)
+    def timedDispatch(self, timeout: float) -> tibrv_status:
+
+        status = tibrvQueue_TimedDispatch(self.id(), timeout)
         self._err = TibrvStatus.error(status)
+
         return status
 
-    @property
     def error(self) -> TibrvError :
         return self._err
 
@@ -1546,32 +1504,27 @@ from .tport import tibrvTransport, tibrvTransport_Create, tibrvTransport_Destroy
 
 class TibrvTx :
     def __init__(self, tx: tibrvTransport = 0):
-        self._tx = tibrvTransport(tx)
+        self._tx = 0
         self._err = None
+        if tx is not None:
+            self._tx = tibrvTransport(tx)
 
     def id(self):
         return self._tx
 
-    def create(self, service : str, network:str, daemon:str) -> int :
+    def create(self, service: str, network: str, daemon: str) -> int:
         if self._tx != 0:
             status = TIBRV_ID_IN_USE
-        else:
-            tx = 0
-            status, tx = tibrvTransport_Create(service, network, daemon);
+            self._err = TibrvStatus.error(status)
+            return status
 
-            if status == TIBRV_OK:
-                self._tx = tx
-
+        status, self._tx = tibrvTransport_Create(service, network, daemon)
         self._err = TibrvStatus.error(status)
 
-        return status;
+        return status
 
-    def destroy(self) -> int :
-        if self._tx == 0:
-            status = TIBRV_INVALID_TRANSPORT
-        else:
-            status = tibrvTransport_Destroy(self._tx)
-
+    def destroy(self) -> int:
+        status = tibrvTransport_Destroy(self._tx)
         self._tx = 0
 
         self._err = TibrvStatus.error(status)
@@ -1580,76 +1533,79 @@ class TibrvTx :
 
     @property
     def description(self) -> str:
-        ret = None
-        status, ret = tibrvTransport_GetDescription(self._tx)
+
+        status, ret = tibrvTransport_GetDescription(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
     @description.setter
-    def description(self, sz: str) -> None:
-        status = tibrvTransport_SetDescription(self._tx, sz)
+    def description(self, sz: str):
+
+        status = tibrvTransport_SetDescription(self.id(), sz)
         self._err = TibrvStatus.error(status)
 
     @property
     def service(self) -> str:
-        ret = None
-        status, ret = tibrvTransport_GetService(self._tx)
+
+        status, ret = tibrvTransport_GetService(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
-    @property
     def network(self) -> str:
-        ret = None
-        status, ret = tibrvTransport_GetNetwork(self._tx)
+
+        status, ret = tibrvTransport_GetNetwork(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
-    @property
     def daemon(self) -> str:
-        ret = None
-        status, ret = tibrvTransport_GetDaemon(self._tx)
+
+        status, ret = tibrvTransport_GetDaemon(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
     def inbox(self) -> str:
-        ret = None
-        status, ret = tibrvTransport_CreateInbox(self._tx)
+
+        status, ret = tibrvTransport_CreateInbox(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
     def reliability(self, reliability: float) -> int:
-        status = tibrvTransport_RequestReliability(self._tx, reliability)
+
+        status = tibrvTransport_RequestReliability(self.id(), reliability)
         self._err = TibrvStatus.error(status)
 
         return status
 
-    @property
     def error(self) -> TibrvError :
         return self._err
 
-    def send(self, msg: TibrvMsg, subj: str=None) -> tibrv_status:
-        if msg is None or type(msg) is not TibrvMsg :
-            status = TIBRV_INVALID_MSG
-        else:
-            if subj is not None:
-                status = tibrvMsg_SetSendSubject(msg.id(), subj)
-                if status != TIBRV_OK:
-                    self._err = TibrvStatus.error(status)
-                    return status
+    def send(self, msg: TibrvMsg, subj: str = None) -> tibrv_status:
 
-            status = tibrvTransport_Send(self._tx, msg.id())
+        if msg is None or not isinstance(msg, TibrvMsg):
+            status = TIBRV_INVALID_MSG
+            self._err = TibrvStatus.error(status)
+            return status, None
+
+        if subj is not None:
+            status = tibrvMsg_SetSendSubject(msg.id(), subj)
+            if status != TIBRV_OK:
+                self._err = TibrvStatus.error(status)
+                return status
+
+        status = tibrvTransport_Send(self.id(), msg.id())
 
         self._err = TibrvStatus.error(status)
 
         return status
 
-    def sendRequest(self, msg: TibrvMsg, timeout: float, subj:str = None) -> (tibrv_status, TibrvMsg):
-        if msg is None or type(msg) is not TibrvMsg:
+    def sendRequest(self, msg: TibrvMsg, timeout: float, subj: str = None) -> (tibrv_status, TibrvMsg):
+
+        if msg is None or not isinstance(msg, TibrvMsg):
             status = TIBRV_INVALID_MSG
             self._err = TibrvStatus.error(status)
             return status, None
@@ -1661,7 +1617,7 @@ class TibrvTx :
                 return status, None
 
         reply = None
-        status, m = tibrvTransport_SendRequest(self._tx, msg.id(), timeout)
+        status, m = tibrvTransport_SendRequest(self.id(), msg.id(), timeout)
         if status == TIBRV_OK:
             reply = TibrvMsg(m)
 
@@ -1670,17 +1626,17 @@ class TibrvTx :
         return status, reply
 
     def sendReply(self, msg: TibrvMsg, request: TibrvMsg) -> tibrv_status:
-        if msg is None or type(msg) is not TibrvMsg:
+        if msg is None or not isinstance(msg, TibrvMsg):
             status = TIBRV_INVALID_MSG
             self._err = TibrvStatus.error(status)
             return status
 
-        if request is None or type(request) is not TibrvMsg:
+        if request is None or not isinstance(request, TibrvMsg):
             status = TIBRV_INVALID_MSG
             self._err = TibrvStatus.error(status)
             return status
 
-        status = tibrvTransport_SendReply(self._tx, msg.id(), request.id())
+        status = tibrvTransport_SendReply(self.id(), msg.id(), request.id())
 
         self._err = TibrvStatus.error(status)
 
@@ -1760,26 +1716,18 @@ class TibrvEvent:
         return self._event
 
     def destroy(self):
-        if self._event == 0:
-            return TIBRV_INVALID_EVENT
 
         status = tibrvEvent_Destroy(self._event)
         self._event = 0
 
         return status
 
-    @property
     def error(self) -> TibrvError:
         return self._err
 
     def eventType(self):
-        ret = None
 
-        if self.id() == 0 :
-            status = TIBRV_INVALID_EVENT
-        else:
-            status, ret = tibrvEvent_GetType(self.id())
-
+        status, ret = tibrvEvent_GetType(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
@@ -1790,20 +1738,23 @@ class TibrvTimer(TibrvEvent):
     def __init__(self, event: tibrvEvent = 0):
         super().__init__(event)
 
-    def create(self, que:TibrvQueue, callback: TibrvTimerCallback, interval: float, closure = None) \
-              -> tibrv_status:
+    def create(self, que: TibrvQueue, callback: TibrvTimerCallback,
+               interval: float, closure = None) -> tibrv_status:
 
-        if self.id() != 0:
+        if self._event != 0:
             status = TIBRV_ID_IN_USE
             self._err = TibrvStatus.error(status)
-            return status
 
-        if not isinstance(callback, TibrvTimerCallback):
-            status = TIBRV_INVALID_ARG
+        if que is None or not isinstance(que, TibrvQueue):
+            status = TIBRV_INVALID_QUEUE
             self._err = TibrvStatus.error(status)
             return status
 
-        ret = 0
+        if callback is None or not isinstance(callback, TibrvTimerCallback):
+            status = TIBRV_INVALID_CALLBACK
+            self._err = TibrvStatus.error(status)
+            return status
+
         status, ret = tibrvEvent_CreateTimer(que.id(), callback._register(), interval, closure)
 
         if status == TIBRV_OK:
@@ -1814,11 +1765,7 @@ class TibrvTimer(TibrvEvent):
 
     @property
     def interval(self):
-        ret = 0
-        if self._event == 0:
-            status = TIBRV_INVALID_EVENT
-        else:
-            status, ret = tibrvEvent_GetTimerInterval(self._event)
+        status, ret = tibrvEvent_GetTimerInterval(self.id())
 
         self._err = TibrvStatus.error(status)
 
@@ -1826,61 +1773,58 @@ class TibrvTimer(TibrvEvent):
 
     @interval.setter
     def interval(self, sec: float):
-        if self._event == 0:
-            status = TIBRV_INVALID_EVENT
-        else:
-            status = tibrvEvent_ResetTimerInterval(self._event, sec)
 
+        status = tibrvEvent_ResetTimerInterval(self.id(), sec)
         self._err = TibrvStatus.error(status)
-
 
 
 class TibrvListener(TibrvEvent):
 
-    def __init__(self, event:tibrvEvent = 0):
+    def __init__(self, event: tibrvEvent = 0):
         super().__init__(event)
 
-    def create(self, que: TibrvQueue, callback: TibrvMsgCallback, tx: TibrvTx, subject: str, closure = None) \
-              -> tibrv_status:
+    def create(self, que: TibrvQueue, callback: TibrvMsgCallback, tx: TibrvTx,
+               subject: str, closure = None) -> tibrv_status:
 
-        if self.id() != 0:
+        if self._event != 0:
             status = TIBRV_ID_IN_USE
             self._err = TibrvStatus.error(status)
-            return status
 
-        if not isinstance(callback, TibrvMsgCallback):
-            status = TIBRV_INVALID_ARG
+        if que is None or not isinstance(que, TibrvQueue):
+            status = TIBRV_INVALID_QUEUE
             self._err = TibrvStatus.error(status)
             return status
 
-        ret = 0
-        status, ret = tibrvEvent_CreateListener(que.id(), callback._register(), tx.id(), subject, closure)
+        if tx is None or not isinstance(tx, TibrvTx):
+            status = TIBRV_INVALID_TRANSPORT
+            self._err = TibrvStatus.error(status)
+            return status
 
-        if status == TIBRV_OK:
-            self._event = ret
+        if callback is None or not isinstance(callback, TibrvMsgCallback):
+            status = TIBRV_INVALID_CALLBACK
+            self._err = TibrvStatus.error(status)
+            return status
+
+        status, self._event = tibrvEvent_CreateListener(que.id(), callback._register(),
+                                                        tx.id(), subject, closure)
 
         self._err = TibrvStatus.error(status)
+
         return status
 
     def subject(self) -> str:
-        ret = None
-        if self.id() == 0:
-            status = TIBRV_INVALID_EVENT
-        else:
-            status, ret = tibrvEvent_GetListenerSubject(self.id())
 
+        status, ret = tibrvEvent_GetListenerSubject(self.id())
         self._err = TibrvStatus.error(status)
 
         return ret
 
     def queue(self) -> TibrvQueue:
         ret = None
-        if self.id() == 0 :
-            status = TIBRV_INVALID_EVENT
-        else:
-            status, q = tibrvEvent_GetListenerSubject(self.id())
-            if status == TIBRV_OK:
-                ret = TibrvQueue(q)
+
+        status, q = tibrvEvent_GetQueue(self.id())
+        if status == TIBRV_OK:
+            ret = TibrvQueue(q)
 
         self._err = TibrvStatus.error(status)
 
@@ -1907,21 +1851,30 @@ class TibrvDispatcher :
 
         if self._disp != 0:
             status = TIBRV_ID_IN_USE
-        else:
-            self._timeout = float(timeout)
-            status, ret = tibrvDispatcher_Create(que.id(), self._timeout);
-            if status == TIBRV_OK:
-                self._disp = ret
+            self._err = TibrvStatus.error(status)
+
+            return status
+
+        if que is None or not isinstance(que, TibrvQueue):
+            status = TIBRV_INVALID_QUEUE
+            self._err = TibrvStatus.error(status)
+
+            return status
+
+        if timeout is None:
+            status = TIBRV_INVALID_ARG
+            self._err = TibrvStatus.error(status)
+
+            return status
+
+        self._timeout = timeout
+        status, self._disp = tibrvDispatcher_Create(que.id(), self._timeout)
 
         self._err = TibrvStatus.error(status)
 
-        return status;
+        return status
 
     def destroy(self) -> int:
-        if self._disp == 0:
-            status = TIBRV_INVALID_DISPATCHER
-            self._err = TibrvStatus.error(status)
-            return status
 
         status = tibrvDispatcher_Destroy(self._disp)
         self._disp = 0
@@ -1931,40 +1884,29 @@ class TibrvDispatcher :
 
     @property
     def name(self) -> str:
-        sz = None
 
-        if self.id() == 0:
-            status = TIBRV_INVALID_DISPATCHER
-        else:
-            status, sz = tibrvDispatcher_GetName(self.id())
+        status, sz = tibrvDispatcher_GetName(self.id())
 
         self._err = TibrvStatus.error(status)
 
         return sz
 
     @name.setter
-    def name(self, sz: str) -> None:
-        if self.id() == 0:
-            status = TIBRV_INVALID_DISPATCHER
-        else:
-            status = tibrvDispatcher_SetName(self._disp, sz)
+    def name(self, sz: str):
 
+        status = tibrvDispatcher_SetName(self.id(), sz)
         self._err = TibrvStatus.error(status)
 
     def join(self) -> tibrv_status:
-        if self.id() == 0:
-            status = TIBRV_INVALID_DISPATCHER
-        else:
-            status = tibrvDispatcher_Join(self._que)
 
+        status = tibrvDispatcher_Join(self.id())
         self._err = TibrvStatus.error(status)
+
         return status
 
-    @property
     def timeout(self) -> float:
         return self._timeout
 
-    @property
     def error(self) -> TibrvError:
         return self._err
 
