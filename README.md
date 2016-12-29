@@ -1,60 +1,151 @@
-# pytibrv
-TIBCO Rendezvous® API for Python
+# PYTIBRV 
+PYTIBRV is a Python wrapper for TIBRV C API
 
-TIBCO Rendezvous® is copyright of TIBCO www.tibco.com 
+TIBCO Rendezvous® (aka TIBRV) is copyright of [TIBCO](www.tibco.com) 
 
-----------------------------------------------------------------------
-<ol>
-<li> 
-pytibrv is a Python wraper to TIBRV/C API. 
-it use ctypes rather than Python Extension.<br>
-If low-latency is the main issue, please use C API, not in Python.
-<br>
-<li>
-Develop and test for Python3.5+, not support for Python2
-<br>
-<li>
-pytibrv follow the naming convension of TIBRV/C<br>
-ex:<br>
-<table>
-<tr><td>C</td><td>Python</td></tr>
-<tr><td>typedef int tibrv_status</td><td>tibrv_status = int</td></tr>
-<tr><td>tibrv_status tibrv_Open()</td><td>def tibrv_Open() -> tibrv_status:</td></tr>
-<tr><td>tibrv_status tibrv_Close()</td><td>def tibrv_Close() -> tibrv_status:</td></tr>
-<tr><td>const cahr * tibrv_Version()</td><td>def tibrv_Version() -> str:</td></tr>
-</table>
-<br>
-<li>
-TIBRV/C use POINTER to return object<br>
-ex:<br>
-TIBRV/C 
-<pre>
-tibrv_statue tibrvMsg_Create(tibrvMsg * msg)<br>
-...
+## Table of Contents
+
+- [Background](#background)
+- [Install](#install)
+- [Usage](#usage)
+- [API](#api)
+- [Contribute](#contribute)
+- [License](#license)
+
+## Background
+PYTIBRV use ctypes to call TIBRV/C API, It is not a Pyhton Extension.  
+So, it is unnecessary to build/compile any C source for deployment.  
+
+PYTIBRV contains 
+* Python API  
+ Most of TIBRV/C API are ported to PYTIBRV. You must be familer with TIBRV/C API.  
+ Naming convention is ```tibrv``` (lowercase), such as ```tibrv_status, tibrvMsg, tibrvMsg_Create```
+ 
+* Python Object Model  
+ PYTIBRV provide object model, like as TIBRV/Java, which package TIBRV/C API to component.  
+ Naming convention is ```Tibrv``` (capital), such as ```TibrvStatus, TibrvMsg, TibrvListener```
+ 
+## Install
+Copy pytibr/pytibrv into your Python packages directory,  
+for example: $HOME/my_lib/
+```
+$HOME/my_lib/pytibrv/
+                     __init__,py
+                     api.py 
+                     ...
+```
+> I am still working on setup.py 
+
+
+Then, add $HOME/my_lib to PYTHONPATH
+
+```shell
+export PYTHONPATH=$HOME/my_lib
+```
+
+run python console to test
+
+```python
+from pytibrv.api import *
+```
+
+
+## Usage
+
+PYTIBRV also rewrite TIBRV/C Examples to Python.
+* tibrvsend
+* tibrvlisten 
+* tibrvcmsend 
+* tibrvcmlisten 
+* tibrvfttime 
+* tibrvftmon 
+* tibrvdqlisten 
+
+Please refer to [examples](examples) for detail. 
+
+### TIBRV/C API 
+All TIBRV/C API return tibrv_status to indicate the calling status.  
+It use C POINTER(Call By Reference) to return created object. 
+
+```C
+# in tibrv/msg.h 
+tibrv_status tibrvMsg_Create(tibrvMsg * msg)
+
+
+# in your code 
 tibrv_status    status;
 tibrvMsg        msg;
+tibrv_i32       amt = 12345;
 
 status = tibrvMsg_Create(&msg) 
 if (TIBRV_OK != status) {
-  # error handling 
+    # error handling 
 }
-</pre>
-Python support multiple return
-<pre>
+
+status = tibrvMsg_UpdateI32(msg, "AMOUNT", amt);
+...
+```
+
+
+### Python 
+Python are all objects, there is no 'native' data type, like as C int/double. 
+
+``` python
+>>> x = int(123)
+>>> type(x)
+<class 'int'>
+>>> 
+``` 
+
+And, Python is all 'Call By Refence',  
+more precisely, Python is 'Call By Reference of Object'  
+Unfortunately, Python 'Call By Reference' is immutable,  
+you **CAN'T** return a new object like as C POINTER.  
+
+``` python
+def change(x):
+    x = "ABC"
+
+...
+y = "123"
+change(y)
+print(y)         # y is still "123"
+```
+
+When Python runing ```x = "ABC"``` in change()  
+
+It assign local variable x to a new string reference.  
+Actually, x would be GC when change() returned
+
+-------------------------------------------------
+
+Python support return as tuple.  
+Rewrite TIBRV/C tibrvMsg_Create() to Python
+
+``` python 
 def tibrvMsg_Create() -> (tibrv_status, tibrvMsg):
-  ...
+    # calling C API by ctypes 
+    msg = ctypes.c_void_p()
+    status = _rvlib.tibrvMsg_Create(ctypes.byref(msg)) 
+    
+    return status, msg.value 
 
-# create msg
-# you could check status == TIBRV_OK or msg == None 
-status, msg = tibrvMsg_Create()
+...
+
+status, msg = tibrvMsg_Create()     # return as tuple 
 if status != TIBRV_OK:
-  # error handling
+    # error handling
+    
+status = tibrvMsg_UpdateI32(msg, 'AMOUNT', amt)
 
-if msg is None:
-  # error handling
-  
-</pre>  
+```
 
-</ol> 
 
-TO BE CONTINUE 
+## API
+
+
+## Contribute
+
+
+## License
+[GPLV2](LICENSE.md) 
