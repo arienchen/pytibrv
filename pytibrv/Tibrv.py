@@ -1347,7 +1347,7 @@ class TibrvMsg:
 ##-----------------------------------------------------------------------------
 # TibrvQueue
 ##-----------------------------------------------------------------------------
-from .queue import tibrvQueue, tibrvQueueGroup, tibrvQueueLimitPoliy, \
+from .queue import tibrvQueue,  \
                    tibrvQueue_Create, tibrvQueue_Destroy, \
                    tibrvQueue_Dispatch, tibrvQueue_GetCount, tibrvQueue_GetName, \
                    tibrvQueue_GetLimitPolicy, tibrvQueue_GetPriority, \
@@ -1548,7 +1548,6 @@ class TibrvTx :
         status = tibrvTransport_SetDescription(self.id(), sz)
         self._err = TibrvStatus.error(status)
 
-    @property
     def service(self) -> str:
 
         status, ret = tibrvTransport_GetService(self.id())
