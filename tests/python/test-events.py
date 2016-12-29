@@ -44,7 +44,7 @@ class EventTest(unittest.TestCase, TibrvMsgCallback):
         status = disp.create(que)
         self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
 
-        m = TibrvMsg()
+        m = TibrvMsg.create()
         m.setStr('DATA', 'TEST')
 
         print('')
