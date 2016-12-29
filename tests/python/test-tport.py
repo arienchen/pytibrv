@@ -19,18 +19,18 @@ class TransportTest(unittest.TestCase):
         status = tx.create(None, None, None)
         self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
 
-        self.assertEqual('', tx.service)
-        self.assertEqual('', tx.network)
-        self.assertEqual('7500', tx.daemon)     # Default is 7500
+        self.assertEqual('', tx.service())
+        self.assertEqual('', tx.network())
+        self.assertEqual('7500', tx.daemon())     # Default is 7500
         self.assertIsNone(tx.description)
 
-        tx.destroy();
+        tx.destroy()
 
         # transport destroyed
         # should return None
-        self.assertIsNone(tx.service)
-        self.assertIsNone(tx.network)
-        self.assertIsNone(tx.daemon)
+        self.assertIsNone(tx.service())
+        self.assertIsNone(tx.network())
+        self.assertIsNone(tx.daemon())
         self.assertIsNone(tx.description)
 
         del tx
@@ -42,9 +42,9 @@ class TransportTest(unittest.TestCase):
         status = tx.create(service, network, daemon)
         self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
 
-        self.assertEqual(service, tx.service)
-        self.assertEqual(network, tx.network)
-        self.assertEqual(daemon, tx.daemon)
+        self.assertEqual(service, tx.service())
+        self.assertEqual(network, tx.network())
+        self.assertEqual(daemon, tx.daemon())
         self.assertIsNone(tx.description)
 
         tx.description = 'TEST'
@@ -66,7 +66,7 @@ class TransportTest(unittest.TestCase):
         status = tx.create(None, None, None)
         self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
 
-        msg = TibrvMsg()
+        msg = TibrvMsg.create()
         msg.setStr('DATA', 'TEST')
         msg.sendSubject = 'TEST.A'
 
@@ -85,7 +85,7 @@ class TransportTest(unittest.TestCase):
         status = tx.create(None, None, None)
         self.assertEqual(TIBRV_OK, status, TibrvStatus.text(status))
 
-        msg = TibrvMsg()
+        msg = TibrvMsg.create()
         msg.setStr('DATA', 'TEST')
         msg.sendSubject = 'TEST.A'
 
