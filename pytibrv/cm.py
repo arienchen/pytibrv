@@ -1,98 +1,82 @@
 ##
 # pytibrv/cm.py
-#   TibrvCmTx               <- tibrvcmTransport_XXX
-#   TibrvCmListener         <- tibrvcmEvent_XXX
-#   TibrvCmMsg              <- tibrvMsg_XXX
 #
 # LAST MODIFIED : V1.0 20161226 ARIEN
 #
 # DESCRIPTIONS
-# ------------------------------------------------------
-# 1. TibrvCmTx is not a subclass of TibrvTx
-#    TibrvCmListener is not a subclass of TibrvListener
-#    TibrvCmMsg is derived from TibrvMsg
+# -----------------------------------------------------------------------------
+# 1. tibrvcmTransport_DestroyEx, tibrvcmListener_DestroyEx
+#    both support OnComplete callback
 #
-# 2. TibrvCmTx, TibrvCmListener both support OnComplete callback
-#    like common callback, the callback pointer would be stored in __callback[]
-#    to prevent GC before callback.
-#    BUT there is no way to detach from __callback[]
+#    like common callback, the callback pointer should be stored in __callback[]
+#    to prevent GC before TIBRV callback.
+#
+#    BUT there is no way to detach callback pointer from __callback[]
 #    I ASSUME the OnComplete callback was assigned at process termination
+#    Current process would be terminated ASAP
+#    So, memory leak here, is not a big deal
 #
 #    Please be NOTICED this would cause memory leak
-#    if OnComplete callback in loop and in life of process.
+#    if OnComplete callback in loop for a running process.
 #
 # FEATURES: * = un-implement
-# ------------------------------------------------------
-#   tibrvcm_Version
+# -----------------------------------------------------------------------------
+#   tibrvcmTransport_AddListener
+#   tibrvcmTransport_AllowListener
+#   tibrvcmTransport_ConnectToRelayAgent
 #   tibrvcmTransport_Create
+#   tibrvcmTransport_Destroy
+#   tibrvcmTransport_DisconnectFromRelayAgent
+#   tibrvcmTransport_ExpireMessages
+#   tibrvcmTransport_GetLedgerName
+#   tibrvcmTransport_GetName
+#   tibrvcmTransport_GetRelayAgent
+#   tibrvcmTransport_GetRequestOld
+#   tibrvcmTransport_GetSyncLedger
+#   tibrvcmTransport_GetTransport
+#   tibrvcmTransport_RemoveSendState
+#   tibrvcmTransport_ReviewLedger
 #   tibrvcmTransport_Send
 #   tibrvcmTransport_SendRequest
 #   tibrvcmTransport_SendReply
-#   tibrvcmTransport_GetTransport
-#   tibrvcmTransport_GetName
-#   tibrvcmTransport_GetRelayAgent
-#   tibrvcmTransport_GetLedgerName
-#   tibrvcmTransport_GetSyncLedger
-#   tibrvcmTransport_GetRequestOld
-#   tibrvcmTransport_AllowListener
-#   tibrvcmTransport_DisallowListener
-#   tibrvcmTransport_AddListener
-#   tibrvcmTransport_RemoveListener
-#   tibrvcmTransport_RemoveSendState
+#   tibrvcmTransport_SetDefaultCMTimeLimit
+#   tibrvcmTransport_SetPublisherInactivityDiscardInterval
 #   tibrvcmTransport_SyncLedger
-#   tibrvcmTransport_ConnectToRelayAgent
-#   tibrvcmTransport_DisconnectFromRelayAgent
-#   tibrvcmTransport_DestroyEx
+#
+#   tibrvcmEvent_ConfirmMsg
 #   tibrvcmEvent_CreateListener
-#   tibrvcmEvent_GetQueue
+#   tibrvcmEvent_Destroy
 #   tibrvcmEvent_GetListenerSubject
 #   tibrvcmEvent_GetListenerTransport
+#   tibrvcmEvent_GetQueue
 #   tibrvcmEvent_SetExplicitConfirm
-#   tibrvcmEvent_ConfirmMsg
-#   tibrvcmEvent_DestroyEx
+#
 #   tibrvMsg_GetCMSender
 #   tibrvMsg_GetCMSequence
 #   tibrvMsg_GetCMTimeLimit
 #   tibrvMsg_SetCMTimeLimit
-#   tibrvcmTransport_GetDefaultCMTimeLimit
-#   tibrvcmTransport_SetDefaultCMTimeLimit
-#   tibrvcmTransport_ReviewLedger
-#   tibrvcmTransport_ExpireMessages
-#
 #
 # CHANGED LOGS
-# ------------------------------------------------------
+# -----------------------------------------------------------------------------
 # 20161226 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
 import ctypes as _ctypes
-from .types import tibrv_status
+from typing import NewType, Callable
 from . import _load, _func
+from .types import tibrv_status, tibrvQueue, tibrvTransport, tibrvMsg, \
+                   tibrvEventOnComplete
 
 from .api import _cstr, _pystr, \
                  _c_tibrv_status, _c_tibrvId,  _c_tibrvTransport, _c_tibrvQueue, _c_tibrvMsg, \
                  _c_tibrv_bool, _c_tibrv_u64, _c_tibrv_f64, _c_tibrv_str, \
-                 _c_tibrvEventOnComplete, \
-                 tibrvId, tibrvQueue, tibrvTransport, tibrvMsg
+                 _c_tibrvEventOnComplete
 
 from .status import TIBRV_OK, TIBRV_INVALID_TRANSPORT, TIBRV_INVALID_ARG, TIBRV_INVALID_EVENT, \
                     TIBRV_INVALID_MSG, TIBRV_INVALID_QUEUE, TIBRV_INVALID_CALLBACK
 
 # module variable
 _rvcm = _load('tibrvcm')
-
-# Data Types
-tibrvcmTransport        = tibrvId
-tibrvcmEvent            = tibrvId
-
-_c_tibrvcmTransport     = _c_tibrvId
-_c_tibrvcmEvent         = _c_tibrvId
-
-
-# CONSTANTS
-TIBRVCM_DEFAULT_TRANSPORT_TIMELIMIT = 0
-TIBRVCM_CANCEL                      = True
-TIBRVCM_PERSIST                     = False
 
 
 # keep callback/closure object from GC
@@ -116,8 +100,32 @@ def __unreg(event):
 
     return
 
+
+##-----------------------------------------------------------------------------
+# DATA TYPE
+##-----------------------------------------------------------------------------
+tibrvcmTransport        = NewType('tibrvcmTransport', int)          # tibrvId
+tibrvcmEvent            = NewType('tibrvcmEvent', int)              # tibrvId
+
+_c_tibrvcmTransport     = _c_tibrvId
+_c_tibrvcmEvent         = _c_tibrvId
+
+
+##-----------------------------------------------------------------------------
+# CONSTANT
+##-----------------------------------------------------------------------------
+TIBRVCM_DEFAULT_TRANSPORT_TIMELIMIT = 0
+TIBRVCM_CANCEL                      = True
+TIBRVCM_PERSIST                     = False
+
+##-----------------------------------------------------------------------------
+# CALLBACK
+##-----------------------------------------------------------------------------
+tibrvcmTransportOnComplete  = Callable[[tibrvcmTransport, object], None]
+tibrvcmEventCallback        = Callable[[tibrvcmEvent, tibrvMsg, object], None]
+tibrvcmReviewCallback       = Callable[[tibrvcmEvent, bytes, tibrvMsg, object], None]
+
 ##
-# Callback
 # typedef void (*tibrvcmTransportOnComplete) (
 #                   tibrvcmTransport	destroyedTransport,
 #                   void*			    closure
@@ -146,6 +154,11 @@ _c_tibrvcmEventCallback = _func(_ctypes.c_void_p, _c_tibrvcmEvent, _c_tibrvMsg, 
 _c_tibrvcmReviewCallback = _func(_ctypes.c_void_p, _c_tibrvcmEvent, _c_tibrv_str, _c_tibrvMsg, _ctypes.c_void_p)
 
 
+##-----------------------------------------------------------------------------
+# TIBRV API
+#   tibrvcm_Version
+##-----------------------------------------------------------------------------
+
 ##
 # tibrv/cm.h
 # const char * tibrvcm_Version(void)
@@ -157,6 +170,30 @@ def tibrvcm_Version() -> str:
     sz = _rvcm.tibrv_Version()
     return sz.decode()
 
+##-----------------------------------------------------------------------------
+# TIBRV API
+#   tibrvcmTransport_AddListener
+#   tibrvcmTransport_AllowListener
+#   tibrvcmTransport_ConnectToRelayAgent
+#   tibrvcmTransport_Create
+#   tibrvcmTransport_Destroy
+#   tibrvcmTransport_DisconnectFromRelayAgent
+#   tibrvcmTransport_ExpireMessages
+#   tibrvcmTransport_GetLedgerName
+#   tibrvcmTransport_GetName
+#   tibrvcmTransport_GetRelayAgent
+#   tibrvcmTransport_GetRequestOld
+#   tibrvcmTransport_GetSyncLedger
+#   tibrvcmTransport_GetTransport
+#   tibrvcmTransport_RemoveSendState
+#   tibrvcmTransport_ReviewLedger
+#   tibrvcmTransport_Send
+#   tibrvcmTransport_SendRequest
+#   tibrvcmTransport_SendReply
+#   tibrvcmTransport_SetDefaultCMTimeLimit
+#   tibrvcmTransport_SetPublisherInactivityDiscardInterval
+#   tibrvcmTransport_SyncLedger
+##-----------------------------------------------------------------------------
 
 ##
 # tibrv/cm.h
@@ -181,8 +218,8 @@ _rvcm.tibrvcmTransport_Create.argtypes = [_ctypes.POINTER(_c_tibrvcmTransport),
 _rvcm.tibrvcmTransport_Create.restype = _c_tibrv_status
 
 def tibrvcmTransport_Create(tx: tibrvTransport, cmName: str, requestOld: bool = True,
-                            ledgerName: str = None, syncLedger: bool = False, relayAgent: str = None) \
-                            -> (tibrv_status, tibrvcmTransport):
+                            ledgerName: str = None, syncLedger: bool = False,
+                            relayAgent: str = None) -> (tibrv_status, tibrvcmTransport):
 
     if tx == 0 or tx is None:
         return TIBRV_INVALID_TRANSPORT, None
@@ -738,10 +775,18 @@ def tibrvcmTransport_DisconnectFromRelayAgent(cmTransport: tibrvcmTransport) -> 
 #                   tibrvcmTransport            cmTransport
 #               );
 #
+# tibrv/cm.h
+# tibrv_status tibrvcmTransport_DestroyEx(
+#                   tibrvcmTransport		    cmTransport,
+#                   tibrvcmTransportOnComplete	completionFunction,
+#                   void*			            closure
+#               );
+#
 _rvcm.tibrvcmTransport_Destroy.argtypes = [_c_tibrvcmTransport]
 _rvcm.tibrvcmTransport_Destroy.restype = _c_tibrv_status
 
-def tibrvcmTransport_Destroy(cmTransport: tibrvcmTransport) -> tibrv_status:
+def tibrvcmTransport_Destroy(cmTransport: tibrvcmTransport,
+                             callback: tibrvcmTransportOnComplete = None, closure = None) -> tibrv_status:
 
     if cmTransport == 0 or cmTransport is None:
         return TIBRV_INVALID_TRANSPORT
@@ -751,20 +796,191 @@ def tibrvcmTransport_Destroy(cmTransport: tibrvcmTransport) -> tibrv_status:
     except:
         return TIBRV_INVALID_TRANSPORT
 
-    status = _rvcm.tibrvcmTransport_Destroy(cmtx)
+    if callback is None:
+        status = _rvcm.tibrvcmTransport_Destroy(cmtx)
+        return status
+
+
+    try:
+        cb = _c_tibrvcmTransportOnComplete(callback)
+    except:
+        return TIBRV_INVALID_CALLBACK
+
+    try:
+        cz = _ctypes.py_object(closure)
+    except:
+        return TIBRV_INVALID_ARG
+
+
+    status = _rvcm.tibrvcmTransport_DestroyEx(cmtx, cb, cz)
+
+    # THIS MAY CAUSE MEMORY LEAK
+    if status == TIBRV_OK:
+        __reg(cmTransport, cb, cz)
 
     return status
 
 
 ##
 # tibrv/cm.h
-# *tibrv_status tibrvcmTransport_DestroyEx(
-#                   tibrvcmTransport		    cmTransport,
-#                   tibrvcmTransportOnComplete	completionFunction,
-#                   void*			            closure
+# tibrv_status tibrvcmTransport_GetDefaultCMTimeLimit(
+#                   tibrvcmTransport            cmTransport,
+#                   tibrv_f64*                  timeLimit
 #               );
 #
+_rvcm.tibrvcmTransport_GetDefaultCMTimeLimit.argtypes = [_c_tibrvcmTransport, _ctypes.POINTER(_c_tibrv_f64)]
+_rvcm.tibrvcmTransport_GetDefaultCMTimeLimit.restype = _c_tibrv_status
 
+def tibrvcmTransport_GetDefaultCMTimeLimit(cmTransport: tibrvcmTransport) -> (tibrv_status, float):
+
+    if cmTransport == 0 or cmTransport is None:
+        return TIBRV_INVALID_TRANSPORT, None
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT, None
+
+    ret = _c_tibrv_f64(0)
+
+    status = _rvcm.tibrvcmTransport_GetDefaultCMTimeLimit(cmtx, _ctypes.byref(ret))
+
+    return status, ret.value
+
+
+##
+# tibrv/cm.h
+# tibrv_status tibrvcmTransport_SetDefaultCMTimeLimit(
+#                   tibrvcmTransport            cmTransport,
+#                   tibrv_f64                   timeLimit
+#               );
+#
+_rvcm.tibrvcmTransport_SetDefaultCMTimeLimit.argtypes = [_c_tibrvcmTransport, _c_tibrv_f64]
+_rvcm.tibrvcmTransport_SetDefaultCMTimeLimit.restype = _c_tibrv_status
+
+def tibrvcmTransport_SetDefaultCMTimeLimit(cmTransport: tibrvcmTransport, timeLimit: float) -> tibrv_status:
+
+    if cmTransport == 0 or cmTransport is None:
+        return TIBRV_INVALID_TRANSPORT
+
+    if timeLimit is None:
+        return TIBRV_INVALID_ARG
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        tt = _c_tibrv_f64(timeLimit)
+    except:
+        return TIBRV_INVALID_ARG
+
+    status = _rvcm.tibrvcmTransport_SetDefaultCMTimeLimit(cmtx, tt)
+
+    return status
+
+
+##
+# tibrv/cm.h
+# tibrv_status tibrvcmTransport_ReviewLedger(
+#                   tibrvcmTransport            cmTransport,
+#                   tibrvcmReviewCallback       callback,
+#                   const char*                 subject,
+#                   const void*                 closure
+#               );
+#
+_rvcm.tibrvcmTransport_ReviewLedger.argtypes = [_c_tibrvcmTransport,
+                                                _c_tibrvcmReviewCallback,
+                                                _c_tibrv_str,
+                                                _ctypes.py_object]
+_rvcm.tibrvcmTransport_ReviewLedger.restype = _c_tibrv_status
+
+def tibrvcmTransport_ReviewLedger(cmTransport: tibrvcmTransport, callback: tibrvcmReviewCallback,
+                                  subject: str, closure) -> tibrv_status:
+
+    if cmTransport == 0 or cmTransport is None:
+        return TIBRV_INVALID_TRANSPORT
+
+    if callback is None:
+        return TIBRV_INVALID_CALLBACK
+
+    if subject is None:
+        return TIBRV_INVALID_ARG
+
+    try:
+        tx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        cb = _c_tibrvcmReviewCallback(callback)
+    except:
+        return TIBRV_INVALID_CALLBACK
+
+    try:
+        subj = _cstr(subject)
+        cz = _ctypes.py_object(closure)
+    except:
+        return TIBRV_INVALID_ARG
+
+    status = _rvcm.tibrvcmTransport_ReviewLedger(tx, cb, subj, cz)
+
+    # save cb to prevent GC
+    if status == TIBRV_OK:
+        __reg(tx.value, cb, cz)
+
+    return status
+
+
+##
+# tibrv/cm.h
+# tibrv_status tibrvcmTransport_ExpireMessages(
+#                   tibrvcmTransport		cmTransport,
+#                   const char*			    subject,
+#                   tibrv_u64			    sequenceNumber
+#               );
+#
+_rvcm.tibrvcmTransport_ExpireMessages.argtypes = [_c_tibrvcmTransport,
+                                                  _c_tibrv_str,
+                                                  _c_tibrv_u64]
+_rvcm.tibrvcmTransport_ExpireMessages.restype = _c_tibrv_status
+
+def tibrvcmTransport_ExpireMessages(cmTransport: tibrvcmTransport, subject: str,
+                                    sequenceNumber: int) -> tibrv_status:
+
+    if cmTransport == 0 or cmTransport is None:
+        return TIBRV_INVALID_TRANSPORT
+
+    if subject is None or sequenceNumber is None:
+        return TIBRV_INVALID_ARG
+
+    try:
+        tx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        subj = _cstr(subject)
+        seq = _c_tibrv_u64(sequenceNumber)
+    except:
+        return TIBRV_INVALID_ARG
+
+    status = _rvcm.tibrvcmTransport_ExpireMessages(tx, subj, seq)
+
+    return status
+
+
+##-----------------------------------------------------------------------------
+# TIBRV API
+#   tibrvcmEvent_ConfirmMsg
+#   tibrvcmEvent_CreateListener
+#   tibrvcmEvent_Destroy
+#   tibrvcmEvent_GetListenerSubject
+#   tibrvcmEvent_GetListenerTransport
+#   tibrvcmEvent_GetQueue
+#   tibrvcmEvent_SetExplicitConfirm
+##-----------------------------------------------------------------------------
 
 ##
 # tibrv/cm.h
@@ -785,8 +1001,9 @@ _rvcm.tibrvcmEvent_CreateListener.argtypes = [_ctypes.POINTER(_c_tibrvcmEvent),
 _rvcm.tibrvcmEvent_CreateListener.restype = _c_tibrv_status
 
 
-def tibrvcmEvent_CreateListener(queue: tibrvQueue, callback, cmTransport: tibrvcmTransport,
-                                subject: str, closure) -> (tibrv_status, tibrvcmEvent):
+def tibrvcmEvent_CreateListener(queue: tibrvQueue, callback: tibrvcmEventCallback,
+                                cmTransport: tibrvcmTransport, subject: str,
+                                closure) -> (tibrv_status, tibrvcmEvent):
 
     if queue == 0 or queue is None:
         return TIBRV_INVALID_QUEUE, None
@@ -981,7 +1198,7 @@ _rvcm.tibrvcmEvent_DestroyEx.argtypes = [_c_tibrvcmEvent, _c_tibrv_bool, _c_tibr
 _rvcm.tibrvcmEvent_DestroyEx.restype = _c_tibrv_status
 
 def tibrvcmEvent_Destroy(event: tibrvcmEvent, cancelAgreements: bool = False,
-                         callback = None) -> tibrv_status:
+                         callback: tibrvEventOnComplete = None) -> tibrv_status:
 
     if event == 0 or event is None:
         return TIBRV_INVALID_EVENT
@@ -1015,6 +1232,14 @@ def tibrvcmEvent_Destroy(event: tibrvcmEvent, cancelAgreements: bool = False,
 
     return status
 
+
+##-----------------------------------------------------------------------------
+# TIBRV API
+#   tibrvMsg_GetCMSender
+#   tibrvMsg_GetCMSequence
+#   tibrvMsg_GetCMTimeLimit
+#   tibrvMsg_SetCMTimeLimit
+##-----------------------------------------------------------------------------
 
 ##
 # tibrv/cm.h
@@ -1129,152 +1354,4 @@ def tibrvMsg_SetCMTimeLimit(message: tibrvMsg, timeLimit: float) -> tibrv_status
 
     return status
 
-
-##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_GetDefaultCMTimeLimit(
-#                   tibrvcmTransport            cmTransport,
-#                   tibrv_f64*                  timeLimit
-#               );
-#
-_rvcm.tibrvcmTransport_GetDefaultCMTimeLimit.argtypes = [_c_tibrvcmTransport, _ctypes.POINTER(_c_tibrv_f64)]
-_rvcm.tibrvcmTransport_GetDefaultCMTimeLimit.restype = _c_tibrv_status
-
-def tibrvcmTransport_GetDefaultCMTimeLimit(cmTransport: tibrvcmTransport) -> (tibrv_status, float):
-
-    if cmTransport == 0 or cmTransport is None:
-        return TIBRV_INVALID_TRANSPORT, None
-
-    try:
-        cmtx = _c_tibrvcmTransport(cmTransport)
-    except:
-        return TIBRV_INVALID_TRANSPORT, None
-
-    ret = _c_tibrv_f64(0)
-
-    status = _rvcm.tibrvcmTransport_GetDefaultCMTimeLimit(cmtx, _ctypes.byref(ret))
-
-    return status, ret.value
-
-
-##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_SetDefaultCMTimeLimit(
-#                   tibrvcmTransport            cmTransport,
-#                   tibrv_f64                   timeLimit
-#               );
-#
-_rvcm.tibrvcmTransport_SetDefaultCMTimeLimit.argtypes = [_c_tibrvcmTransport, _c_tibrv_f64]
-_rvcm.tibrvcmTransport_SetDefaultCMTimeLimit.restype = _c_tibrv_status
-
-def tibrvcmTransport_SetDefaultCMTimeLimit(cmTransport: tibrvcmTransport, timeLimit: float) -> tibrv_status:
-
-    if cmTransport == 0 or cmTransport is None:
-        return TIBRV_INVALID_TRANSPORT
-
-    if timeLimit is None:
-        return TIBRV_INVALID_ARG
-
-    try:
-        cmtx = _c_tibrvcmTransport(cmTransport)
-    except:
-        return TIBRV_INVALID_TRANSPORT
-
-    try:
-        tt = _c_tibrv_f64(timeLimit)
-    except:
-        return TIBRV_INVALID_ARG
-
-    status = _rvcm.tibrvcmTransport_SetDefaultCMTimeLimit(cmtx, tt)
-
-    return status
-
-
-##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_ReviewLedger(
-#                   tibrvcmTransport            cmTransport,
-#                   tibrvcmReviewCallback       callback,
-#                   const char*                 subject,
-#                   const void*                 closure
-#               );
-#
-_rvcm.tibrvcmTransport_ReviewLedger.argtypes = [_c_tibrvcmTransport,
-                                                _c_tibrvcmReviewCallback,
-                                                _c_tibrv_str,
-                                                _ctypes.py_object]
-_rvcm.tibrvcmTransport_ReviewLedger.restype = _c_tibrv_status
-
-def tibrvcmTransport_ReviewLedger(cmTransport: tibrvcmTransport, callback, subject: str, closure) -> tibrv_status:
-
-    if cmTransport == 0 or cmTransport is None:
-        return TIBRV_INVALID_TRANSPORT
-
-    if callback is None:
-        return TIBRV_INVALID_CALLBACK
-
-    if subject is None:
-        return TIBRV_INVALID_ARG
-
-    try:
-        tx = _c_tibrvcmTransport(cmTransport)
-    except:
-        return TIBRV_INVALID_TRANSPORT
-
-    try:
-        cb = _c_tibrvcmReviewCallback(callback)
-    except:
-        return TIBRV_INVALID_CALLBACK
-
-    try:
-        subj = _cstr(subject)
-        cz = _ctypes.py_object(closure)
-    except:
-        return TIBRV_INVALID_ARG
-
-    status = _rvcm.tibrvcmTransport_ReviewLedger(tx, cb, subj, cz)
-
-    # save cb to prevent GC
-    if status == TIBRV_OK:
-        __reg(tx.value, cb, cz)
-
-    return status
-
-
-##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_ExpireMessages(
-#                   tibrvcmTransport		cmTransport,
-#                   const char*			    subject,
-#                   tibrv_u64			    sequenceNumber
-#               );
-#
-_rvcm.tibrvcmTransport_ExpireMessages.argtypes = [_c_tibrvcmTransport,
-                                                  _c_tibrv_str,
-                                                  _c_tibrv_u64]
-_rvcm.tibrvcmTransport_ExpireMessages.restype = _c_tibrv_status
-
-def tibrvcmTransport_ExpireMessages(cmTransport: tibrvcmTransport, subject: str,
-                                    sequenceNumber: int) -> tibrv_status:
-
-    if cmTransport == 0 or cmTransport is None:
-        return TIBRV_INVALID_TRANSPORT
-
-    if subject is None or sequenceNumber is None:
-        return TIBRV_INVALID_ARG
-
-    try:
-        tx = _c_tibrvcmTransport(cmTransport)
-    except:
-        return TIBRV_INVALID_TRANSPORT
-
-    try:
-        subj = _cstr(subject)
-        seq = _c_tibrv_u64(sequenceNumber)
-    except:
-        return TIBRV_INVALID_ARG
-
-    status = _rvcm.tibrvcmTransport_ExpireMessages(tx, subj, seq)
-
-    return status
 
