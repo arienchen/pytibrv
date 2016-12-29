@@ -7,7 +7,7 @@
 # DESCRIPTIONS
 # -----------------------------------------------------------------------------
 # 1. Data Type
-#    API NOT SUPPOTR
+#    API NOT SUPPORT
 #       TIBRVMSG_ENCRYPTED
 #       TIBRVMSG_XML
 #
@@ -196,7 +196,12 @@
 
 import ctypes as _ctypes
 
-from .types import *
+from .types import tibrv_status, tibrvMsg, tibrvMsgDateTime, tibrvMsgField, tibrvEvent,\
+                   TIBRVMSG_I8, TIBRVMSG_U8, TIBRVMSG_I16, TIBRVMSG_U16, \
+                   TIBRVMSG_I32, TIBRVMSG_U32, TIBRVMSG_I64, TIBRVMSG_U64, \
+                   TIBRVMSG_F32, TIBRVMSG_F64, TIBRVMSG_STRING, TIBRVMSG_MSG, \
+                   TIBRVMSG_DATETIME, \
+                   TIBRVMSG_DATETIME_STRING_SIZE
 
 from .status import TIBRV_OK, TIBRV_INVALID_ARG, TIBRV_INVALID_MSG
 
@@ -231,7 +236,7 @@ class _c_tibrvMsgDateTime(_ctypes.Structure):
 
 class _c_tibrvLocalData(_ctypes.Union):
     _fields_ = [("msg", _c_tibrvMsg),
-                ("str", _ctypes.c_char_p),
+                ("str", _c_tibrv_str),
                 ("buf", _ctypes.c_void_p),
                 ("array", _ctypes.c_void_p),
                 ("boolean", _c_tibrv_bool),
@@ -251,7 +256,7 @@ class _c_tibrvLocalData(_ctypes.Union):
 
 
 class _c_tibrvMsgField(_ctypes.Structure):
-    _fields_ = [("name", _ctypes.c_char_p),
+    _fields_ = [("name", _c_tibrv_str),
                 ("size", _c_tibrv_u32),
                 ("count", _c_tibrv_u32),
                 ("data", _c_tibrvLocalData),
@@ -350,6 +355,7 @@ class _c_tibrvMsgField(_ctypes.Structure):
             return
 
         # TODO array
+
 
 ##
 # tibrv/msg.h
@@ -625,7 +631,7 @@ def tibrvMsg_GetReplySubject(message: tibrvMsg) -> (tibrv_status, str):
     except:
         return TIBRV_INVALID_MSG, None
 
-    sz = _c_tibrv_str(0)
+    sz = _c_tibrv_str()
     status = _rv.tibrvMsg_GetReplySubject(msg, _ctypes.byref(sz))
 
     return status, _pystr(sz)
@@ -760,7 +766,7 @@ def tibrvMsg_ConvertToString(message: tibrvMsg, codepage: str=None) -> (tibrv_st
     except:
         return TIBRV_INVALID_MSG, None
 
-    sz = _c_tibrv_str(0)
+    sz = _c_tibrv_str()
     status = _rv.tibrvMsg_ConvertToString(msg, _ctypes.byref(sz))
 
     return status, _pystr(sz, codepage)
@@ -835,9 +841,10 @@ def tibrvMsg_GetCurrentTimeString() -> (tibrv_status, str, str):
 #
 
 _rv.tibrvMsg_AddDateTimeEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _ctypes.POINTER(_c_tibrvMsgDateTime),
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_AddDateTimeEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddDateTime(message: tibrvMsg, fieldName: str, value: tibrvMsgDateTime,
@@ -870,9 +877,10 @@ def tibrvMsg_AddDateTime(message: tibrvMsg, fieldName: str, value: tibrvMsgDateT
 
 
 _rv.tibrvMsg_UpdateDateTimeEx.argtypes = [_c_tibrvMsg,
-                                          _ctypes.c_char_p,
+                                          _c_tibrv_str,
                                           _ctypes.POINTER(_c_tibrvMsgDateTime),
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateDateTimeEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateDateTime(message: tibrvMsg, fieldName: str, value: tibrvMsgDateTime,
@@ -905,9 +913,10 @@ def tibrvMsg_UpdateDateTime(message: tibrvMsg, fieldName: str, value: tibrvMsgDa
 
 
 _rv.tibrvMsg_GetDateTimeEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _ctypes.POINTER(_c_tibrvMsgDateTime),
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_GetDateTimeEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetDateTime(message: tibrvMsg, fieldName: str,
@@ -965,7 +974,7 @@ def tibrvMsg_GetDateTime(message: tibrvMsg, fieldName: str,
 #                tibrv_u16           optIdentifier
 #              );
 #
-_rv.tibrvMsg_AddBoolEx.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_bool, _c_tibrv_u16]
+_rv.tibrvMsg_AddBoolEx.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_bool, _c_tibrv_u16]
 _rv.tibrvMsg_AddBoolEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddBool(message: tibrvMsg, fieldName: str, value: bool, optIdentifier: int = 0) -> tibrv_status:
@@ -993,7 +1002,7 @@ def tibrvMsg_AddBool(message: tibrvMsg, fieldName: str, value: bool, optIdentifi
     return status
 
 
-_rv.tibrvMsg_UpdateBoolEx.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_bool, _c_tibrv_u16]
+_rv.tibrvMsg_UpdateBoolEx.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_bool, _c_tibrv_u16]
 _rv.tibrvMsg_UpdateBoolEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateBool(message: tibrvMsg, fieldName: str, value: bool, optIdentifier: int = 0) -> tibrv_status:
@@ -1022,9 +1031,10 @@ def tibrvMsg_UpdateBool(message: tibrvMsg, fieldName: str, value: bool, optIdent
 
 
 _rv.tibrvMsg_GetBoolEx.argtypes = [_c_tibrvMsg,
-                                   _ctypes.c_char_p,
+                                   _c_tibrv_str,
                                    _ctypes.POINTER(_c_tibrv_bool),
                                    _c_tibrv_u16]
+
 _rv.tibrvMsg_GetBoolEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetBool(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, bool):
@@ -1104,7 +1114,7 @@ def tibrvMsg_GetBool(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) 
 #                tibrv_u16           optIdentifier
 #              );
 #
-_rv.tibrvMsg_AddI8Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_i8, _c_tibrv_u16]
+_rv.tibrvMsg_AddI8Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_i8, _c_tibrv_u16]
 _rv.tibrvMsg_AddI8Ex.restype = _c_tibrv_status
 
 def tibrvMsg_AddI8(message: tibrvMsg, fieldName: str, value: int, optIdentifier: int = 0) -> tibrv_status:
@@ -1132,7 +1142,7 @@ def tibrvMsg_AddI8(message: tibrvMsg, fieldName: str, value: int, optIdentifier:
     return status
 
 
-_rv.tibrvMsg_UpdateI8Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_i8, _c_tibrv_u16]
+_rv.tibrvMsg_UpdateI8Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_i8, _c_tibrv_u16]
 _rv.tibrvMsg_UpdateI8Ex.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateI8(message: tibrvMsg, fieldName: str, value: int, optIdentifier: int = 0) -> tibrv_status:
@@ -1161,9 +1171,10 @@ def tibrvMsg_UpdateI8(message: tibrvMsg, fieldName: str, value: int, optIdentifi
 
 
 _rv.tibrvMsg_GetI8Ex.argtypes = [_c_tibrvMsg,
-                                 _ctypes.c_char_p,
+                                 _c_tibrv_str,
                                  _ctypes.POINTER(_c_tibrv_i8),
                                  _c_tibrv_u16]
+
 _rv.tibrvMsg_GetI8Ex.restype = _c_tibrv_status
 
 def tibrvMsg_GetI8(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
@@ -1197,10 +1208,11 @@ def tibrvMsg_GetI8(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) ->
 
 
 _rv.tibrvMsg_AddI8ArrayEx.argtypes = [_c_tibrvMsg,
-                                      _ctypes.c_char_p,
+                                      _c_tibrv_str,
                                       _c_tibrv_i8_p,
                                       _c_tibrv_u32,
                                       _c_tibrv_u16]
+
 _rv.tibrvMsg_AddI8ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddI8Array(message: tibrvMsg, fieldName: str, value: list,
@@ -1243,10 +1255,11 @@ def tibrvMsg_AddI8Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_UpdateI8ArrayEx.argtypes = [_c_tibrvMsg,
-                                         _ctypes.c_char_p,
+                                         _c_tibrv_str,
                                          _c_tibrv_i8_p,
                                          _c_tibrv_u32,
                                          _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateI8ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateI8Array(message: tibrvMsg, fieldName: str, value: list,
@@ -1289,10 +1302,11 @@ def tibrvMsg_UpdateI8Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_GetI8ArrayEx.argtypes = [_c_tibrvMsg,
-                                      _ctypes.c_char_p,
+                                      _c_tibrv_str,
                                       _ctypes.POINTER(_c_tibrv_i8_p),
                                       _ctypes.POINTER(_c_tibrv_u32),
                                       _c_tibrv_u16]
+
 _rv.tibrvMsg_GetI8ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetI8Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
@@ -1367,7 +1381,7 @@ def tibrvMsg_GetI8Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 
 #                tibrv_u16           optIdentifier
 #              );
 #
-_rv.tibrvMsg_AddU8Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_u8, _c_tibrv_u16]
+_rv.tibrvMsg_AddU8Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u8, _c_tibrv_u16]
 _rv.tibrvMsg_AddU8Ex.restype = _c_tibrv_status
 
 def tibrvMsg_AddU8(message: tibrvMsg, fieldName: str, value: int,
@@ -1396,7 +1410,7 @@ def tibrvMsg_AddU8(message: tibrvMsg, fieldName: str, value: int,
     return status
 
 
-_rv.tibrvMsg_UpdateU8Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_u8, _c_tibrv_u16]
+_rv.tibrvMsg_UpdateU8Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u8, _c_tibrv_u16]
 _rv.tibrvMsg_UpdateU8Ex.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateU8(message: tibrvMsg, fieldName: str, value: int,
@@ -1425,9 +1439,10 @@ def tibrvMsg_UpdateU8(message: tibrvMsg, fieldName: str, value: int,
     return status
 
 _rv.tibrvMsg_GetU8Ex.argtypes = [_c_tibrvMsg,
-                                 _ctypes.c_char_p,
+                                 _c_tibrv_str,
                                  _ctypes.POINTER(_c_tibrv_u8),
                                  _c_tibrv_u16]
+
 _rv.tibrvMsg_GetU8Ex.restype = _c_tibrv_status
 
 def tibrvMsg_GetU8(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
@@ -1461,10 +1476,11 @@ def tibrvMsg_GetU8(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) ->
 
 
 _rv.tibrvMsg_AddU8ArrayEx.argtypes = [_c_tibrvMsg,
-                                      _ctypes.c_char_p,
+                                      _c_tibrv_str,
                                       _c_tibrv_u8_p,
                                       _c_tibrv_u32,
                                       _c_tibrv_u16]
+
 _rv.tibrvMsg_AddU8ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddU8Array(message: tibrvMsg, fieldName: str, value: list,
@@ -1507,10 +1523,11 @@ def tibrvMsg_AddU8Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_UpdateU8ArrayEx.argtypes = [_c_tibrvMsg,
-                                         _ctypes.c_char_p,
+                                         _c_tibrv_str,
                                          _c_tibrv_u8_p,
                                          _c_tibrv_u32,
                                          _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateU8ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateU8Array(message:tibrvMsg, fieldName: str, value: list,
@@ -1553,10 +1570,11 @@ def tibrvMsg_UpdateU8Array(message:tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_GetU8ArrayEx.argtypes = [_c_tibrvMsg,
-                                      _ctypes.c_char_p,
+                                      _c_tibrv_str,
                                       _ctypes.POINTER(_c_tibrv_u8_p),
                                       _ctypes.POINTER(_c_tibrv_u32),
                                       _c_tibrv_u16]
+
 _rv.tibrvMsg_GetU8ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetU8Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
@@ -1631,7 +1649,7 @@ def tibrvMsg_GetU8Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 
 #                tibrv_u16           optIdentifier
 #              );
 #
-_rv.tibrvMsg_AddI16Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_i16, _c_tibrv_u16]
+_rv.tibrvMsg_AddI16Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_i16, _c_tibrv_u16]
 _rv.tibrvMsg_AddI16Ex.restype = _c_tibrv_status
 
 def tibrvMsg_AddI16(message: tibrvMsg, fieldName: str, value: int, optIdentifier: int = 0) -> tibrv_status:
@@ -1659,7 +1677,7 @@ def tibrvMsg_AddI16(message: tibrvMsg, fieldName: str, value: int, optIdentifier
     return status
 
 
-_rv.tibrvMsg_UpdateI16Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_i16, _c_tibrv_u16]
+_rv.tibrvMsg_UpdateI16Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_i16, _c_tibrv_u16]
 _rv.tibrvMsg_UpdateI16Ex.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateI16(message: tibrvMsg, fieldName: str, value: int, optIdentifier: int = 0) -> tibrv_status:
@@ -1688,9 +1706,10 @@ def tibrvMsg_UpdateI16(message: tibrvMsg, fieldName: str, value: int, optIdentif
 
 
 _rv.tibrvMsg_GetI16Ex.argtypes = [_c_tibrvMsg,
-                                  _ctypes.c_char_p,
+                                  _c_tibrv_str,
                                   _ctypes.POINTER(_c_tibrv_i16),
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_GetI16Ex.restype = _c_tibrv_status
 
 def tibrvMsg_GetI16(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
@@ -1724,10 +1743,11 @@ def tibrvMsg_GetI16(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
 
 
 _rv.tibrvMsg_AddI16ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _c_tibrv_i16_p,
                                        _c_tibrv_u32,
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_AddI16ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddI16Array(message: tibrvMsg, fieldName: str, value: list, optIdentifier: int = 0) \
@@ -1770,10 +1790,11 @@ def tibrvMsg_AddI16Array(message: tibrvMsg, fieldName: str, value: list, optIden
 
 
 _rv.tibrvMsg_UpdateI16ArrayEx.argtypes = [_c_tibrvMsg,
-                                          _ctypes.c_char_p,
+                                          _c_tibrv_str,
                                           _c_tibrv_i16_p,
                                           _c_tibrv_u32,
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateI16ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateI16Array(message: tibrvMsg, fieldName: str, value: list,
@@ -1816,10 +1837,11 @@ def tibrvMsg_UpdateI16Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_GetI16ArrayEx.argtypes = [_c_tibrvMsg,
-                                      _ctypes.c_char_p,
+                                      _c_tibrv_str,
                                       _ctypes.POINTER(_c_tibrv_i16_p),
                                       _ctypes.POINTER(_c_tibrv_u32),
                                       _c_tibrv_u16]
+
 _rv.tibrvMsg_GetI16ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetI16Array(message: tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (tibrv_status, list):
@@ -1895,7 +1917,7 @@ def tibrvMsg_GetI16Array(message: tibrvMsg, fieldName:str, optIdentifier:int = 0
 #                tibrv_u16           optIdentifier
 #              );
 #
-_rv.tibrvMsg_AddU16Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_u16, _c_tibrv_u16]
+_rv.tibrvMsg_AddU16Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u16, _c_tibrv_u16]
 _rv.tibrvMsg_AddU16Ex.restype = _c_tibrv_status
 
 def tibrvMsg_AddU16(message: tibrvMsg, fieldName:str, value:int, optIdentifier:int = 0) -> tibrv_status:
@@ -1923,7 +1945,7 @@ def tibrvMsg_AddU16(message: tibrvMsg, fieldName:str, value:int, optIdentifier:i
     return status
 
 
-_rv.tibrvMsg_UpdateU16Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_u16, _c_tibrv_u16]
+_rv.tibrvMsg_UpdateU16Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u16, _c_tibrv_u16]
 _rv.tibrvMsg_UpdateU16Ex.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateU16(message: tibrvMsg, fieldName: str, value: int,
@@ -1953,9 +1975,10 @@ def tibrvMsg_UpdateU16(message: tibrvMsg, fieldName: str, value: int,
 
 
 _rv.tibrvMsg_GetU16Ex.argtypes = [_c_tibrvMsg,
-                                  _ctypes.c_char_p,
+                                  _c_tibrv_str,
                                   _ctypes.POINTER(_c_tibrv_u16),
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_GetU16Ex.restype = _c_tibrv_status
 
 def tibrvMsg_GetU16(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (tibrv_status, int):
@@ -1989,10 +2012,11 @@ def tibrvMsg_GetU16(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (
 
 
 _rv.tibrvMsg_AddU16ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _c_tibrv_u16_p,
                                        _c_tibrv_u32,
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_AddU16ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddU16Array(message: tibrvMsg, fieldName: str, value: list,
@@ -2035,10 +2059,11 @@ def tibrvMsg_AddU16Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_UpdateU16ArrayEx.argtypes = [_c_tibrvMsg,
-                                          _ctypes.c_char_p,
+                                          _c_tibrv_str,
                                           _c_tibrv_u16_p,
                                           _c_tibrv_u32,
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateU16ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateU16Array(message: tibrvMsg, fieldName: str, value: list,
@@ -2081,10 +2106,11 @@ def tibrvMsg_UpdateU16Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_GetU16ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _ctypes.POINTER(_c_tibrv_u16_p),
                                        _ctypes.POINTER(_c_tibrv_u32),
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_GetU16ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetU16Array(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (tibrv_status, list):
@@ -2160,7 +2186,7 @@ def tibrvMsg_GetU16Array(message:tibrvMsg, fieldName:str, optIdentifier:int = 0)
 #              );
 #
 
-_rv.tibrvMsg_AddI32Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_i32, _c_tibrv_u16]
+_rv.tibrvMsg_AddI32Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_i32, _c_tibrv_u16]
 _rv.tibrvMsg_AddI32Ex.restype = _c_tibrv_status
 
 def tibrvMsg_AddI32(message:tibrvMsg, fieldName:str, value:int, optIdentifier:int = 0) -> tibrv_status:
@@ -2188,7 +2214,7 @@ def tibrvMsg_AddI32(message:tibrvMsg, fieldName:str, value:int, optIdentifier:in
     return status
 
 
-_rv.tibrvMsg_UpdateI32Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_i32, _c_tibrv_u16]
+_rv.tibrvMsg_UpdateI32Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_i32, _c_tibrv_u16]
 _rv.tibrvMsg_UpdateI32Ex.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateI32(message:tibrvMsg, fieldName:str, value:int, optIdentifier:int = 0) -> tibrv_status:
@@ -2217,9 +2243,10 @@ def tibrvMsg_UpdateI32(message:tibrvMsg, fieldName:str, value:int, optIdentifier
 
 
 _rv.tibrvMsg_GetI32Ex.argtypes = [_c_tibrvMsg,
-                                  _ctypes.c_char_p,
+                                  _c_tibrv_str,
                                   _ctypes.POINTER(_c_tibrv_i32),
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_GetI32Ex.restype = _c_tibrv_status
 
 def tibrvMsg_GetI32(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (tibrv_status, int):
@@ -2253,10 +2280,11 @@ def tibrvMsg_GetI32(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (
 
 
 _rv.tibrvMsg_AddI32ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _c_tibrv_i32_p,
                                        _c_tibrv_u32,
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_AddI32ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddI32Array(message: tibrvMsg, fieldName: str, value: list,
@@ -2300,10 +2328,11 @@ def tibrvMsg_AddI32Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_UpdateI32ArrayEx.argtypes = [_c_tibrvMsg,
-                                          _ctypes.c_char_p,
+                                          _c_tibrv_str,
                                           _c_tibrv_i32_p,
                                           _c_tibrv_u32,
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateI32ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateI32Array(message: tibrvMsg, fieldName: str, value: list,
@@ -2346,10 +2375,11 @@ def tibrvMsg_UpdateI32Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_GetI32ArrayEx.argtypes = [_c_tibrvMsg,
-                                      _ctypes.c_char_p,
+                                      _c_tibrv_str,
                                       _ctypes.POINTER(_c_tibrv_i32_p),
                                       _ctypes.POINTER(_c_tibrv_u32),
                                       _c_tibrv_u16]
+
 _rv.tibrvMsg_GetI32ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetI32Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
@@ -2424,7 +2454,7 @@ def tibrvMsg_GetI32Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
 #                tibrv_u16           optIdentifier
 #              );
 #
-_rv.tibrvMsg_AddU32Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_u32, _c_tibrv_u16]
+_rv.tibrvMsg_AddU32Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u32, _c_tibrv_u16]
 _rv.tibrvMsg_AddU32Ex.restype = _c_tibrv_status
 
 def tibrvMsg_AddU32(message: tibrvMsg, fieldName: str, value: int,
@@ -2453,7 +2483,7 @@ def tibrvMsg_AddU32(message: tibrvMsg, fieldName: str, value: int,
     return status
 
 
-_rv.tibrvMsg_UpdateU32Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_u32, _c_tibrv_u16]
+_rv.tibrvMsg_UpdateU32Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u32, _c_tibrv_u16]
 _rv.tibrvMsg_UpdateU32Ex.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateU32(message: tibrvMsg, fieldName: str, value: int,
@@ -2483,9 +2513,10 @@ def tibrvMsg_UpdateU32(message: tibrvMsg, fieldName: str, value: int,
 
 
 _rv.tibrvMsg_GetU32Ex.argtypes = [_c_tibrvMsg,
-                                  _ctypes.c_char_p,
+                                  _c_tibrv_str,
                                   _ctypes.POINTER(_c_tibrv_u32),
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_GetU32Ex.restype = _c_tibrv_status
 
 def tibrvMsg_GetU32(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
@@ -2519,10 +2550,11 @@ def tibrvMsg_GetU32(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
 
 
 _rv.tibrvMsg_AddU32ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _c_tibrv_u32_p,
                                        _c_tibrv_u32,
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_AddU32ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddU32Array(message: tibrvMsg, fieldName: str, value: list,
@@ -2565,10 +2597,11 @@ def tibrvMsg_AddU32Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_UpdateU32ArrayEx.argtypes = [_c_tibrvMsg,
-                                          _ctypes.c_char_p,
+                                          _c_tibrv_str,
                                           _c_tibrv_u32_p,
                                           _c_tibrv_u32,
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateU32ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateU32Array(message: tibrvMsg, fieldName: str, value: list,
@@ -2611,10 +2644,11 @@ def tibrvMsg_UpdateU32Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_GetU32ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _ctypes.POINTER(_c_tibrv_u32_p),
                                        _ctypes.POINTER(_c_tibrv_u32),
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_GetU32ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetU32Array(message:tibrvMsg, fieldName:str, optIdentifier:int = 0) -> (tibrv_status, list):
@@ -2690,9 +2724,10 @@ def tibrvMsg_GetU32Array(message:tibrvMsg, fieldName:str, optIdentifier:int = 0)
 #              );
 #
 _rv.tibrvMsg_AddI64Ex.argtypes = [_c_tibrvMsg,
-                                  _ctypes.c_char_p,
+                                  _c_tibrv_str,
                                   _c_tibrv_i64,
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_AddI64Ex.restype = _c_tibrv_status
 
 def tibrvMsg_AddI64(message:tibrvMsg, fieldName: str, value: int, optIdentifier:int = 0) -> tibrv_status:
@@ -2721,9 +2756,10 @@ def tibrvMsg_AddI64(message:tibrvMsg, fieldName: str, value: int, optIdentifier:
 
 
 _rv.tibrvMsg_UpdateI64Ex.argtypes = [_c_tibrvMsg,
-                                     _ctypes.c_char_p,
+                                     _c_tibrv_str,
                                      _c_tibrv_i64,
                                      _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateI64Ex.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateI64(message: tibrvMsg, fieldName: str, value: int,
@@ -2753,9 +2789,10 @@ def tibrvMsg_UpdateI64(message: tibrvMsg, fieldName: str, value: int,
 
 
 _rv.tibrvMsg_GetI64Ex.argtypes = [_c_tibrvMsg,
-                                  _ctypes.c_char_p,
+                                  _c_tibrv_str,
                                   _ctypes.POINTER(_c_tibrv_i64),
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_GetI64Ex.restype = _c_tibrv_status
 
 def tibrvMsg_GetI64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
@@ -2789,10 +2826,11 @@ def tibrvMsg_GetI64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
 
 
 _rv.tibrvMsg_AddI64ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _c_tibrv_i64_p,
                                        _c_tibrv_u32,
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_AddI64ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddI64Array(message: tibrvMsg, fieldName: str, value: list,
@@ -2835,10 +2873,11 @@ def tibrvMsg_AddI64Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_UpdateI64ArrayEx.argtypes = [_c_tibrvMsg,
-                                          _ctypes.c_char_p,
+                                          _c_tibrv_str,
                                           _c_tibrv_i64_p,
                                           _c_tibrv_u32,
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateI64ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateI64Array(message: tibrvMsg, fieldName: str, value: list,
@@ -2881,10 +2920,11 @@ def tibrvMsg_UpdateI64Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_GetI64ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _ctypes.POINTER(_c_tibrv_i64_p),
                                        _ctypes.POINTER(_c_tibrv_u32),
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_GetI64ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetI64Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
@@ -2958,7 +2998,7 @@ def tibrvMsg_GetI64Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
 #                tibrv_u32*          numElements,
 #                tibrv_u16           optIdentifier);
 #
-_rv.tibrvMsg_AddU64Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_u64, _c_tibrv_u16]
+_rv.tibrvMsg_AddU64Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u64, _c_tibrv_u16]
 _rv.tibrvMsg_AddU64Ex.restype = _c_tibrv_status
 
 def tibrvMsg_AddU64(message: tibrvMsg, fieldName: str, value: int, optIdentifier: int = 0) -> tibrv_status:
@@ -2986,7 +3026,7 @@ def tibrvMsg_AddU64(message: tibrvMsg, fieldName: str, value: int, optIdentifier
     return status
 
 
-_rv.tibrvMsg_UpdateU64Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_u64, _c_tibrv_u16]
+_rv.tibrvMsg_UpdateU64Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u64, _c_tibrv_u16]
 _rv.tibrvMsg_UpdateU64Ex.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateU64(message: tibrvMsg, fieldName: str, value: int,
@@ -3016,9 +3056,10 @@ def tibrvMsg_UpdateU64(message: tibrvMsg, fieldName: str, value: int,
 
 
 _rv.tibrvMsg_GetU64Ex.argtypes = [_c_tibrvMsg,
-                                  _ctypes.c_char_p,
+                                  _c_tibrv_str,
                                   _ctypes.POINTER(_c_tibrv_u64),
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_GetU64Ex.restype = _c_tibrv_status
 
 def tibrvMsg_GetU64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, int):
@@ -3052,10 +3093,11 @@ def tibrvMsg_GetU64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
 
 
 _rv.tibrvMsg_AddU64ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _c_tibrv_u64_p,
                                        _c_tibrv_u32,
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_AddU64ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddU64Array(message: tibrvMsg, fieldName: str, value: list,
@@ -3098,10 +3140,11 @@ def tibrvMsg_AddU64Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_UpdateU64ArrayEx.argtypes = [_c_tibrvMsg,
-                                          _ctypes.c_char_p,
+                                          _c_tibrv_str,
                                           _c_tibrv_u64_p,
                                           _c_tibrv_u32,
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateU64ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateU64Array(message: tibrvMsg, fieldName: str, value: list,
@@ -3144,10 +3187,11 @@ def tibrvMsg_UpdateU64Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_GetU64ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _ctypes.POINTER(_c_tibrv_u64_p),
                                        _ctypes.POINTER(_c_tibrv_u32),
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_GetU64ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetU64Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
@@ -3224,9 +3268,10 @@ def tibrvMsg_GetU64Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
 #              );
 #
 _rv.tibrvMsg_AddF32Ex.argtypes = [_c_tibrvMsg,
-                                  _ctypes.c_char_p,
+                                  _c_tibrv_str,
                                   _c_tibrv_f32,
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_AddF32Ex.restype = _c_tibrv_status
 
 def tibrvMsg_AddF32(message: tibrvMsg, fieldName: str, value: float,
@@ -3257,9 +3302,10 @@ def tibrvMsg_AddF32(message: tibrvMsg, fieldName: str, value: float,
 
 
 _rv.tibrvMsg_UpdateF32Ex.argtypes = [_c_tibrvMsg,
-                                     _ctypes.c_char_p,
+                                     _c_tibrv_str,
                                      _c_tibrv_f32,
                                      _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateF32Ex.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateF32(message: tibrvMsg, fieldName: str, value: float,
@@ -3290,9 +3336,10 @@ def tibrvMsg_UpdateF32(message: tibrvMsg, fieldName: str, value: float,
 
 
 _rv.tibrvMsg_GetF32Ex.argtypes = [_c_tibrvMsg,
-                                  _ctypes.c_char_p,
+                                  _c_tibrv_str,
                                   _ctypes.POINTER(_c_tibrv_f32),
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_GetF32Ex.restype = _c_tibrv_status
 
 def tibrvMsg_GetF32(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, float):
@@ -3326,10 +3373,11 @@ def tibrvMsg_GetF32(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
 
 
 _rv.tibrvMsg_AddF32ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _c_tibrv_f32_p,
                                        _c_tibrv_u32,
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_AddF32ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddF32Array(message: tibrvMsg, fieldName: str, value: list,
@@ -3372,10 +3420,11 @@ def tibrvMsg_AddF32Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_UpdateF32ArrayEx.argtypes = [_c_tibrvMsg,
-                                          _ctypes.c_char_p,
+                                          _c_tibrv_str,
                                           _c_tibrv_f32_p,
                                           _c_tibrv_u32,
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateF32ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateF32Array(message: tibrvMsg, fieldName: str, value: list,
@@ -3418,10 +3467,11 @@ def tibrvMsg_UpdateF32Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_GetF32ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _ctypes.POINTER(_c_tibrv_f32_p),
                                        _ctypes.POINTER(_c_tibrv_u32),
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_GetF32ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetF32Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
@@ -3497,7 +3547,7 @@ def tibrvMsg_GetF32Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
 #                tibrv_u16           optIdentifier
 #              );
 #
-_rv.tibrvMsg_AddF64Ex.argtypes = [_c_tibrvMsg, _ctypes.c_char_p, _c_tibrv_f64, _c_tibrv_u16]
+_rv.tibrvMsg_AddF64Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_f64, _c_tibrv_u16]
 _rv.tibrvMsg_AddF64Ex.restype = _c_tibrv_status
 
 def tibrvMsg_AddF64(message: tibrvMsg, fieldName: str, value: float,
@@ -3527,9 +3577,10 @@ def tibrvMsg_AddF64(message: tibrvMsg, fieldName: str, value: float,
 
 
 _rv.tibrvMsg_UpdateF64Ex.argtypes = [_c_tibrvMsg,
-                                     _ctypes.c_char_p,
+                                     _c_tibrv_str,
                                      _c_tibrv_f64,
                                      _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateF64Ex.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateF64(message: tibrvMsg, fieldName: str, value: float,
@@ -3559,9 +3610,10 @@ def tibrvMsg_UpdateF64(message: tibrvMsg, fieldName: str, value: float,
 
 
 _rv.tibrvMsg_GetF64Ex.argtypes = [_c_tibrvMsg,
-                                  _ctypes.c_char_p,
+                                  _c_tibrv_str,
                                   _ctypes.POINTER(_c_tibrv_f64),
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_GetF64Ex.restype = _c_tibrv_status
 
 def tibrvMsg_GetF64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, float):
@@ -3595,10 +3647,11 @@ def tibrvMsg_GetF64(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -
 
 
 _rv.tibrvMsg_AddF64ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _c_tibrv_f64_p,
                                        _c_tibrv_u32,
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_AddU64ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddF64Array(message: tibrvMsg, fieldName: str, value: list,
@@ -3641,10 +3694,11 @@ def tibrvMsg_AddF64Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_UpdateF64ArrayEx.argtypes = [_c_tibrvMsg,
-                                          _ctypes.c_char_p,
+                                          _c_tibrv_str,
                                           _c_tibrv_f64_p,
                                           _c_tibrv_u32,
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateF64ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateF64Array(message: tibrvMsg, fieldName: str, value: list,
@@ -3687,10 +3741,11 @@ def tibrvMsg_UpdateF64Array(message: tibrvMsg, fieldName: str, value: list,
 
 
 _rv.tibrvMsg_GetF64ArrayEx.argtypes = [_c_tibrvMsg,
-                                       _ctypes.c_char_p,
+                                       _c_tibrv_str,
                                        _ctypes.POINTER(_c_tibrv_f64_p),
                                        _ctypes.POINTER(_c_tibrv_u32),
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_GetF64ArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetF64Array(message: tibrvMsg, fieldName: str,
@@ -3770,6 +3825,7 @@ _rv.tibrvMsg_AddStringEx.argtypes = [_c_tibrvMsg,
                                      _c_tibrv_str,
                                      _c_tibrv_str,
                                      _c_tibrv_u16]
+
 _rv.tibrvMsg_AddStringEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddString(message: tibrvMsg, fieldName: str, value: str,
@@ -3803,6 +3859,7 @@ _rv.tibrvMsg_UpdateStringEx.argtypes = [_c_tibrvMsg,
                                         _c_tibrv_str,
                                         _c_tibrv_str,
                                         _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateStringEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateString(message: tibrvMsg, fieldName: str, value: str,
@@ -3836,6 +3893,7 @@ _rv.tibrvMsg_GetStringEx.argtypes = [_c_tibrvMsg,
                                      _c_tibrv_str,
                                      _ctypes.POINTER(_c_tibrv_str),
                                      _c_tibrv_u16]
+
 _rv.tibrvMsg_GetStringEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetString(message: tibrvMsg, fieldName: str, optIdentifier: int = 0,
@@ -3874,6 +3932,7 @@ _rv.tibrvMsg_AddStringArrayEx.argtypes = [_c_tibrvMsg,
                                           _c_tibrv_str_p,
                                           _c_tibrv_u32,
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_AddStringArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddStringArray(message: tibrvMsg, fieldName: str, value: list,
@@ -3922,6 +3981,7 @@ _rv.tibrvMsg_UpdateStringArrayEx.argtypes = [_c_tibrvMsg,
                                              _c_tibrv_str_p,
                                              _c_tibrv_u32,
                                              _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateStringArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateStringArray(message: tibrvMsg, fieldName: str, value: list,
@@ -3970,6 +4030,7 @@ _rv.tibrvMsg_GetStringArrayEx.argtypes = [_c_tibrvMsg,
                                           _ctypes.POINTER(_c_tibrv_str_p),
                                           _ctypes.POINTER(_c_tibrv_u32),
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_GetStringArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetStringArray(message: tibrvMsg, fieldName: str, optIdentifier: int = 0,
@@ -4049,6 +4110,7 @@ _rv.tibrvMsg_AddMsgEx.argtypes = [_c_tibrvMsg,
                                   _c_tibrv_str,
                                   _c_tibrvMsg,
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_AddMsgEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddMsg(message: tibrvMsg, fieldName: str, value: tibrvMsg,
@@ -4111,6 +4173,7 @@ _rv.tibrvMsg_GetMsgEx.argtypes = [_c_tibrvMsg,
                                   _c_tibrv_str,
                                   _ctypes.POINTER(_c_tibrvMsg),
                                   _c_tibrv_u16]
+
 _rv.tibrvMsg_GetMsgEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetMsg(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, tibrvMsg):
@@ -4147,6 +4210,7 @@ _rv.tibrvMsg_AddMsgArrayEx.argtypes = [_c_tibrvMsg,
                                        _c_tibrvMsg_p,
                                        _c_tibrv_u32,
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_AddMsgArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_AddMsgArray(message: tibrvMsg, fieldName: str, value: list,
@@ -4193,6 +4257,7 @@ _rv.tibrvMsg_UpdateMsgArrayEx.argtypes = [_c_tibrvMsg,
                                           _c_tibrvMsg_p,
                                           _c_tibrv_u32,
                                           _c_tibrv_u16]
+
 _rv.tibrvMsg_UpdateMsgArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_UpdateMsgArray(message: tibrvMsg, fieldName: str, value: list,
@@ -4239,6 +4304,7 @@ _rv.tibrvMsg_GetMsgArrayEx.argtypes = [_c_tibrvMsg,
                                        _ctypes.POINTER(_c_tibrvMsg_p),
                                        _ctypes.POINTER(_c_tibrv_u32),
                                        _c_tibrv_u16]
+
 _rv.tibrvMsg_GetMsgArrayEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetMsgArray(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) -> (tibrv_status, list):
@@ -4349,6 +4415,7 @@ _rv.tibrvMsg_GetFieldEx.argtypes = [_c_tibrvMsg,
                                     _c_tibrv_str,
                                     _ctypes.POINTER(_c_tibrvMsgField),
                                     _c_tibrv_u16]
+
 _rv.tibrvMsg_GetFieldEx.restype = _c_tibrv_status
 
 def tibrvMsg_GetField(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) \
@@ -4381,6 +4448,7 @@ _rv.tibrvMsg_GetFieldInstance.argtypes = [_c_tibrvMsg,
                                           _c_tibrv_str,
                                           _ctypes.POINTER(_c_tibrvMsgField),
                                           _c_tibrv_u32]
+
 _rv.tibrvMsg_GetFieldInstance.restype = _c_tibrv_status
 
 def tibrvMsg_GetFieldInstance(message: tibrvMsg, fieldName: str, fieldAddr: tibrvMsgField,
@@ -4413,6 +4481,7 @@ def tibrvMsg_GetFieldInstance(message: tibrvMsg, fieldName: str, fieldAddr: tibr
 _rv.tibrvMsg_GetFieldByIndex.argtypes = [_c_tibrvMsg,
                                          _ctypes.POINTER(_c_tibrvMsgField),
                                          _c_tibrv_u32]
+
 _rv.tibrvMsg_GetFieldByIndex.restype = _c_tibrv_status
 
 def tibrvMsg_GetFieldByIndex(message: tibrvMsg, fieldIndex: int ) -> (tibrv_status, tibrvMsgField):
