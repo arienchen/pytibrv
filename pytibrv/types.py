@@ -60,23 +60,23 @@
 ##
 import ctypes as _ctypes
 import time as _time
-
+from typing import NewType, Callable, List, Any
 
 ##-----------------------------------------------------------------------------
 # TIBRV Data Types for Python
 ##-----------------------------------------------------------------------------
-tibrv_status                = int
-tibrvId                     = int
-tibrvMsg                    = int                   # c_void_p
-tibrvEvent                  = tibrvId
-tibrvDispatchable           = tibrvId
-tibrvQueue                  = tibrvId
-tibrvQueueGroup             = tibrvId
-tibrvTransport              = tibrvId
-tibrvDispatcher             = tibrvId
-tibrvEventType              = int
-tibrvQueueLimitPoliy        = int                   # enum
-tibrvIOType                 = int                   # enum
+tibrv_status            = NewType('tibrv_status', int)              # int
+tibrvId                 = NewType('tibrvId', int)                   # int
+tibrvMsg                = NewType('tibrvMsg', int)                  # c_void_p
+tibrvEvent              = NewType('tibrvEvent', int)                # tibrvId
+tibrvDispatchable       = NewType('tibrvDispatchable', int)         # tibrvId
+tibrvQueue              = NewType('tibrvQueue', int)                # tibrvId
+tibrvQueueGroup         = NewType('tibrvQueueGroup', int)           # tibrvId
+tibrvTransport          = NewType('tibrvTransport', int)            # tibrvId
+tibrvDispatcher         = NewType('tibrvDispatcher', int)           # tibrvId
+tibrvEventType          = NewType('tibrvEventType', int)            # enum(int)
+tibrvQueueLimitPolicy   = NewType('tibrvQueueLimitPolicy', int)     # enum(int)
+tibrvIOType             = NewType('tibrvIOType', int)               # enum(int)
 
 
 ##-----------------------------------------------------------------------------
@@ -84,15 +84,15 @@ tibrvIOType                 = int                   # enum
 ##-----------------------------------------------------------------------------
 TIBRV_TRUE                  = 1
 TIBRV_FALSE                 = 0
-TIBRV_TIMER_EVENT           = 1
-TIBRV_IO_EVENT              = 2
-TIBRV_LISTEN_EVENT          = 3
-TIBRV_DEFAULT_QUEUE         = 1
+TIBRV_TIMER_EVENT           = tibrvEventType(1)
+TIBRV_IO_EVENT              = tibrvEventType(2)
+TIBRV_LISTEN_EVENT          = tibrvEventType(3)
+TIBRV_DEFAULT_QUEUE         = tibrvQueue(1)
 TIBRV_PROCESS_TRANSPORT     = 10
-TIBRVQUEUE_DISCARD_NONE     = 0
-TIBRVQUEUE_DISCARD_NEW      = 1
-TIBRVQUEUE_DISCARD_FIRST    = 2
-TIBRVQUEUE_DISCARD_LAST     = 3
+TIBRVQUEUE_DISCARD_NONE     = tibrvQueueLimitPolicy(0)
+TIBRVQUEUE_DISCARD_NEW      = tibrvQueueLimitPolicy(1)
+TIBRVQUEUE_DISCARD_FIRST    = tibrvQueueLimitPolicy(2)
+TIBRVQUEUE_DISCARD_LAST     = tibrvQueueLimitPolicy(3)
 TIBRV_WAIT_FOREVER          = -1.0
 TIBRV_NO_WAIT               = 0.0
 
@@ -138,6 +138,15 @@ TIBRV_SUBJECT_MAX           = 255
 
 TIBRVMSG_DATETIME_STRING_SIZE = 32
 
+
+##-----------------------------------------------------------------------------
+# CALLBACK
+##-----------------------------------------------------------------------------
+tibrvEventCallback          = Callable[[tibrvEvent, tibrvMsg, object], None]
+tibrvEventVectorCallback    = Callable[[List[tibrvMsg], int], None]
+tibrvEventOnComplete        = Callable[[tibrvEvent, object], None]
+tibrvQueueOnComplete        = Callable[[tibrvQueue, object], None]
+tibrvQueueHook              = Callable[[tibrvQueue, object], None]
 
 class tibrvMsgDateTime:
     def __init__(self):
