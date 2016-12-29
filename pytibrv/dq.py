@@ -10,19 +10,15 @@
 #
 # FEATURES: * = un-implement
 # ------------------------------------------------------
-#   tibrvcmTransport_CreateDistributedQueue
 #   tibrvcmTransport_CreateDistributedQueueEx
-#   tibrvcmTransport_SetCompleteTime
 #   tibrvcmTransport_GetCompleteTime
-#   tibrvcmTransport_SetWorkerWeight
-#   tibrvcmTransport_GetWorkerWeight
-#   tibrvcmTransport_SetWorkerTasks
-#   tibrvcmTransport_GetWorkerTasks
-#   tibrvcmTransport_SetTaskBacklogLimit
-#   tibrvcmTransport_SetTaskBacklogLimitInBytes
-#   tibrvcmTransport_SetTaskBacklogLimitInMessages
-#   tibrvcmTransport_SetPublisherInactivityDiscardInterval
 #   tibrvcmTransport_GetUnassignedMessageCount
+#   tibrvcmTransport_GetWorkerWeight
+#   tibrvcmTransport_GetWorkerTasks
+#   tibrvcmTransport_SetCompleteTime
+#   tibrvcmTransport_SetTaskBacklogLimit
+#   tibrvcmTransport_SetWorkerWeight
+#   tibrvcmTransport_SetWorkerTasks
 #
 #
 # CHANGED LOGS
@@ -31,14 +27,15 @@
 #   CREATED
 #
 import ctypes as _ctypes
-from .types import tibrv_status
+
+from .types import tibrv_status, tibrvTransport
 
 from . import _load
 
 from .api import _cstr, _pystr, \
                  _c_tibrv_status, _c_tibrvTransport, \
-                 _c_tibrv_u16, _c_tibrv_i32, _c_tibrv_u32, _c_tibrv_f64, \
-                 _c_tibrv_str, tibrvTransport
+                 _c_tibrv_u16, _c_tibrv_u32, _c_tibrv_f64, \
+                 _c_tibrv_str
 
 from .status import TIBRV_INVALID_TRANSPORT, TIBRV_INVALID_ARG
 
@@ -48,7 +45,10 @@ from .cm import _c_tibrvcmTransport, tibrvcmTransport
 # module variable
 _rvdq = _load('tibrvcmq')
 
-# CONSTANTS
+
+##-----------------------------------------------------------------------------
+# CONSTANT
+##-----------------------------------------------------------------------------
 TIBRVCM_DEFAULT_COMPLETE_TIME       = 0
 TIBRVCM_DEFAULT_WORKER_WEIGHT       = 1
 TIBRVCM_DEFAULT_WORKER_TASKS        = 1
@@ -57,6 +57,20 @@ TIBRVCM_DEFAULT_SCHEDULER_HB        = 1.0
 TIBRVCM_DEFAULT_SCHEDULER_ACTIVE    = 3.5
 TIBRVCMQ_LIMIT_MSGS                 = 0
 TIBRVCMQ_LIMIT_BYTES                = 1
+
+
+##-----------------------------------------------------------------------------
+# TIBRV API
+#   tibrvcmTransport_CreateDistributedQueueEx
+#   tibrvcmTransport_GetCompleteTime
+#   tibrvcmTransport_GetUnassignedMessageCount
+#   tibrvcmTransport_GetWorkerWeight
+#   tibrvcmTransport_GetWorkerTasks
+#   tibrvcmTransport_SetCompleteTime
+#   tibrvcmTransport_SetTaskBacklogLimit
+#   tibrvcmTransport_SetWorkerWeight
+#   tibrvcmTransport_SetWorkerTasks
+##-----------------------------------------------------------------------------
 
 ##
 # tibrv/cm.h
@@ -79,12 +93,13 @@ _rvdq.tibrvcmTransport_CreateDistributedQueueEx.argtypes = [_ctypes.POINTER(_c_t
                                                             _c_tibrv_u16,
                                                             _c_tibrv_f64,
                                                             _c_tibrv_f64]
+
 _rvdq.tibrvcmTransport_CreateDistributedQueueEx.restype = _c_tibrv_status
 
-def tibrvcmTransport_CreateDistributedQueueEx(tx: tibrvTransport, cmName: str,
-                            workerWeight: int, workerTasks: int, schedulerWeight: int,
-                            schedulerHeartbeat: float, schedulerActivation: float) \
-        -> (tibrv_status, tibrvcmTransport):
+def tibrvcmTransport_CreateDistributedQueueEx(
+        tx: tibrvTransport, cmName: str, workerWeight: int, workerTasks: int,
+        schedulerWeight: int, schedulerHeartbeat: float,
+        schedulerActivation: float) -> (tibrv_status, tibrvcmTransport):
 
     if tx is None or tx == 0:
         return TIBRV_INVALID_TRANSPORT, None
@@ -356,41 +371,6 @@ def tibrvcmTransport_SetTaskBacklogLimitInMessages(cmTransport: tibrvcmTransport
                                                    limitByMessages: int) -> tibrv_status:
 
     return tibrvcmTransport_SetTaskBacklogLimit(cmTransport, TIBRVCMQ_LIMIT_MSGS, limitByMessages)
-
-
-##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_SetPublisherInactivityDiscardInterval(
-#                   tibrvcmTransport    cmTransport,
-#                   tibrv_i32           timeout
-#               );
-#
-_rvdq.tibrvcmTransport_SetPublisherInactivityDiscardInterval.argtypes = [_c_tibrvcmTransport, _c_tibrv_i32]
-_rvdq.tibrvcmTransport_SetPublisherInactivityDiscardInterval.restype = _c_tibrv_status
-
-
-def tibrvcmTransport_SetPublisherInactivityDiscardInterval(cmTransport: tibrvcmTransport,
-                                                           timeout: int) -> tibrv_status:
-
-    if cmTransport is None or cmTransport == 0:
-        return TIBRV_INVALID_TRANSPORT
-
-    if timeout is None:
-        return TIBRV_INVALID_ARG
-
-    try:
-        cmtx = _c_tibrvcmTransport(cmTransport)
-    except:
-        return TIBRV_INVALID_TRANSPORT
-
-    try:
-        val = _c_tibrv_i32(timeout)
-    except:
-        return TIBRV_INVALID_ARG
-
-    status = _rvdq.tibrvcmTransport_SetPublisherInactivityDiscardInterval(cmtx, val)
-
-    return status
 
 
 ##
