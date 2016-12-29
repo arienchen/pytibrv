@@ -69,7 +69,7 @@ from .types import tibrv_status, tibrvQueue, tibrvTransport, tibrvMsg, \
 
 from .api import _cstr, _pystr, \
                  _c_tibrv_status, _c_tibrvId,  _c_tibrvTransport, _c_tibrvQueue, _c_tibrvMsg, \
-                 _c_tibrv_bool, _c_tibrv_u64, _c_tibrv_f64, _c_tibrv_str, \
+                 _c_tibrv_bool, _c_tibrv_i32, _c_tibrv_u64, _c_tibrv_f64, _c_tibrv_str, \
                  _c_tibrvEventOnComplete
 
 from .status import TIBRV_OK, TIBRV_INVALID_TRANSPORT, TIBRV_INVALID_ARG, TIBRV_INVALID_EVENT, \
@@ -969,6 +969,43 @@ def tibrvcmTransport_ExpireMessages(cmTransport: tibrvcmTransport, subject: str,
     status = _rvcm.tibrvcmTransport_ExpireMessages(tx, subj, seq)
 
     return status
+
+
+
+##
+# tibrv/cm.h
+# tibrv_status tibrvcmTransport_SetPublisherInactivityDiscardInterval(
+#                   tibrvcmTransport    cmTransport,
+#                   tibrv_i32           timeout
+#               );
+#
+_rvcm.tibrvcmTransport_SetPublisherInactivityDiscardInterval.argtypes = [_c_tibrvcmTransport, _c_tibrv_i32]
+_rvcm.tibrvcmTransport_SetPublisherInactivityDiscardInterval.restype = _c_tibrv_status
+
+
+def tibrvcmTransport_SetPublisherInactivityDiscardInterval(cmTransport: tibrvcmTransport,
+                                                           timeout: int) -> tibrv_status:
+
+    if cmTransport is None or cmTransport == 0:
+        return TIBRV_INVALID_TRANSPORT
+
+    if timeout is None:
+        return TIBRV_INVALID_ARG
+
+    try:
+        cmtx = _c_tibrvcmTransport(cmTransport)
+    except:
+        return TIBRV_INVALID_TRANSPORT
+
+    try:
+        val = _c_tibrv_i32(timeout)
+    except:
+        return TIBRV_INVALID_ARG
+
+    status = _rvcm.tibrvcmTransport_SetPublisherInactivityDiscardInterval(cmtx, val)
+
+    return status
+
 
 
 ##-----------------------------------------------------------------------------
