@@ -13,6 +13,7 @@
 #    it support data type: c_int, c_float, c_char_p
 #    all present a piece of memory
 #    actually, c_int, c_flaot are all Python Class
+#
 #    BUT 
 #    ctypes DOES NOT overload the __eq__ function
 #    
@@ -83,13 +84,13 @@
 #       '12' -> char[] = [0x31, 0x32]
 #       wchar would decode it as UTF16 0x3132 , and it is wrong  
 # 
-# 5. Naming Convension
+# 5. Naming Convention
 #    pytibrv API use same naming exactly as TIBRV C
 #    lowercase -> refer to TIBRV C include files(.h) 
 #                 ex: tibrv_status, tibrv_Open(), ...
 #    
 #    pytibrv.Tibrv declare its own class, naming in capital
-#    ex: TibrvMsg, TibrvMSgDateTime, TibrvQueue, ... 
+#    ex: TibrvMsg, TibrvMsgDateTime, TibrvQueue, ...
 #    
 #    tibrvQueue -> API, refer to tibrvId = uint32 => Python int  
 #    TibrvQueue -> Python Object 
@@ -117,16 +118,16 @@
 #   CREATED
 #
 ##
-from time import time as _time
 import ctypes as _ctypes
 from . import _load, _func
-from .types import *
+from .types import tibrv_status
 
 # module variable
 _rv = _load('tibrv')
 
 
 ##-----------------------------------------------------------------------------
+# CTYPES
 # tibrv/types.h
 # declare _ctypes for internal use
 ##-----------------------------------------------------------------------------
@@ -212,7 +213,13 @@ _c_tibrvQueueOnComplete = _func(None, _c_tibrvQueue, _ctypes.c_void_p)
 #                   );
 _c_tibrvQueueHook = _func(None, _c_tibrvQueue, _ctypes.c_void_p)
 
-# Helper Functions
+##-----------------------------------------------------------------------------
+# HELPER FUNCTION
+#   _cstr               Python str          -> ctypes.c_char_p
+#   _pystr              ctypes.c_char_p     -> Python str
+#                       Python bytes        -> Python str
+##-----------------------------------------------------------------------------
+
 def _cstr(sz: str, codepage = None) -> str:
     if sz is None:
         return None
@@ -261,7 +268,12 @@ def _pystr(sz: _ctypes.c_char_p, codepage = None) -> str:
     else:
         return ss.decode(codepage)
 
-
+##-----------------------------------------------------------------------------
+# TIBRV API
+#   tibrv_Open()
+#   tibrv_Close()
+#   tibrv_Version()
+##-----------------------------------------------------------------------------
 
 ##
 # tibrv/tibrv.h
@@ -292,6 +304,6 @@ def tibrv_Close() -> tibrv_status:
 _rv.tibrv_Version.argtypes = []
 _rv.tibrv_Version.restype = _ctypes.c_char_p
 
-def tibrv_Version() -> str :
+def tibrv_Version() -> str:
     sz = _rv.tibrv_Version()
     return sz.decode()
