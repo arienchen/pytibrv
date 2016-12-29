@@ -23,7 +23,7 @@
 import ctypes as _ctypes
 
 from .types import tibrvDispatcher, tibrvDispatchable, tibrv_status, \
-                   TIBRV_WAIT_FOREVER, TIBRV_NO_WAIT
+                   TIBRV_WAIT_FOREVER
 
 from .api import _rv, _cstr, _pystr, \
                  _c_tibrv_status, _c_tibrvDispatcher, _c_tibrvDispatchable, \
@@ -44,8 +44,8 @@ _rv.tibrvDispatcher_CreateEx.argtypes = [_ctypes.POINTER(_c_tibrvDispatcher),
                                          _c_tibrv_f64]
 _rv.tibrvDispatcher_CreateEx.restype = _c_tibrv_status
 
-def tibrvDispatcher_Create(dispatchable: tibrvDispatchable, idleTimeout: float = TIBRV_WAIT_FOREVER) \
-                          -> (tibrv_status, tibrvDispatcher):
+def tibrvDispatcher_Create(dispatchable: tibrvDispatchable,
+                           idleTimeout: float = TIBRV_WAIT_FOREVER) -> (tibrv_status, tibrvDispatcher):
 
     if dispatchable is None or dispatchable == 0:
         return TIBRV_INVALID_DISPATCHABLE, None
@@ -76,7 +76,6 @@ def tibrvDispatcher_Create(dispatchable: tibrvDispatchable, idleTimeout: float =
 #
 _rv.tibrvDispatcher_Join.argtypes = [_c_tibrvDispatcher]
 _rv.tibrvDispatcher_Join.restype = _c_tibrv_status
-
 
 def tibrvDispatcher_Join(dispatcher: tibrvDispatcher) -> tibrv_status:
 
