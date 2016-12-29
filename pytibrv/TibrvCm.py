@@ -2,11 +2,27 @@
 # pytibrv/TibrvCm.py
 #   TIBRV Library for PYTHON
 #
+#   TibrvCmTx               <- tibrvcmTransport_XXX
+#   TibrvCmListener         <- tibrvcmEvent_XXX
+#   TibrvCmMsg              <- tibrvMsg_XXX
+#
 # LAST MODIFIED : V1.0 20161227 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # -----------------------------------------------------------------------------
+## 1. TibrvCmTx is not a subclass of TibrvTx
+#    TibrvCmListener is not a subclass of TibrvListener
+#    TibrvCmMsg is derived from TibrvMsg
 #
+# 2. TibrvCmTx, TibrvCmListener both support OnComplete callback
+#    like common callback, the callback pointer would be stored in __callback[]
+#    to prevent GC before callback.
+#    BUT there is no way to detach from __callback[]
+#    I ASSUME the OnComplete callback was assigned at process termination
+#
+#    Please be NOTICED this would cause memory leak
+#    if OnComplete callback in loop and in life of process.
+
 #
 # CHANGED LOGS
 # -----------------------------------------------------------------------------
@@ -158,7 +174,7 @@ class TibrvCmMsg(TibrvMsg):
 ## TibrvCmTx
 ##-----------------------------------------------------------------------------
 class TibrvCmTx:
-    def __init__(self, cmtx: tibrvcmTransport):
+    def __init__(self, cmtx: tibrvcmTransport = 0):
         self._cmtx = 0
         self._err = None
 
@@ -403,7 +419,7 @@ class TibrvCmTx:
 ## TibrvCmListener
 ##-----------------------------------------------------------------------------
 class TibrvCmListener:
-    def __init__(self, event: tibrvcmEvent):
+    def __init__(self, event: tibrvcmEvent = 0):
         self._event = 0
         self._err = None
 
