@@ -118,7 +118,7 @@ from .status import TIBRV_OK, TIBRV_INVALID_EVENT, TIBRV_INVALID_ARG, TIBRV_INVA
 from .api import _rv, _cstr, _pystr, \
                  _c_tibrvTransport, _c_tibrvQueue, _c_tibrvEvent, _c_tibrvEventType, \
                  _c_tibrvEventOnComplete, _c_tibrvEventCallback, _c_tibrvEventVectorCallback, \
-                 _c_tibrv_status, _c_tibrv_f64
+                 _c_tibrv_status, _c_tibrv_f64, _c_tibrv_str
 
 
 # keep callback/closure object from GC
@@ -179,7 +179,7 @@ _rv.tibrvEvent_CreateListener.argtypes = [_ctypes.POINTER(_c_tibrvEvent),
                                           _c_tibrvQueue,
                                           _c_tibrvEventCallback,
                                           _c_tibrvTransport,
-                                          _ctypes.c_char_p,
+                                          _c_tibrv_str,
                                           _ctypes.py_object]
 _rv.tibrvEvent_CreateListener.restype = _c_tibrv_status
 
@@ -244,7 +244,7 @@ _rv.tibrvEvent_CreateVectorListener.argtypes = [_ctypes.POINTER(_c_tibrvEvent),
                                                 _c_tibrvQueue,
                                                 _c_tibrvEventVectorCallback,
                                                 _c_tibrvTransport,
-                                                _ctypes.c_char_p,
+                                                _c_tibrv_str,
                                                 _ctypes.py_object]
 _rv.tibrvEvent_CreateVectorListener.restype = _c_tibrv_status
 
@@ -461,7 +461,7 @@ def tibrvEvent_GetQueue(event: tibrvEvent) -> (tibrv_status, tibrvQueue):
 #                const char**                subject
 #              );
 #
-_rv.tibrvEvent_GetListenerSubject.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_ctypes.c_char_p)]
+_rv.tibrvEvent_GetListenerSubject.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_c_tibrv_str)]
 _rv.tibrvEvent_GetListenerSubject.restype = _c_tibrv_status
 
 def tibrvEvent_GetListenerSubject(event: tibrvEvent) -> (tibrv_status, str):
@@ -474,7 +474,7 @@ def tibrvEvent_GetListenerSubject(event: tibrvEvent) -> (tibrv_status, str):
     except:
         return TIBRV_INVALID_EVENT, None
 
-    sz = _ctypes.c_char_p(0)
+    sz = _c_tibrv_str()
 
     status = _rv.tibrvEvent_GetListenerSubject(ev, _ctypes.byref(sz))
 
