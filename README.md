@@ -176,6 +176,7 @@ status, listener = tibrvEvent_CreateListener(que, my_callback, tx, '_RV.>', None
 
 
 Python3.6 support NewType and Callable from typing  
+
 ```Python
 tibrv_status            = NewType('tibrv_status', int)              # int
 tibrvId                 = NewType('tibrvId', int)                   # int
@@ -198,9 +199,10 @@ status, listener = tibrvEvent_CreateListener(que, my_callback, tx, '_RV.>', None
 
 ```
 
+
 Callback must be declared in module level,  
 You **CAN'T** assign a class function(method) as Callback.  
-All class function are pre-defined 'self' as 1'st parameter. 
+All class functions are pre-defined 'self' as 1'st parameter. 
 
 ```Python 
 class MyApp:
@@ -234,11 +236,45 @@ I rewrite callback as Python Class, it is more strait forward.
 For PYTIBRV Object Model, Please refer [examples/python/timer.py](examples/python/timer.py) 
 or [examples/python/tibrvlisten.py](examples/python/tibrvlisten.py) for more detail.
 
-## API
 ### Data Types 
+1. Python only provide bool, int, gloat, str as native data types,  
+  Not likely as C, it support for I8, U8, I16, ..., I64, U64, F32, F64   
+  
+  Python ctypes support for all C native data type: I8 ... F64   
+  **BUT ctypes DOES NOT PERFORM OVERFLOW CHECKING**  
+  for exexample:  
+  ```python 
+  # In Python 
+  status = tibrvMsg_UpdateI8(msg, 'I8', 0xFFF)        # -> I8 = -1 
+  status = tibrvMsg_UpdateU8(msg, 'U8', 0xFFF)        # -> U8 = 255 
+  ```
 
+2. TIBRV/C Object Handle  
+  TIBRV/C declare `tibrvId` as `tibrv_u32`(`unsigned int`)   
+  `tibrvEvent`, `tibrvTransport`, `tibrvQueue`, `tibrvDispatcher` are all derived from `tibrvId`   
+  'tibrvMsg' is actually a pointer to struct   
+  
+  In PYTIBRV/API, they are all declared as 'int'    
+  
+
+## API
 ### TIBRV 
 
+TIBRV/C | PYTIBRV/API | PYTIBRV/Object
+--- | --- | --- 
+`tibrv_status tibrv_Open()` | `tibrv_Open() -> tibrv_status` | `Tibrv.open() -> tibrv_status`
+`tibrv_status tibrv_Close()` | `tibrv_Close() -> tibrv_status` | `Tirv.close() -> tibrv_status`
+`const char * tibrv_Version()` | `tibrv_Version() -> str` | `Tibrv.version() -> str`
+
+
+### Status 
+TIBRV/C | PYTIBRV/API | PYTIBRV/Object
+--- | --- | --- 
+`const char * tibrvStatus_GetText(tibrv_status code)` | `tibrvStatus_GetText(code: tibrv_status) -> str` | `TibrvStatus.text(code: tibrv_status) -> str` 
+ | | `class TibrvError(Exception)`
+ | | `TibrvStatue.error(code: tibrv_status, text=None) -> TibrvError`
+ 
+ 
 ### Message 
 
 ### Event 
