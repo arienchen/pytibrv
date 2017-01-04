@@ -258,24 +258,92 @@ or [examples/python/tibrvlisten.py](examples/python/tibrvlisten.py) for more det
   
 
 ## API
+Examples: [PYTIBRV/API](examples/api/)   [PYTIBRV/Object](examples/python/)
+* tibrvsend     
+  Send Out a reliable RV message 
+
+* tibrvlisten  
+  Listen and display content of RV message for specific subject 
+  
+* timer 
+  Demostrave TIBRV Timer and Callback and Closure  
+
+* tibrvfttime  
+  RVFT API, program support active/standby aoto-failover, to send out RV message in timestamp.    
+
+* tibrvftmon 
+  RVFT API, program to monitor RVFT Members activities
+  
+* tibrvcmsend   
+  Send out a certified RV message
+
+* tibrvcmlisten  
+  Listen and display content of certified RV message for multiple subjects 
+  
+* tibrvdqlisten  
+  RVDQ API, program support load-sharing, to listen and display RV message for specific subject. 
+  
+
 ### TIBRV 
 
 TIBRV/C | PYTIBRV/API | PYTIBRV/Object
 --- | --- | --- 
-`tibrv_status tibrv_Open()` | `tibrv_Open() -> tibrv_status` | `Tibrv.open() -> tibrv_status`
-`tibrv_status tibrv_Close()` | `tibrv_Close() -> tibrv_status` | `Tirv.close() -> tibrv_status`
-`const char * tibrv_Version()` | `tibrv_Version() -> str` | `Tibrv.version() -> str`
+`tibrv_Open()` | `tibrv_Open()` | `Tibrv.open()`
+`tibrv_Close()` | `tibrv_Close()` | `Tirv.close()`
+`tibrv_Version()` | `tibrv_Version()` | `Tibrv.version()`
 
 
 ### Status 
 TIBRV/C | PYTIBRV/API | PYTIBRV/Object
 --- | --- | --- 
-`const char * tibrvStatus_GetText(tibrv_status code)` | `tibrvStatus_GetText(code: tibrv_status) -> str` | `TibrvStatus.text(code: tibrv_status) -> str` 
  | | `class TibrvError(Exception)`
- | | `TibrvStatue.error(code: tibrv_status, text=None) -> TibrvError`
+`tibrvStatus_GetText()` | `tibrvStatus_GetText()` | `TibrvStatus.text()` 
+ | | `TibrvStatus.error()`
+ | | `TibrvStatus.exception()`
  
  
 ### Message 
+TIBRV/C | PYTIBRV/API | PYTIBRV/Object
+--- | --- | --- 
+`tibrvMsg_Create()`|`tibrvMsg_Create()`|`TibrvMsg.create()`
+`tibrvMsg_Destroy()`|`tibrv_Destroy()`|`TibrvMsg.destroy()`
+`tibrvMsg_CreateCopy()`|`tibrvMsg_CreateCopy()`|`TibrvMsg.copy()`
+`tibrvMsg_Detach()`|`tibrvMsg_Detach()`|`TibrvMsg.detach()`
+`tibrvMsg_GetCurrentTime()`|`tibrvMsg_GetCurrentTime()`|`TibrvMsg.now()`
+`tibrvMsg_GetNumFields()`|`tibrvMsg_GetNumFields()`|`TibrvMsg.count()`
+`tibrvMsg_GetSendSubject()`|`tibrvMsg_GetSendSubject()`|`TibrvMsg.sendSubject`
+`tibrvMsg_SetSendSubject()`|`tibrvMsg_SetSendSubject()`|`TibrvMsg.sendSubject`
+`tibrvMsg_GetReplySubject()`|`tibrvMsg_GetReplySubject()`|`TibrvMsg.replySubject`
+`tibrvMsg_SetReplySubject()`|`tibrvMsg_SetReplySubject()`|`TibrvMsg.replySubject`
+`tibrvMsg_Reset()`|`tibrvMsg_Reset()`|`TibrvMsg.reset()`
+`tibrvMsg_AddI8()`|`tibrvMsg_AddI8()`|`TibrvMsg.addI8()`
+`tibrvMsg_AddU8()`|`tibrvMsg_AddU8()`|`TibrvMsg.addU8()`
+`tibrvMsg_AddI16()`|`tibrvMsg_AddI16()`|`TibrvMsg.addI16()`
+`tibrvMsg_AddU16()`|`tibrvMsg_AddU16()`|`TibrvMsg.addU16()`
+`tibrvMsg_AddI32()`|`tibrvMsg_AddI32()`|`TibrvMsg.addI32()`
+`tibrvMsg_AddU32()`|`tibrvMsg_AddU32()`|`TibrvMsg.addU32()`
+`tibrvMsg_AddI64()`|`tibrvMsg_AddI64()`|`TibrvMsg.addI64()`
+`tibrvMsg_AddU64()`|`tibrvMsg_AddU64()`|`TibrvMsg.addU64()`
+`tibrvMsg_AddF32()`|`tibrvMsg_AddF32()`|`TibrvMsg.addF32()`
+`tibrvMsg_AddF64()`|`tibrvMsg_AddF64()`|`TibrvMsg.addF64()`
+`tibrvMsg_AddString()`|`tibrvMsg_AddString()`|`TibrvMsg.addStr()`
+`tibrvMsg_AddMsg()`|`tibrvMsg_AddMsg()`|`TibrvMsg.addMsg()`
+`tibrvMsg_AddDateTime()`|`tibrvMsg_AddDateTime()`|`TibrvMsg.addDateTime()`
+`tibrvMsg_AddField()`|`tibrvMsg_AddField()`|`TibrvMsg.addField()`
+`tibrvMsg_UpdateI8()`|`tibrvMsg_UpdateI8()`|`TibrvMsg.setI8()`
+`tibrvMsg_UpdateU8()`|`tibrvMsg_UpdateU8()`|`TibrvMsg.setU8()`
+`tibrvMsg_UpdateI16()`|`tibrvMsg_UpdateI16()`|`TibrvMsg.setI16()`
+`tibrvMsg_UpdateU16()`|`tibrvMsg_UpdateU16()`|`TibrvMsg.setU16()`
+`tibrvMsg_UpdateI32()`|`tibrvMsg_UpdateI32()`|`TibrvMsg.setI32()`
+`tibrvMsg_UpdateU32()`|`tibrvMsg_UpdateU32()`|`TibrvMsg.setU32()`
+`tibrvMsg_UpdateI64()`|`tibrvMsg_UpdateI64()`|`TibrvMsg.setI64()`
+`tibrvMsg_UpdateU64()`|`tibrvMsg_UpdateU64()`|`TibrvMsg.setU64()`
+`tibrvMsg_UpdateF32()`|`tibrvMsg_UpdateF32()`|`TibrvMsg.setF32()`
+`tibrvMsg_UpdateF64()`|`tibrvMsg_UpdateF64()`|`TibrvMsg.setF64()`
+`tibrvMsg_UpdateString()`<br>`tibrvMsg_UpdateStringArray()`|`tibrvMsg_UpdateString()`<br>`tibrvMsg_UpdateStringArray()`|`TibrvMsg.setStr()`
+`tibrvMsg_UpdateMsg()`|`tibrvMsg_UpdateMsg()`|`TibrvMsg.setMsg()`
+`tibrvMsg_UpdateDateTime()`|`tibrvMsg_UpdateDateTime()`|`TibrvMsg.setDateTime()`
+`tibrvMsg_UpdateField()`|`tibrvMsg_UpdateField()`|`TibrvMsg.setField()`
 
 ### Event 
 
