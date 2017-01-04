@@ -151,7 +151,7 @@ typedef void (*tibrvEventCallback) (
 ...
 
 void my_callback(tibrvEvent event, tibrvMsg message, void * closure) {
-    # do what you need 
+    // do what you need 
     ...
 }
 
@@ -161,7 +161,8 @@ status = tibrvEvent_CreateListener(&event, que, my_callback, tx, "_RV.>", NULL);
 
 ```
 
-In Python, ALL is dynamic binding and no function typedef.  
+In Python, ALL is dynamic binding and no function typedef. 
+
 ```Python
 def my_callback(event: int, messgae: int, closure: object):
    # do what you need
@@ -173,6 +174,7 @@ status, listener = tibrvEvent_CreateListener(que, my_callback, tx, '_RV.>', None
 
 ```
 
+
 Python3.6 support NewType and Callable from typing  
 ```Python
 tibrv_status            = NewType('tibrv_status', int)              # int
@@ -182,6 +184,7 @@ tibrvEvent              = NewType('tibrvEvent', int)                # tibrvId
 tibrvDispatchable       = NewType('tibrvDispatchable', int)         # tibrvId
 tibrvQueue              = NewType('tibrvQueue', int)                # tibrvId
 ...
+
 tibrvEventCallback          = Callable[[tibrvEvent, tibrvMsg, object], None]
 ...
 
@@ -195,7 +198,54 @@ status, listener = tibrvEvent_CreateListener(que, my_callback, tx, '_RV.>', None
 
 ```
 
+Callback must be declared in module level,  
+You **CAN'T** assign a class function(method) as Callback.  
+All class function are pre-defined 'self' as 1'st parameter. 
+
+```Python 
+class MyApp:
+    def my_callback(self, event, message, closure):
+        # THIS IS NOT WORK 
+```
+
+Suggest to code as   
+```Python
+def my_callback(event, message, closure):
+    my_app = closure
+    if my_app.flags == 0:
+        ...
+        
+        
+class MyApp:
+    def __init__(self):
+        self.flags = 0
+        ...
+        
+    def init_rv(slef):
+        # pass self as closure, to be accessed in callback 
+        status, listener = tibrvEvent_CreateListener(que, my_callback, tx, '_RV.>', self) 
+        
+```
+Please refer [examples/api/timer.py](examples/api/timer.py) 
+or [examples/api/tibrvlisten.py](examples/api/tibrvlisten.py) for more detail.
+
+
+I rewrite callback as Python Class, it is more strait forward.  
+For PYTIBRV Object Model, Please refer [examples/python/timer.py](examples/python/timer.py) 
+or [examples/python/tibrvlisten.py](examples/python/tibrvlisten.py) for more detail.
+
 ## API
+### Data Types 
+
+### TIBRV 
+
+### Message 
+
+### Event 
+
+### Transport 
+
+### Dispatcher 
 
 
 ## Contribute
