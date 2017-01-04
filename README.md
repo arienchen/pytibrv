@@ -140,6 +140,60 @@ status = tibrvMsg_UpdateI32(msg, 'AMOUNT', amt)
 
 ```
 
+### Callback
+In C, callback is declared as 
+```C
+typedef void (*tibrvEventCallback) (
+                  tibrvEvent          event,
+                  tibrvMsg            message,
+                  void*               closure
+                );
+...
+
+void my_callback(tibrvEvent event, tibrvMsg message, void * closure) {
+    # do what you need 
+    ...
+}
+
+...
+
+status = tibrvEvent_CreateListener(&event, que, my_callback, tx, "_RV.>", NULL);
+
+```
+
+In Python, ALL is dynamic binding and no function typedef.  
+```Python
+def my_callback(event: int, messgae: int, closure: object):
+   # do what you need
+   status,sz = tibrvMsg_GetString(message, 'DATA') 
+   
+...
+
+status, listener = tibrvEvent_CreateListener(que, my_callback, tx, '_RV.>', None)
+
+```
+
+Python3.6 support NewType and Callable from typing  
+```Python
+tibrv_status            = NewType('tibrv_status', int)              # int
+tibrvId                 = NewType('tibrvId', int)                   # int
+tibrvMsg                = NewType('tibrvMsg', int)                  # c_void_p
+tibrvEvent              = NewType('tibrvEvent', int)                # tibrvId
+tibrvDispatchable       = NewType('tibrvDispatchable', int)         # tibrvId
+tibrvQueue              = NewType('tibrvQueue', int)                # tibrvId
+...
+tibrvEventCallback          = Callable[[tibrvEvent, tibrvMsg, object], None]
+...
+
+def my_callback(event: tibrvEvent, messgae: tibrvMsg, closure: object):
+   # do what you need
+   status,sz = tibrvMsg_GetString(message, 'DATA') 
+   
+...
+
+status, listener = tibrvEvent_CreateListener(que, my_callback, tx, '_RV.>', None)
+
+```
 
 ## API
 
