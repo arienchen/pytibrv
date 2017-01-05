@@ -1,5 +1,5 @@
 # PYTIBRV 
-PYTIBRV is a Python wrapper for TIBRV C API
+PYTIBRV is a Python wrapper for TIBRV/C API
 
 TIBCO Rendezvous® (aka TIBRV) is copyright of [TIBCO](www.tibco.com) 
 
@@ -17,17 +17,19 @@ PYTIBRV use ctypes to call TIBRV/C API, It is not a Pyhton Extension.
 So, it is unnecessary to build/compile any C source for deployment.  
 
 PYTIBRV contains 
-* Python API  
- Most of TIBRV/C API are ported to PYTIBRV. You must be familer with TIBRV/C API.  
- Naming convention is ```tibrv``` (lowercase), such as ```tibrv_status, tibrvMsg, tibrvMsg_Create```
+* Python API (aka PYTIBRV/API)   
+ Most of TIBRV/C API are ported to PYTIBRV/API.   
+ Before that, you must be familer with TIBRV/C API.  
+ Naming convention is `tibrv` (lowercase), such as `tibrv_status, tibrvMsg, tibrvMsg_Create`
  
-* Python Object Model  
- PYTIBRV provide object model, like as TIBRV/Java, which package TIBRV/C API to component.  
- Naming convention is ```Tibrv``` (capital), such as ```TibrvStatus, TibrvMsg, TibrvListener```
+* Python Object Model (aka PYTIBRV/Object) 
+ PYTIBRV provide object model, like as TIBRV/Java, which package TIBRV/C API to components.  
+ Naming convention is `Tibrv` (capital), such as `TibrvStatus, TibrvMsg, TibrvListener`
  
 ## Install
 Copy pytibr/pytibrv into your Python packages directory,  
 for example: $HOME/my_lib/
+
 ```
 $HOME/my_lib/pytibrv/
                      __init__,py
@@ -47,39 +49,56 @@ run python console to test
 
 ```python
 from pytibrv.api import *
+status = tibrv_Open()
 ```
 
 
 ## Usage
 
-PYTIBRV also rewrite TIBRV/C Examples to Python.
-* tibrvsend
-* tibrvlisten 
-* tibrvcmsend 
-* tibrvcmlisten 
-* tibrvfttime 
-* tibrvftmon 
-* tibrvdqlisten 
+PYTIBRV also rewrite TIBRV/C Examples to Python. Please refer to [examples](examples) for detail.  
 
-Please refer to [examples](examples) for detail. 
+[**Examples:**](examples/)  
+* [tibrvsend](examples/api/tibrvsend.py) [PYTIBRV/Object](examples/python/tibrvsend.py)       
+  Send Out a reliable RV message 
+
+* [tibrvlisten](examples/api/tibrvlisten.py) [PYTIBRV/Object](examples/python/tibrvlisten.py)     
+  Listen and display content of RV message for specific subject 
+  
+* [timer](examples/api/timer.py) [PYTIBRV/Object](examples/python/timer.py)    
+  Demostrate TIBRV Timer / Callback / Closure  
+
+* [tibrvfttime](examples/api/tibrvfttime.py) [PYTIBRV/Object](examples/python/tibrvfttime.py)     
+  RVFT API, program support active/standby **AUTO-FAILOVER**, to send out RV message within timestamp.    
+
+* [tibrvftmon](examples/api/tibrvftmon.py) [PYTIBRV/Object](examples/python/tibrvftmon.py)   
+  RVFT API, program to monitor RVFT Members activities
+  
+* [tibrvcmsend](examples/api/tibrvcmsend.py) [PYTIBRV/Object](examples/python/tibrvcmsend.py)     
+  Send out a certified RV message
+
+* [tibrvcmlisten](examples/api/tibrvcmlisten.py) [PYTIBRV/Object](examples/python/tibrvcmlisten.py)  
+  Listen and display content of certified RV message for multiple subjects 
+  
+* [tibrvdqlisten](examples/api/tibrvdqlisten.py) [PYTIBRV/Object](examples/python/tibrvdqlisten.py)  
+  RVDQ API, program support **LOAD-SHARING**, to listen and display RV message for specific subjects. 
+
 
 ### TIBRV/C API 
 All TIBRV/C API return tibrv_status to indicate the calling status.  
-It use C POINTER(Call By Reference) to return created object. 
+It use C POINTER(Call By Reference) to return created object handle. 
 
 ```C
-# in tibrv/msg.h 
+// C in tibrv/msg.h 
 tibrv_status tibrvMsg_Create(tibrvMsg * msg)
 
-
-# in your code 
+// in your code 
 tibrv_status    status;
 tibrvMsg        msg;
 tibrv_i32       amt = 12345;
 
 status = tibrvMsg_Create(&msg) 
 if (TIBRV_OK != status) {
-    # error handling 
+    // error handling 
 }
 
 status = tibrvMsg_UpdateI32(msg, "AMOUNT", amt);
@@ -90,39 +109,40 @@ status = tibrvMsg_UpdateI32(msg, "AMOUNT", amt);
 ### Python 
 Python are all objects, there is no 'native' data type, like as C int/double. 
 
-``` python
+```Python
 >>> x = int(123)
 >>> type(x)
 <class 'int'>
 >>> 
 ``` 
 
-And, Python is all 'Call By Refence',  
-more precisely, Python is 'Call By Reference of Object'  
-Unfortunately, Python 'Call By Reference' is immutable,  
+And, Python is all 'Call By Refence',
+more precisely, Python is '**Call By Reference of Object**'  
+Unfortunately, Python 'Call By Reference' is immutable for most case,  
 you **CAN'T** return a new object like as C POINTER.  
 
 ``` python
+# Python 
 def change(x):
-    x = "ABC"
+    x = 'ABC'
 
 ...
-y = "123"
+y = '123'
 change(y)
-print(y)         # y is still "123"
+print(y)         # y is still '123'
 ```
 
-When Python runing ```x = "ABC"``` in change()  
+When Python runing `x = 'ABC'` in change()  
 
-It assign local variable x to a new string reference.  
-Actually, x would be GC when change() returned
+It assign local variable x to a new string object reference.  
+**Actually, local variable _x_ would be GC when change() returned**
 
 -------------------------------------------------
-
-Python support return as tuple.  
-Rewrite TIBRV/C tibrvMsg_Create() to Python
+In other way, Python support return as tuple.  
+Rewrite TIBRV/C tibrvMsg_Create() to PYTIBRV/API
 
 ``` python 
+# PYTIBRV/API 
 def tibrvMsg_Create() -> (tibrv_status, tibrvMsg):
     # calling C API by ctypes 
     msg = ctypes.c_void_p()
@@ -132,7 +152,7 @@ def tibrvMsg_Create() -> (tibrv_status, tibrvMsg):
 
 ...
 
-status, msg = tibrvMsg_Create()     # return as tuple 
+status, msg = tibrvMsg_Create()     # return as tuple []
 if status != TIBRV_OK:
     # error handling
     
@@ -141,7 +161,8 @@ status = tibrvMsg_UpdateI32(msg, 'AMOUNT', amt)
 ```
 
 ### Callback
-In C, callback is declared as 
+In TIBRV/C, callback is declared as 
+
 ```C
 typedef void (*tibrvEventCallback) (
                   tibrvEvent          event,
@@ -164,9 +185,10 @@ status = tibrvEvent_CreateListener(&event, que, my_callback, tx, "_RV.>", NULL);
 In Python, ALL is dynamic binding and no function typedef. 
 
 ```Python
+# Python 
 def my_callback(event: int, messgae: int, closure: object):
    # do what you need
-   status,sz = tibrvMsg_GetString(message, 'DATA') 
+   status, sz = tibrvMsg_GetString(message, 'DATA') 
    
 ...
 
@@ -178,7 +200,9 @@ status, listener = tibrvEvent_CreateListener(que, my_callback, tx, '_RV.>', None
 Python3.6 support NewType and Callable from typing  
 
 ```Python
+# Python 
 from typing import NewType, Callable 
+
 tibrv_status            = NewType('tibrv_status', int)              # int
 tibrvId                 = NewType('tibrvId', int)                   # int
 tibrvMsg                = NewType('tibrvMsg', int)                  # c_void_p
@@ -187,7 +211,8 @@ tibrvDispatchable       = NewType('tibrvDispatchable', int)         # tibrvId
 tibrvQueue              = NewType('tibrvQueue', int)                # tibrvId
 ...
 
-tibrvEventCallback          = Callable[[tibrvEvent, tibrvMsg, object], None]
+tibrvEventCallback      = Callable[[tibrvEvent, tibrvMsg, object], None]
+
 def tibrvEvent_CreateListener(que: tibrvQueue, callback: tibrvEventCallback, tx: tibrvTransport, 
                               subj: str, closure: object) -> tibrv_status:
     ...                              
@@ -205,8 +230,8 @@ status, listener = tibrvEvent_CreateListener(que, my_callback, tx, '_RV.>', None
   
   
 Callback must be declared in module level,  
-You **CAN'T** assign a class function(method) as Callback.  
-Python class functions are pre-defined 'self' as 1'st parameter. 
+You **CAN'T** assign a class function(method) for callback.  
+All Python class functions are pre-defined 'self' as 1'st parameter. 
 
 ```Python 
 # in Python 
@@ -238,38 +263,41 @@ class MyApp:
 Please refer [examples/api/timer.py](examples/api/timer.py) 
 or [examples/api/tibrvlisten.py](examples/api/tibrvlisten.py) for more detail.
   
-  
+----------
+
 I rewrite callback as Python Class, it is more strait forward.  
-For PYTIBRV Object Model, Please refer [examples/python/timer.py](examples/python/timer.py) 
+Please refer [examples/python/timer.py](examples/python/timer.py) 
 or [examples/python/tibrvlisten.py](examples/python/tibrvlisten.py) for more detail.
 
 ### Data Types 
 1. Python only provide bool, int, gloat, str as native data types,  
-  Not likely as C, it support for I8, U8, I16, ..., I64, U64, F32, F64   
+  Not likely as C, TIBRV/C support for I8, U8, I16, ..., I64, U64, F32, F64   
   
   Python ctypes support for all C native data type: I8 ... F64   
   **BUT ctypes DOES NOT PERFORM OVERFLOW CHECKING**   
+  
   for exexample:   
   ```python 
   # In Python 
+  # 0xFFF = int(4095) 
   status = tibrvMsg_UpdateI8(msg, 'I8', 0xFFF)        # -> I8 = -1 
   status = tibrvMsg_UpdateU8(msg, 'U8', 0xFFF)        # -> U8 = 255 
   ```
 
 2. TIBRV/C Object Handle  
-  TIBRV/C declare `tibrvId` as `tibrv_u32`(`unsigned int`)   
-  `tibrvEvent`, `tibrvTransport`, `tibrvQueue`, `tibrvDispatcher` are all derived from `tibrvId`   
+  TIBRV/C declare `tibrvId` as `tibrv_u32(unsigned int)`   
+  `tibrvEvent, tibrvTransport, tibrvQueue, tibrvDispatcher` are all derived from `tibrvId`   
   `tibrvMsg` is actually a pointer to struct   
   
   In PYTIBRV/API, they are all declared as 'int'    
   
 ### Exception  
-TIBRV/C API is 'exceptionless', there is no Exception in C.  
-You onlt need to check the return code after caling.  
-PYTIBRV/API is the same as TIBRV/C. You only need to check the return code. 
+TIBRV/C API is 'exceptionless', beecause there is no Exception in C.  
+You only need to check the returned code after calling.  
+PYTIBRV/API is the same as TIBRV/C. You only need to check the returned code. 
 
 PYTIBRV/Object is like as PYTIBRV/API mostly.  
-You could check tibrv_status if there is a return code.  
+You could check tibrv_status if there is a returned code.  
 Or, you could access obj.error() to get last TibrvError. (like as C errno)  
 
 ```Python
@@ -289,10 +317,13 @@ if tx.error() is not None:
     
 ```
 
-If you prefer Exception(try/except), you could set `TibrvStatus.exception(True)`. This would trigger TibrvError when tibrv_status is not TIBRV_OK. 
+If you prefer Exception(try/except) Handling, 
+you could set `TibrvStatus.exception(True)`. 
+This would trigger TibrvError when tibrv_status is not TIBRV_OK. 
 
 ```Python 
 # PYTIBRV/Object 
+# enable exception handling
 TibrvStatus.exception(True)
 
 try:
@@ -307,31 +338,7 @@ except TibrvErrr as er:
 ```
   
 ## API
-Examples: [**PYTIBRV/API**](examples/api/)   [**PYTIBRV/Object**](examples/python/)
-* tibrvsend     
-  Send Out a reliable RV message 
 
-* tibrvlisten  
-  Listen and display content of RV message for specific subject 
-  
-* timer 
-  Demostrave TIBRV Timer and Callback and Closure  
-
-* tibrvfttime  
-  RVFT API, program support active/standby auto-failover, to send out RV message within timestamp.    
-
-* tibrvftmon 
-  RVFT API, program to monitor RVFT Members activities
-  
-* tibrvcmsend   
-  Send out a certified RV message
-
-* tibrvcmlisten  
-  Listen and display content of certified RV message for multiple subjects 
-  
-* tibrvdqlisten  
-  RVDQ API, program support load-sharing, to listen and display RV message for specific subject. 
-  
 
 ### TIBRV 
 
@@ -341,16 +348,18 @@ TIBRV/C | PYTIBRV/API | PYTIBRV/Object
 `tibrv_Close()` | `tibrv_Close()` | `Tirv.close()`
 `tibrv_Version()` | `tibrv_Version()` | `Tibrv.version()`
   
-PYTIBRV/API  
+ 
 ```Python
+# PYTIBRV/API 
 status = tibrv_Open()
 if status != TIBRV_OK:
     print('ERROR', status, tibrvStatus_GetText(status))
     sys.exit(-1)
 ```
   
-PYTIBRV/Object
+
 ```Python
+#PYTIBRV/Object
 status = Tibrv.open()
 if status != TIBRV_OK:
     print('ERROR', status, TibrvStatus.text(status))
@@ -366,6 +375,7 @@ TIBRV/C | PYTIBRV/API | PYTIBRV/Object
  | | `TibrvStatus.error()`
  | | `TibrvStatus.exception()`
   
+
 
  
 ### Message 
