@@ -3,7 +3,7 @@
 #   TIBRV Library for PYTHON
 #   tibrvQueue_XXX
 #
-# LAST MODIFIED : V1.0 20161211 ARIEN arien.chen@gmail.com 
+# LAST MODIFIED : V1.1 20170220 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # -----------------------------------------------------------------------------
@@ -38,7 +38,10 @@
 #
 # CHANGED LOGS
 # -----------------------------------------------------------------------------
-# 20161211 V1.0 ARIEN arien.chen@gmail.com 
+# 20170220 V1.1 ARIEN arien.chen@gmail.com
+#   REMOVE TIBRV C Header
+#
+# 20161211 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
 ##
@@ -70,27 +73,10 @@ def __reg(key, func, closure):
 
 
 ##-----------------------------------------------------------------------------
-# TIBRV API
-#   tibrvQueue_Create
-#   tibrvQueue_Destroy
-#   tibrvQueue_Dispatch
-#   tibrvQueue_GetCount
-#   tibrvQueue_GetLimitPolicy
-#   tibrvQueue_GetName
-#   tibrvQueue_GetPriority
-#   tibrvQueue_Poll
-#   tibrvQueue_SetLimitPolicy
-#   tibrvQueue_SetName
-#   tibrvQueue_SetPriority
-#   tibrvQueue_TimedDispatch
-#   tibrvQueue_TimedDispatchOneEvent
+# TIBRV API : tibrv/queue.h
 ##-----------------------------------------------------------------------------
 
-## tibrv/queue.h
-# tibrv_status tibrvQueue_Create(
-#                tibrvQueue*                 eventQueue
-#              );
-#
+##
 _rv.tibrvQueue_Create.argtypes = [_ctypes.POINTER(_c_tibrvQueue)]
 _rv.tibrvQueue_Create.restype = _c_tibrv_status
 
@@ -103,12 +89,6 @@ def tibrvQueue_Create() -> (tibrv_status, tibrvQueue):
     return status, que.value
 
 ##
-# tibrv/queue.h
-# tibrv_status tibrvQueue_TimedDispatch(
-#                tibrvQueue                  eventQueue,
-#                tibrv_f64                   timeout
-#              );
-#
 _rv.tibrvQueue_TimedDispatch.argtypes = [_c_tibrvQueue, _c_tibrv_f64]
 _rv.tibrvQueue_TimedDispatch.restype = _c_tibrv_status
 
@@ -142,12 +122,6 @@ def tibrvQueue_Poll(eventQueue: tibrvQueue) -> tibrv_status:
 
 
 ##
-# tibrv/queue.h
-# tibrv_status tibrvQueue_TimedDispatchOneEvent(
-#                tibrvQueue                  queue,
-#                tibrv_f64                   waitTime
-#              );
-#
 _rv.tibrvQueue_TimedDispatchOneEvent.argtypes = [_c_tibrvQueue, _c_tibrv_f64]
 _rv.tibrvQueue_TimedDispatchOneEvent.restype = _c_tibrv_status
 
@@ -176,13 +150,6 @@ def tibrvQueue_TimedDispatchOneEvent(eventQueue: tibrvQueue, waitTime: float) ->
 
 
 ##
-# tibrv/queue.h
-# tibrv_status tibrvQueue_DestroyEx(
-#                tibrvQueue                  eventQueue,
-#                tibrvQueueOnComplete        completeCallback,
-#                const void*                 closure
-#              );
-#
 _rv.tibrvQueue_DestroyEx.argtypes = [_c_tibrvQueue, _ctypes.c_void_p, _ctypes.c_void_p]
 _rv.tibrvQueue_DestroyEx.restype = _c_tibrv_status
 
@@ -217,12 +184,6 @@ def tibrvQueue_Destroy(eventQueue: tibrvQueue, callback : tibrvQueueOnComplete =
     return status
 
 ##
-# tibrv/queue.h
-# tibrv_status tibrvQueue_GetCount(
-#                tibrvQueue                  eventQueue,
-#                tibrv_u32*                  numEvents
-#              );
-#
 _rv.tibrvQueue_GetCount.argtypes = [_c_tibrvQueue, _ctypes.POINTER(_c_tibrv_u32)]
 _rv.tibrvQueue_GetCount.restype = _c_tibrv_status
 
@@ -244,12 +205,6 @@ def tibrvQueue_GetCount(eventQueue: tibrvQueue) -> (tibrv_status, int):
 
 
 ##
-# tibrv/queue.h
-# tibrv_status tibrvQueue_GetPriority(
-#                tibrvQueue                  eventQueue,
-#                tibrv_u32*                  priority
-#              );
-#
 _rv.tibrvQueue_GetPriority.argtypes = [_c_tibrvQueue, _ctypes.POINTER(_c_tibrv_u32)]
 _rv.tibrvQueue_GetPriority.restype = _c_tibrv_status
 
@@ -271,12 +226,6 @@ def tibrvQueue_GetPriority(eventQueue: tibrvQueue) -> (tibrv_status, int):
 
 
 ##
-# tibrv/queue.h
-# tibrv_status tibrvQueue_SetPriority(
-#                tibrvQueue                  eventQueue,
-#                tibrv_u32                   priority
-#              );
-#
 _rv.tibrvQueue_SetPriority.argtypes = [_c_tibrvQueue, _c_tibrv_u32]
 _rv.tibrvQueue_SetPriority.restype = _c_tibrv_status
 
@@ -304,14 +253,6 @@ def tibrvQueue_SetPriority(eventQueue: tibrvQueue, priority: int) -> tibrv_statu
 
 
 ##
-# tibrv/queue.h
-# tibrv_status tibrvQueue_GetLimitPolicy(
-#                tibrvQueue                  eventQueue,
-#                tibrvQueueLimitPolicy*      policy,
-#                tibrv_u32*                  maxEvents,
-#                tibrv_u32*                  discardAmount
-#              );
-#
 _rv.tibrvQueue_GetLimitPolicy.argtypes = [_c_tibrvQueue,
                                           _ctypes.POINTER(_c_tibrvQueueLimitPolicy),
                                           _ctypes.POINTER(_c_tibrv_u32),
@@ -338,14 +279,6 @@ def tibrvQueue_GetLimitPolicy(eventQueue: tibrvQueue) -> (tibrv_status, int, int
 
 
 ##
-# tibrv/queue.h
-# tibrv_status tibrvQueue_SetLimitPolicy(
-#                tibrvQueue                  eventQueue,
-#                tibrvQueueLimitPolicy       policy,
-#                tibrv_u32                   maxEvents,
-#                tibrv_u32                   discardAmount
-#              );
-#
 _rv.tibrvQueue_SetLimitPolicy.argtypes = [_c_tibrvQueue,
                                           _c_tibrvQueueLimitPolicy,
                                           _c_tibrv_u32,
@@ -382,12 +315,6 @@ def tibrvQueue_SetLimitPolicy(eventQueue: tibrvQueue, policy: tibrvQueueLimitPol
 
 
 ##
-# tibrv/queue.h
-# tibrv_status tibrvQueue_SetName(
-#                tibrvQueue                  eventQueue,
-#                const char*                 queueName
-#              );
-#
 _rv.tibrvQueue_SetName.argtypes = [_c_tibrvQueue, _ctypes.c_char_p]
 _rv.tibrvQueue_SetName.restype = _c_tibrv_status
 
@@ -417,12 +344,6 @@ def tibrvQueue_SetName(eventQueue: tibrvQueue, queueName: str) -> tibrv_status:
 
 
 ##
-# tibrv/queue.h
-# tibrv_status tibrvQueue_GetName(
-#                tibrvQueue                  eventQueue,
-#                const char**                queueName
-#              );
-#
 _rv.tibrvQueue_GetName.argtypes = [_c_tibrvQueue, _ctypes.POINTER(_ctypes.c_char_p)]
 _rv.tibrvQueue_GetName.restype = _c_tibrv_status
 

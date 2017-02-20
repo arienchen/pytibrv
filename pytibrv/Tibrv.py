@@ -129,19 +129,19 @@ from .api import tibrv_Open, tibrv_Close, tibrv_Version
 class Tibrv:
 
     @staticmethod
-    def open() -> tibrv_status :
+    def open() -> tibrv_status:
         status = tibrv_Open()
         return status
 
     @staticmethod
-    def close() -> tibrv_status :
+    def close() -> tibrv_status:
         status = tibrv_Close()
         return status
 
     @staticmethod
-    def version():
-        status = tibrv_Version()
-        return status
+    def version() -> str:
+        ver = tibrv_Version()
+        return ver
 
 ##-----------------------------------------------------------------------------
 # TibrvStatus

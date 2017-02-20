@@ -4,7 +4,7 @@
 #   tibrvftMember_XXX
 #   tibrvftMonitor_XXX
 #
-# LAST MODIFIED : V1.0 20161225 ARIEN
+# LAST MODIFIED : V1.1 20170220 ARIEN
 #
 # DESCRIPTIONS
 # ------------------------------------------------------
@@ -27,10 +27,13 @@
 #   tibrvftMonitor_GetQueue
 #   tibrvftMonitor_GetGroupName
 #   tibrvftMonitor_GetTransport
-
+#
 #
 # CHANGED LOGS
 # ------------------------------------------------------
+# 20170220 V1.1 ARIEN arien.chen@gmail.com
+#   REMOVE TIBRV C Header
+#
 # 20161225 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
@@ -95,57 +98,29 @@ def __unreg(ft):
 
 
 ##-----------------------------------------------------------------------------
-# CALLBACK
+# CALLBACK : tibrv/ft.h
 ##-----------------------------------------------------------------------------
 tibrvftMemberCallback = Callable[[tibrvftMember, bytes, tibrvftAction, object], None]
 tibrvftMemberOnComplete = Callable[[tibrvftMember, object], None]
 tibrvftMonitorCallback = Callable[[tibrvftMonitor, bytes, int, object], None]
 tibrvftMonitorOnComplete = Callable[[tibrvftMonitor, object], None]
 
-##
-# Callback
-# typedef void (*tibrvftMemberCallback) (
-#                 tibrvftMember               member,
-#                 const char*                 groupName,
-#                 tibrvftAction               action,
-#                 void*                       closure);
-#
 _c_tibrvftMemberCallback  = _func(_ctypes.c_void_p, _c_tibrvftMember, _c_tibrv_str,  \
                                   _c_tibrvftAction, _ctypes.c_void_p)
 
-##
-#  typedef void (*tibrvftMemberOnComplete) (
-#                   tibrvftMember               member,
-#                   void*                       closure);
-#
 _c_tibrvftMemberOnComplete = _func(_ctypes.c_void_p, _c_tibrvftMember, _ctypes.c_void_p)
 
-##
-# typedef void (*tibrvftMonitorCallback) (
-#                   tibrvftMonitor              monitor,
-#                   const char*                 groupName,
-#                   tibrv_u32                   numActiveMembers,
-#                   void*                       closure);
-#
 _c_tibrvftMonitorCallback = _func(_ctypes.c_void_p, _c_tibrvftMonitor, _c_tibrv_str, \
                                   _c_tibrv_u32, _ctypes.c_void_p)
 
-##
-# typedef void (*tibrvftMonitorOnComplete) (
-#                   tibrvftMonitor              monitor,
-#                   void*                       closure);
 _c_tibrvftMonitorOnComplete = _func(_ctypes.c_void_p, _c_tibrvftMonitor, _ctypes.c_void_p)
 
 
 ##-----------------------------------------------------------------------------
-# TIBRV API
-#   tibrvft_Version
+# TIBRV API : tibrv/ft.h
 ##-----------------------------------------------------------------------------
 
 ##
-# tibrv/ft.h
-# const char * tibrvft_Version(void)
-#
 _rvft.tibrvft_Version.argtypes = []
 _rvft.tibrvft_Version.restype = _ctypes.c_char_p
 
@@ -153,33 +128,7 @@ def tibrvft_Version() -> str:
     sz = _rvft.tibrv_Version()
     return sz.decode()
 
-##-----------------------------------------------------------------------------
-# TIBRV API
-#   tibrvftMember_Create
-#   tibrvftMember_Destroy
-#   tibrvftMember_GetGroupName
-#   tibrvftMember_GetQueue
-#   tibrvftMember_GetTransport
-#   tibrvftMember_GetWeight
-#   tibrvftMember_SetWeight
-##-----------------------------------------------------------------------------
-
 ##
-# tibrv/ft.h
-# tibrv_status tibrvftMember_Create(
-#                   tibrvftMember*              member,
-#                   tibrvQueue                  queue,
-#                   tibrvftMemberCallback       callback,
-#                   tibrvTransport              transport,
-#                   const char*                 groupName,
-#                   tibrv_u16                   weight,
-#                   tibrv_u16                   activeGoal,
-#                   tibrv_f64                   heartbeatInterval,
-#                   tibrv_f64                   preparationInterval,
-#                   tibrv_f64                   activationInterval,
-#                   const void*                 closure
-#               );
-#
 _rvft.tibrvftMember_Create.argtypes = [_ctypes.POINTER(_c_tibrvftMember),
                                        _c_tibrvQueue,
                                        _c_tibrvftMemberCallback,
@@ -253,18 +202,6 @@ def tibrvftMember_Create(queue: tibrvQueue, callback: tibrvftMemberCallback,
 
 
 ##
-# tibrv/ft.h
-# tibrv_status tibrvftMember_Destroy(
-#                   tibrvftMember               member
-#               );
-#
-#
-# tibrv_status tibrvftMember_DestroyEx(
-#                   tibrvftMember               member,
-#                   tibrvftMemberOnComplete     completeCallback
-#               );
-#
-#
 _rvft.tibrvftMember_Destroy.argtypes = [_c_tibrvftMember]
 _rvft.tibrvftMember_Destroy.restype = _c_tibrv_status
 
@@ -299,10 +236,6 @@ def tibrvftMember_Destroy(member: tibrvftMember,
 
 
 ##
-# tibrv_status tibrvftMember_GetQueue(
-#    tibrvftMember               member,
-#    tibrvQueue*                 queue);
-#
 _rvft.tibrvftMember_GetQueue.argtypes = [_c_tibrvftMember, _ctypes.POINTER(_c_tibrvQueue)]
 _rvft.tibrvftMember_GetQueue.restype = _c_tibrv_status
 
@@ -323,11 +256,6 @@ def tibrvftMember_GetQueue(member: tibrvftMember) -> (tibrv_status, tibrvQueue):
 
 
 ##
-# tibrv_status tibrvftMember_GetTransport(
-#                   tibrvftMember               member,
-#                   tibrvTransport*             transport
-#               );
-#
 _rvft.tibrvftMember_GetTransport.argtypes = [_c_tibrvftMember, _ctypes.POINTER(_c_tibrvTransport)]
 _rvft.tibrvftMember_GetTransport.restype = _c_tibrv_status
 
@@ -347,11 +275,6 @@ def tibrvftMember_GetTransport(member: tibrvftMember) -> (tibrv_status, tibrvTra
     return status, tx.value
 
 ##
-# tibrv_status tibrvftMember_GetGroupName(
-#                   tibrvftMember               member,
-#                   const char**                groupName
-#               );
-#
 _rvft.tibrvftMember_GetGroupName.argtypes = [_c_tibrvftMember, _ctypes.POINTER(_c_tibrv_str)]
 _rvft.tibrvftMember_GetGroupName.restype = _c_tibrv_status
 
@@ -372,11 +295,6 @@ def tibrvftMember_GetGroupName(member: tibrvftMember) -> (tibrv_status, str):
 
 
 ##
-# tibrv_status tibrvftMember_GetWeight(
-#                   tibrvftMember               member,
-#                   tibrv_u16*                  weight
-#               );
-#
 _rvft.tibrvftMember_GetWeight.argtypes = [_c_tibrvftMember, _ctypes.POINTER(_c_tibrv_u16)]
 _rvft.tibrvftMember_GetWeight.restype = _c_tibrv_status
 
@@ -397,11 +315,6 @@ def tibrvftMember_GetWeight(member: tibrvftMember) -> (tibrv_status, int):
 
 
 ##
-# tibrv_status tibrvftMember_SetWeight(
-#                   tibrvftMember               member,
-#                   tibrv_u16                   weight
-#               );
-#
 _rvft.tibrvftMember_SetWeight.argtypes = [_c_tibrvftMember, _c_tibrv_u16]
 _rvft.tibrvftMember_SetWeight.restype = _c_tibrv_status
 
@@ -424,26 +337,7 @@ def tibrvftMember_SetWeight(member: tibrvftMember, weight: int) -> tibrv_status:
     return status
 
 
-##-----------------------------------------------------------------------------
-# TIBRV API
-#   tibrvftMonitor_Create
-#   tibrvftMonitor_Destroy
-#   tibrvftMonitor_GetQueue
-#   tibrvftMonitor_GetGroupName
-#   tibrvftMonitor_GetTransport
-##-----------------------------------------------------------------------------
-
 ##
-# tibrv_status tibrvftMonitor_Create(
-#                   tibrvftMonitor*             monitor,
-#                   tibrvQueue                  queue,
-#                   tibrvftMonitorCallback      callback,
-#                   tibrvTransport              transport,
-#                   const char*                 groupName,
-#                   tibrv_f64                   lostInterval,
-#                   const void*                 closure
-#               );
-#
 _rvft.tibrvftMonitor_Create.argtypes = [_ctypes.POINTER(_c_tibrvftMonitor),
                                        _c_tibrvQueue,
                                        _c_tibrvftMonitorCallback,
@@ -507,15 +401,6 @@ def tibrvftMonitor_Create(queue: tibrvQueue, callback, transport: tibrvTransport
 
 
 ##
-# tibrv_status tibrvftMonitor_Destroy(
-#                   tibrvftMonitor              monitor
-#               );
-#
-# tibrv_status tibrvftMonitor_DestroyEx(
-#                   tibrvftMonitor              monitor,
-#                   tibrvftMonitorOnComplete    completeCallback
-#               );
-#
 _rvft.tibrvftMonitor_DestroyEx.argtypes = [_c_tibrvftMonitor]
 _rvft.tibrvftMonitor_DestroyEx.restype = _c_tibrv_status
 
@@ -551,11 +436,6 @@ def tibrvftMonitor_Destroy(monitor: tibrvftMember,
 
 
 ##
-# tibrv_status tibrvftMonitor_GetQueue(
-#                   tibrvftMonitor              monitor,
-#                   tibrvQueue*                 queue
-#               );
-#
 _rvft.tibrvftMonitor_GetQueue.argtypes = [_c_tibrvftMonitor, _ctypes.POINTER(_c_tibrvQueue)]
 _rvft.tibrvftMonitor_GetQueue.restype = _c_tibrv_status
 
@@ -576,11 +456,6 @@ def tibrvftMonitor_GetQueue(monitor: tibrvftMonitor) -> (tibrv_status, tibrvQueu
 
 
 ##
-# tibrv_status tibrvftMonitor_GetTransport(
-#                   tibrvftMonitor              monitor,
-#                   tibrvTransport*             transport
-#               );
-#
 _rvft.tibrvftMonitor_GetTransport.argtypes = [_c_tibrvftMonitor, _ctypes.POINTER(_c_tibrvTransport)]
 _rvft.tibrvftMonitor_GetTransport.restype = _c_tibrv_status
 
@@ -601,11 +476,6 @@ def tibrvftMonitor_GetTransport(monitor: tibrvftMonitor) -> (tibrv_status, tibrv
 
 
 ##
-# tibrv_status tibrvftMonitor_GetGroupName(
-#                   tibrvftMonitor              monitor,
-#                   const char**                groupName
-#               );
-#
 _rvft.tibrvftMonitor_GetGroupName.argtypes = [_c_tibrvftMonitor, _ctypes.POINTER(_c_tibrv_str)]
 _rvft.tibrvftMonitor_GetGroupName.restype = _c_tibrv_status
 

@@ -2,7 +2,7 @@
 # pytibrv/msg.py
 #   TIBRV Library for PYTHON
 #
-# LAST MODIFIED : V1.0 20161211 ARIEN arien.chen@gmail.com
+# LAST MODIFIED : V1.1 20170220 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # -----------------------------------------------------------------------------
@@ -190,6 +190,9 @@
 #
 # CHANGED LOGS
 # -----------------------------------------------------------------------------
+# 20170220 V1.1 ARIEN arien.chen@gmail.com
+#   REMOVE TIBRV C Header
+#
 # 20161211 ARIEN V1.0
 #   CREATED
 #
@@ -357,17 +360,11 @@ class _c_tibrvMsgField(_ctypes.Structure):
         # TODO array
 
 
+##-----------------------------------------------------------------------------
+# TIBRV API : tibrv/msg.h
+##-----------------------------------------------------------------------------
+
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_Create(
-#                tibrvMsg*           message
-#              );
-#
-# tibrv_status tibrvMsg_CreateEx(
-#                tibrvMsg*           message,
-#                tibrv_u32           initialStorage
-#              );
-#
 _rv.tibrvMsg_Create.argtypes = [_ctypes.POINTER(_c_tibrvMsg)]
 _rv.tibrvMsg_Create.restype = _c_tibrv_status
 
@@ -392,11 +389,6 @@ def tibrvMsg_Create(initialStorage: int=0) -> (tibrv_status, tibrvMsg):
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_Destroy(
-#                tibrvMsg            message
-#              );
-#
 _rv.tibrvMsg_Destroy.argtypes = [_c_tibrvMsg]
 _rv.tibrvMsg_Destroy.restype = _c_tibrv_status
 
@@ -416,11 +408,6 @@ def tibrvMsg_Destroy(message: tibrvMsg) -> tibrv_status:
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_Detach(
-#                tibrvMsg            message
-#              );
-#
 _rv.tibrvMsg_Detach.argtypes = [_c_tibrvMsg]
 _rv.tibrvMsg_Detach.restype = _c_tibrv_status
 
@@ -440,12 +427,6 @@ def tibrvMsg_Detach(message: tibrvMsg) -> tibrv_status:
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_CreateCopy(
-#                const tibrvMsg              message,
-#                tibrvMsg*                   copy
-#              );
-#
 _rv.tibrvMsg_CreateCopy.argtypes = [_c_tibrvMsg, _ctypes.POINTER(_c_tibrvMsg)]
 _rv.tibrvMsg_CreateCopy.restype = _c_tibrv_status
 
@@ -467,11 +448,6 @@ def tibrvMsg_CreateCopy(message: tibrvMsg) -> (tibrv_status, tibrvMsg):
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_Reset(
-#                tibrvMsg            message
-#              );
-#
 _rv.tibrvMsg_Reset.argtypes = [_c_tibrvMsg]
 _rv.tibrvMsg_Reset.restype = _c_tibrv_status
 
@@ -491,12 +467,6 @@ def tibrvMsg_Reset(message: tibrvMsg) -> tibrv_status:
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_Expand(
-#                tibrvMsg            message,
-#                tibrv_i32           additionalStorage
-#              );
-#
 _rv.tibrvMsg_Expand.argtypes = [_c_tibrvMsg, _c_tibrv_i32]
 _rv.tibrvMsg_Expand.restype = _c_tibrv_status
 
@@ -524,12 +494,6 @@ def tibrvMsg_Expand(message: tibrvMsg, additionalStorage: int) -> tibrv_status:
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_SetSendSubject(
-#                tibrvMsg            message,
-#                const char*         subject
-#              );
-#
 _rv.tibrvMsg_SetSendSubject.argtypes = [_c_tibrvMsg, _c_tibrv_str]
 _rv.tibrvMsg_SetSendSubject.restype = _c_tibrv_status
 
@@ -554,12 +518,6 @@ def tibrvMsg_SetSendSubject(message:tibrvMsg, subject: str) -> tibrv_status:
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_GetSendSubject(
-#                tibrvMsg            message,
-#                const char**        subject
-#              );
-#
 _rv.tibrvMsg_GetSendSubject.argtypes = [_c_tibrvMsg, _ctypes.POINTER(_c_tibrv_str)]
 _rv.tibrvMsg_GetSendSubject.restype = _c_tibrv_status
 
@@ -580,12 +538,6 @@ def tibrvMsg_GetSendSubject(message: tibrvMsg) -> (tibrv_status, str):
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_SetReplySubject(
-#                tibrvMsg            message,
-#                const char*         replySubject
-#              );
-#
 _rv.tibrvMsg_SetReplySubject.argtypes = [_c_tibrvMsg, _c_tibrv_str]
 _rv.tibrvMsg_SetReplySubject.restype = _c_tibrv_status
 
@@ -612,12 +564,6 @@ def tibrvMsg_SetReplySubject(message: tibrvMsg, subject: str) -> tibrv_status:
     return status
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_GetReplySubject(
-#                tibrvMsg            message,
-#                const char**        replySubject
-#              );
-#
 _rv.tibrvMsg_GetReplySubject.argtypes = [_c_tibrvMsg, _ctypes.POINTER(_c_tibrv_str)]
 _rv.tibrvMsg_GetReplySubject.restype = _c_tibrv_status
 
@@ -638,12 +584,6 @@ def tibrvMsg_GetReplySubject(message: tibrvMsg) -> (tibrv_status, str):
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_GetEvent(
-#                tibrvMsg            message,
-#                tibrvEvent*         eventId
-#              );
-#
 _rv.tibrvMsg_GetEvent.argtypes = [_c_tibrvMsg, _ctypes.POINTER(_c_tibrvEvent)]
 _rv.tibrvMsg_GetEvent.restype = _c_tibrv_status
 
@@ -665,12 +605,6 @@ def tibrvMsg_GetEvent(message: tibrvMsg) -> (tibrv_status, tibrvEvent):
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_GetClosure(
-#                tibrvMsg            message,
-#                void**              closure
-#              );
-#
 _rv.tibrvMsg_GetClosure.argtypes = [_c_tibrvMsg, _ctypes.POINTER(_ctypes.py_object)]
 _rv.tibrvMsg_GetClosure.restype = _c_tibrv_status
 
@@ -695,12 +629,6 @@ def tibrvMsg_GetClosure(message: tibrvMsg) -> (tibrv_status, object):
     return status, ret
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_GetNumFields(
-#                tibrvMsg            message,
-#                tibrv_u32*          numFields
-#              );
-#
 _rv.tibrvMsg_GetNumFields.argtypes = [_c_tibrvMsg, _ctypes.POINTER(_c_tibrv_u32)]
 _rv.tibrvMsg_GetNumFields.restype = _c_tibrv_status
 
@@ -721,12 +649,6 @@ def tibrvMsg_GetNumFields(message: tibrvMsg) -> (tibrv_status, int):
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_GetByteSize(
-#                tibrvMsg            message,
-#                tibrv_u32*          byteSize
-#              );
-#
 _rv.tibrvMsg_GetByteSize.argtypes = [_c_tibrvMsg, _ctypes.POINTER(_c_tibrv_u32)]
 _rv.tibrvMsg_GetByteSize.restype = _c_tibrv_status
 
@@ -747,12 +669,6 @@ def tibrvMsg_GetByteSize(message: tibrvMsg) -> (tibrv_status, int):
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_ConvertToString(
-#                tibrvMsg            message,
-#                const char**        string
-#              );
-#
 _rv.tibrvMsg_ConvertToString.argtypes = [_c_tibrvMsg, _ctypes.POINTER(_c_tibrv_str)]
 _rv.tibrvMsg_ConvertToString.restype = _c_tibrv_status
 
@@ -773,16 +689,6 @@ def tibrvMsg_ConvertToString(message: tibrvMsg, codepage: str=None) -> (tibrv_st
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_GetCurrentTime(
-#                tibrvMsgDateTime* dateTime
-#              );
-#
-# tibrv_status tibrvMsg_GetCurrentTimeString(
-#                char* local,
-#                char* gmt
-#              );
-#
 _rv.tibrvMsg_GetCurrentTime.argtypes = [_ctypes.POINTER(_c_tibrvMsgDateTime)]
 _rv.tibrvMsg_GetCurrentTime.restype = _c_tibrv_status
 
@@ -817,29 +723,6 @@ def tibrvMsg_GetCurrentTimeString() -> (tibrv_status, str, str):
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddDateTimeEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrvMsgDateTime * value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateDateTimeEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrvMsgDateTime * value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetDateTimeEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrvMsgDateTime*   value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-
 _rv.tibrvMsg_AddDateTimeEx.argtypes = [_c_tibrvMsg,
                                        _c_tibrv_str,
                                        _ctypes.POINTER(_c_tibrvMsgDateTime),
@@ -952,28 +835,6 @@ def tibrvMsg_GetDateTime(message: tibrvMsg, fieldName: str,
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddBoolEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_bool          value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateBoolEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_bool          value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetBoolEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_bool*         value,
-#                tibrv_u16           optIdentifier
-#              );
-#
 _rv.tibrvMsg_AddBoolEx.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_bool, _c_tibrv_u16]
 _rv.tibrvMsg_AddBoolEx.restype = _c_tibrv_status
 
@@ -1068,52 +929,6 @@ def tibrvMsg_GetBool(message: tibrvMsg, fieldName: str, optIdentifier: int = 0) 
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddI8Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_i8            value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateI8Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_i8            value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_AddI8ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_i8*     array,
-#                tibrv_u32           numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateI8ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_i8*     array,
-#                tibrv_u32           numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetI8Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_i8*           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetI8ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_i8**    array,
-#                tibrv_u32*          numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
 _rv.tibrvMsg_AddI8Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_i8, _c_tibrv_u16]
 _rv.tibrvMsg_AddI8Ex.restype = _c_tibrv_status
 
@@ -1343,44 +1158,6 @@ def tibrvMsg_GetI8Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddU8Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u8            value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateU8Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u8            value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateU8ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_u8*     array,
-#                tibrv_u32           numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetU8Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u8*           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetU8ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_u8**    array,
-#                tibrv_u32*          numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
 _rv.tibrvMsg_AddU8Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u8, _c_tibrv_u16]
 _rv.tibrvMsg_AddU8Ex.restype = _c_tibrv_status
 
@@ -1611,44 +1388,6 @@ def tibrvMsg_GetU8Array(message: tibrvMsg, fieldName: str, optIdentifier: int = 
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddI16Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_i16           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateI16Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_i16           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateI16ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_i16*    array,
-#                tibrv_u32           numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetI16Ex(
-#              tibrvMsg            message,
-#              const char*         fieldName,
-#              tibrv_i16*          value,
-#              tibrv_u16           optIdentifier
-#            );
-#
-# tibrv_status tibrvMsg_GetI16ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_i16**   array,
-#                tibrv_u32*          numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
 _rv.tibrvMsg_AddI16Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_i16, _c_tibrv_u16]
 _rv.tibrvMsg_AddI16Ex.restype = _c_tibrv_status
 
@@ -1879,44 +1618,6 @@ def tibrvMsg_GetI16Array(message: tibrvMsg, fieldName:str, optIdentifier:int = 0
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddU16Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u16           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateU16Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u16           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateU16ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_u16*    array,
-#                tibrv_u32           numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetU16Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u16*          value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetU16ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_u16**   array,
-#                tibrv_u32*          numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
 _rv.tibrvMsg_AddU16Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u16, _c_tibrv_u16]
 _rv.tibrvMsg_AddU16Ex.restype = _c_tibrv_status
 
@@ -2147,45 +1848,6 @@ def tibrvMsg_GetU16Array(message:tibrvMsg, fieldName:str, optIdentifier:int = 0)
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddI32Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_i32           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateI32Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_i32           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateI32ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_i32*    array,
-#                tibrv_u32           numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetI32Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_i32*          value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetI32ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_i32**   array,
-#                tibrv_u32*          numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-
 _rv.tibrvMsg_AddI32Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_i32, _c_tibrv_u16]
 _rv.tibrvMsg_AddI32Ex.restype = _c_tibrv_status
 
@@ -2416,44 +2078,6 @@ def tibrvMsg_GetI32Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddU32Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u32           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_AddU32Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u32           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateU32ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_u32*    array,
-#                tibrv_u32           numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetU32Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u32*          value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetU32ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_u32**   array,
-#                tibrv_u32*          numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
 _rv.tibrvMsg_AddU32Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u32, _c_tibrv_u16]
 _rv.tibrvMsg_AddU32Ex.restype = _c_tibrv_status
 
@@ -2685,44 +2309,6 @@ def tibrvMsg_GetU32Array(message:tibrvMsg, fieldName:str, optIdentifier:int = 0)
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddI64Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_i64           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateI64Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_i64           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateI64ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_i64*    array,
-#                tibrv_u32           numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetI64Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_i64*          value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetI64ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_i64**   array,
-#                tibrv_u32*          numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
 _rv.tibrvMsg_AddI64Ex.argtypes = [_c_tibrvMsg,
                                   _c_tibrv_str,
                                   _c_tibrv_i64,
@@ -2961,43 +2547,6 @@ def tibrvMsg_GetI64Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddU64Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u64           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateU64Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u64           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateU64ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_u64*    array,
-#                tibrv_u32           numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetU64Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u64*          value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetU64ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_u64**   array,
-#                tibrv_u32*          numElements,
-#                tibrv_u16           optIdentifier);
-#
 _rv.tibrvMsg_AddU64Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u64, _c_tibrv_u16]
 _rv.tibrvMsg_AddU64Ex.restype = _c_tibrv_status
 
@@ -3229,44 +2778,6 @@ def tibrvMsg_GetU64Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddF32Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_f32           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateF32Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_f32           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateF32ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_f32*    array,
-#                tibrv_u32           numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetF32Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_f32*          value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetF32ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_f32**   array,
-#                tibrv_u32*          numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
 _rv.tibrvMsg_AddF32Ex.argtypes = [_c_tibrvMsg,
                                   _c_tibrv_str,
                                   _c_tibrv_f32,
@@ -3509,44 +3020,6 @@ def tibrvMsg_GetF32Array(message: tibrvMsg, fieldName: str, optIdentifier: int =
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddF64Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_f64           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateF64Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_f64           value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateF64ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_f64*    array,
-#                tibrv_u32           numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetF64Ex(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_f64*          value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetF64ArrayEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const tibrv_f64**   array,
-#                tibrv_u32*          numElements,
-#                tibrv_u16           optIdentifier
-#              );
-#
 _rv.tibrvMsg_AddF64Ex.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_f64, _c_tibrv_u16]
 _rv.tibrvMsg_AddF64Ex.restype = _c_tibrv_status
 
@@ -3783,44 +3256,6 @@ def tibrvMsg_GetF64Array(message: tibrvMsg, fieldName: str,
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddStringEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const char*         value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateStringEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const char*         value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateStringArrayEx(
-#                tibrvMsg            message,
-#                const char*         field_name,
-#                const char**        value,
-#                tibrv_u32           num_elements,
-#                tibrv_u16           opt_identifier
-#              );
-#
-# tibrv_status tibrvMsg_GetStringEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                const char**        value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetStringArrayEx(
-#                tibrvMsg            message,
-#                const char*         field_name,
-#                const char***       ptr_addr,
-#                tibrv_u32*          num_elements_addr,
-#                tibrv_u16           opt_identifier
-#              );
-#
 _rv.tibrvMsg_AddStringEx.argtypes = [_c_tibrvMsg,
                                      _c_tibrv_str,
                                      _c_tibrv_str,
@@ -4068,44 +3503,6 @@ def tibrvMsg_GetStringArray(message: tibrvMsg, fieldName: str, optIdentifier: in
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddMsgEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrvMsg            value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateMsgEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrvMsg            value,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_UpdateMsgArrayEx(
-#                tibrvMsg            message,
-#                const char*         field_name,
-#                const tibrvMsg*     value,
-#                tibrv_u32           num_elements,
-#                tibrv_u16           opt_identifier
-#              );
-#
-# tibrv_status tibrvMsg_GetMsgEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrvMsg*           field,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetMsgArrayEx(
-#                tibrvMsg            message,
-#                const char*         field_name,
-#                const tibrvMsg**    ptr_addr,
-#                tibrv_u32*          num_elements_addr,
-#                tibrv_u16           opt_identifier
-#              );
-#
 _rv.tibrvMsg_AddMsgEx.argtypes = [_c_tibrvMsg,
                                   _c_tibrv_str,
                                   _c_tibrvMsg,
@@ -4341,38 +3738,6 @@ def tibrvMsg_GetMsgArray(message: tibrvMsg, fieldName: str, optIdentifier: int =
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_AddField(
-#                tibrvMsg            message,
-#                tibrvMsgField*      field
-#              );
-#
-# tibrv_status tibrvMsg_UpdateField(
-#                tibrvMsg                    message,
-#                tibrvMsgField*              field
-#              );
-#
-# tibrv_status tibrvMsg_GetFieldEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrvMsgField*      field,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_GetFieldInstance(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrvMsgField*      fieldAddr,
-#                tibrv_u32           instance
-#              );
-#
-# tibrv_status tibrvMsg_GetFieldByIndex(
-#                tibrvMsg            message,
-#                tibrvMsgField*      field,
-#                tibrv_u32           fieldIndex
-#              );
-#
-#
 _rv.tibrvMsg_AddField.argtypes = [_c_tibrvMsg, _ctypes.POINTER(_c_tibrvMsgField)]
 _rv.tibrvMsg_AddField.restype = _c_tibrv_status
 
@@ -4506,19 +3871,6 @@ def tibrvMsg_GetFieldByIndex(message: tibrvMsg, fieldIndex: int ) -> (tibrv_stat
 
 
 ##
-# tibrv/msg.h
-# tibrv_status tibrvMsg_RemoveFieldEx(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u16           optIdentifier
-#              );
-#
-# tibrv_status tibrvMsg_RemoveFieldInstance(
-#                tibrvMsg            message,
-#                const char*         fieldName,
-#                tibrv_u32           instance
-#              );
-#
 _rv.tibrvMsg_RemoveFieldEx.argtypes = [_c_tibrvMsg, _c_tibrv_str, _c_tibrv_u16]
 _rv.tibrvMsg_RemoveFieldEx.restype = _c_tibrv_status
 

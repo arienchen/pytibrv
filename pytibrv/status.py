@@ -3,7 +3,7 @@
 #   TIBRV Library for PYTHON
 #   tibrvStatus_XXX
 #
-# LAST MODIFIED : V1.0 20161211 ARIEN arien.chen@gmail.com
+# LAST MODIFIED : V1.1 20170220 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 ##-----------------------------------------------------------------------------
@@ -18,6 +18,9 @@
 #
 # CHANGED LOGS
 ##-----------------------------------------------------------------------------
+# 20170220 V1.1 ARIEN arien.chen@gmail.com
+#   REMOVE TIBRV C Header
+#
 # 20161211 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
@@ -28,9 +31,8 @@ from .types import tibrv_status
 from .api import _rv, _pystr, _c_tibrv_status
 
 ##-----------------------------------------------------------------------------
-## CONSTANTS
-# tibrv/status.h
-
+## CONSTANTS : tibrv/status.h
+##-----------------------------------------------------------------------------
 TIBRV_OK                        = 0
 TIBRV_INIT_FAILURE              = 1
 TIBRV_INVALID_TRANSPORT         = 2
@@ -111,10 +113,8 @@ TIBRV_CORRUPT_SERIALIZED_BUFFER = 116
 TIBRV_IPM_ONLY                  = 117
 
 ##-----------------------------------------------------------------------------
-##
-# tibrv/status.h
-# const char * tibrv_GetText(tibrv_status)
-#
+# TIBRV API : tibrv/status.h
+##-----------------------------------------------------------------------------
 _rv.tibrvStatus_GetText.argtypes = [_c_tibrv_status]
 _rv.tibrvStatus_GetText.restype = _ctypes.c_char_p
 

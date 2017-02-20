@@ -2,7 +2,7 @@
 # pytibrv/types.py
 #   TIBRV Library for PYTHON
 #
-# LAST MODIFIED : V1.0 20161224 ARIEN arien.chen@gmail.com
+# LAST MODIFIED : V1.1 20170220 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # -----------------------------------------------------------------------------
@@ -54,6 +54,9 @@
 #
 # CHANGED LOGS
 ##-----------------------------------------------------------------------------
+# 20170220 V1.1 ARIEN arien.chen@gmail.com
+#   REMOVE TIBRV C Header
+#
 # 20161224 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
@@ -97,6 +100,8 @@ TIBRV_WAIT_FOREVER          = -1.0
 TIBRV_NO_WAIT               = 0.0
 
 TIBRVMSG_FIELDNAME_MAX      = 127
+
+TIBRV_INVALID_ID            = 0
 
 TIBRVMSG_MSG                = 1
 TIBRVMSG_DATETIME           = 3

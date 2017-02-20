@@ -3,7 +3,7 @@
 #   TIBRV Library for PYTHON
 #   tibrvTransport_XXX
 #
-# LAST MODIFIED : V1.0 20161211 ARIEN arien.chen@gmail.com 
+# LAST MODIFIED : V1.1 20170220 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # -----------------------------------------------------------------------------
@@ -37,6 +37,9 @@
 #
 # CHANGED LOGS
 # -----------------------------------------------------------------------------
+# 20170220 V1.1 ARIEN arien.chen@gmail.com
+#   REMOVE TIBRV C Header
+#
 # 20161211 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
@@ -52,13 +55,10 @@ from .api import _rv, _cstr, _pystr, \
 
 from .status import TIBRV_INVALID_MSG, TIBRV_INVALID_ARG, TIBRV_INVALID_TRANSPORT
 
-# tibrv/tport.h
-# tibrv_status tibrvTransport_Create(
-#                tibrvTransport*     transport,
-#                const char*         service,
-#                const char*         network,
-#                const char*         daemonStr
-#              );
+##-----------------------------------------------------------------------------
+# TIBRV API : tibrv/tport.h
+##-----------------------------------------------------------------------------
+
 _rv.tibrvTransport_Create.argtypes = [_ctypes.POINTER(_c_tibrvTransport),
                                       _ctypes.c_char_p,
                                       _ctypes.c_char_p,
@@ -75,12 +75,6 @@ def tibrvTransport_Create(service: str, network: str, daemon: str) -> (tibrv_sta
 
 
 ##
-# tibrv/tport.h
-# tibrv_status tibrvTransport_Send(
-#                tibrvTransport      transport,
-#                tibrvMsg            message
-#              );
-#
 _rv.tibrvTransport_Send.argtypes = [_c_tibrvTransport, _c_tibrvMsg]
 _rv.tibrvTransport_Send.restype = _c_tibrv_status
 
@@ -107,14 +101,6 @@ def tibrvTransport_Send(transport: tibrvTransport, message: tibrvMsg) -> tibrv_s
     return status
 
 ##
-# tibrv/tport.h
-# tibrv_status tibrvTransport_SendRequest(
-#                tibrvTransport      transport,
-#                tibrvMsg            message,
-#                tibrvMsg*           reply,
-#                tibrv_f64           idleTimeout
-#              );
-#
 _rv.tibrvTransport_SendRequest.argtypes = [_c_tibrvTransport,
                                            _c_tibrvMsg,
                                            _ctypes.POINTER(_c_tibrvMsg),
@@ -157,13 +143,6 @@ def tibrvTransport_SendRequest(transport: tibrvTransport, message: tibrvMsg,
 
 
 ##
-# tibrv/tport.h
-# tibrv_status tibrvTransport_SendReply(
-#                tibrvTransport      transport,
-#                tibrvMsg            message,
-#                tibrvMsg            requestMessage
-#              );
-#
 _rv.tibrvTransport_SendReply.argtypes = [_c_tibrvTransport, _c_tibrvMsg, _c_tibrvMsg]
 _rv.tibrvTransport_SendReply.restype = _c_tibrv_status
 
@@ -196,11 +175,6 @@ def tibrvTransport_SendReply(transport: tibrvTransport, message: tibrvMsg, reque
 
 
 ##
-# tibrv/tport.h
-# tibrv_status tibrvTransport_Destroy(
-#                tibrvTransport      transport
-#              );
-#
 _rv.tibrvTransport_Destroy.argtypes = [_c_tibrvTransport]
 _rv.tibrvTransport_Destroy.restype = _c_tibrv_status
 
@@ -219,13 +193,6 @@ def tibrvTransport_Destroy(transport: tibrvTransport) -> tibrv_status:
     return status
 
 ##
-# tibrv/tport.h
-# tibrv_status tibrvTransport_CreateInbox(
-#                tibrvTransport      transport,
-#                char*               subjectString,
-#                tibrv_u32           subjectLimit
-#              );
-#
 _rv.tibrvTransport_CreateInbox.argtypes = [_c_tibrvTransport, _ctypes.c_char_p, _c_tibrv_u32]
 _rv.tibrvTransport_CreateInbox.restype = _c_tibrv_status
 
@@ -247,12 +214,6 @@ def tibrvTransport_CreateInbox(transport: tibrvTransport) -> (tibrv_status, str)
 
 
 ##
-# tibrv/tport.h
-# tibrv_status tibrvTransport_GetService(
-#                tibrvTransport      transport,
-#                const char**        serviceString
-#              );
-#
 _rv.tibrvTransport_GetService.argtypes = [_c_tibrvTransport, _ctypes.POINTER(_ctypes.c_char_p)]
 _rv.tibrvTransport_GetService.restype = _c_tibrv_status
 
@@ -273,12 +234,6 @@ def tibrvTransport_GetService(transport: tibrvTransport) -> (tibrv_status, str):
 
 
 ##
-# tibrv/tport.h
-# tibrv_status tibrvTransport_GetNetwork(
-#                tibrvTransport      transport,
-#                const char**        networkString
-#              );
-#
 _rv.tibrvTransport_GetNetwork.argtypes = [_c_tibrvTransport, _ctypes.POINTER(_ctypes.c_char_p)]
 _rv.tibrvTransport_GetNetwork.restype = _c_tibrv_status
 
@@ -300,12 +255,6 @@ def tibrvTransport_GetNetwork(transport: tibrvTransport) -> (tibrv_status, str):
 
 
 ##
-# tibrv/tport.h
-# tibrv_status tibrvTransport_GetDaemon(
-#                tibrvTransport      transport,
-#                const char**        daemonString
-#              );
-#
 _rv.tibrvTransport_GetDaemon.argtypes = [_c_tibrvTransport, _ctypes.POINTER(_ctypes.c_char_p)]
 _rv.tibrvTransport_GetDaemon.restype = _c_tibrv_status
 
@@ -329,12 +278,6 @@ def tibrvTransport_GetDaemon(transport: tibrvTransport) -> (tibrv_status, str):
     return status, _pystr(sz)
 
 ##
-# tibrv/tport.h
-# tibrv_status tibrvTransport_SetDescription(
-#                tibrvTransport      transport,
-#                const char*         description
-#              );
-#
 _rv.tibrvTransport_SetDescription.argtypes = [_c_tibrvTransport, _ctypes.c_char_p]
 _rv.tibrvTransport_SetDescription.restype = _c_tibrv_status
 
@@ -362,12 +305,6 @@ def tibrvTransport_SetDescription(transport: tibrvTransport, description: str) -
 
 
 ##
-# tibrv/tport.h
-# tibrv_status tibrvTransport_GetDescription(
-#                tibrvTransport      transport,
-#                const char**        description
-#              );
-#
 _rv.tibrvTransport_GetDescription.argtypes = [_c_tibrvTransport, _ctypes.POINTER(_ctypes.c_char_p)]
 _rv.tibrvTransport_GetDescription.restype = _c_tibrv_status
 
@@ -387,12 +324,6 @@ def tibrvTransport_GetDescription(transport: tibrvTransport) -> (tibrv_status, s
     return status, _pystr(sz)
 
 ##
-# tibrv/tport.h
-# tibrv_status tibrvTransport_RequestReliability(
-#                tibrvTransport      transport,
-#                tibrv_f64           reliability
-#              );
-#
 _rv.tibrvTransport_RequestReliability.argtypes = [_c_tibrvTransport, _c_tibrv_f64]
 _rv.tibrvTransport_RequestReliability.restype = _c_tibrv_status
 

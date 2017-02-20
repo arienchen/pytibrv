@@ -3,7 +3,7 @@
 #   TIBRV Library for PYTHON
 #   tibrvEvent_XXX
 # 
-# LAST MODIFIED : V1.0 20161211 ARIEN arien.chen@gmail.com 
+# LAST MODIFIED : V1.1 20170220 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # ---------------------------------------------------
@@ -104,6 +104,9 @@
 #
 # CHANGED LOGS
 # -------------------------------------------------------
+# 20170220 V1.1 ARIEN arien.chen@gmail.com
+#   REMOVE TIBRV C Header
+#
 # 20161211 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 ##
@@ -151,30 +154,10 @@ def tibrvClosure(closure) -> object:
 
 
 ##-----------------------------------------------------------------------------
-# TIBRV API
-#   tibrvEvent_CreateListener
-#   tibrvEvent_CreateTime
-#   tibrvEvent_CreateVectorListener
-#   tibrvEvent_DestroyEx
-#   tibrvEvent_GetListenerSubject
-#   tibrvEvent_GetListenerTransport
-#   tibrvEvent_GetTimerInterval
-#   tibrvEvent_GetType
-#   tibrvEvent_GetQueue
-#   tibrvEvent_ResetTimerInterval
+# TIBRV API : tibrv/events.h
 ##-----------------------------------------------------------------------------
 
 ##
-# tibrv/events.h
-# tibrv_status tibrvEvent_CreateListener(
-#                tibrvEvent*                 event,
-#                tibrvQueue                  queue,
-#                tibrvEventCallback          callback,
-#                tibrvTransport              transport,
-#                const char*                 subject,
-#                const void*                 closure
-#              );
-#
 _rv.tibrvEvent_CreateListener.argtypes = [_ctypes.POINTER(_c_tibrvEvent),
                                           _c_tibrvQueue,
                                           _c_tibrvEventCallback,
@@ -230,16 +213,6 @@ def tibrvEvent_CreateListener(queue: tibrvQueue, callback: tibrvEventCallback, t
     return status, ev.value
 
 ##
-# tibrv/events.h
-# tibrv_status tibrvEvent_CreateVectorListener(
-#                tibrvEvent*                 event,
-#                tibrvQueue                  queue,
-#                tibrvEventVectorCallback    callback,
-#                tibrvTransport              transport,
-#                const char*                 subject,
-#                const void*                 closure
-#              );
-#
 _rv.tibrvEvent_CreateVectorListener.argtypes = [_ctypes.POINTER(_c_tibrvEvent),
                                                 _c_tibrvQueue,
                                                 _c_tibrvEventVectorCallback,
@@ -296,26 +269,7 @@ def tibrvEvent_CreateVectorListener(queue: tibrvQueue, callback: tibrvEventVecto
     return status, ev.value
 
 
-# tibrv_status tibrvEvent_CreateGroupVectorListener(
-#                tibrvEvent*                     event,
-#                tibrvQueue                      queue,
-#                tibrvEventVectorCallback        cb,
-#                tibrvTransport                  tport,
-#                const char*                     subject,
-#                const void*                     arg,
-#                const void*                     msgGroupId
-#              );
-#
-
-
-# tibrv_status tibrvEvent_CreateTimer(
-#                tibrvEvent*                 event,
-#                tibrvQueue                  queue,
-#                tibrvEventCallback          callback,
-#                tibrv_f64                   interval,
-#                const void*                 closure
-#              );
-#
+##
 _rv.tibrvEvent_CreateTimer.argtypes = [_ctypes.POINTER(_c_tibrvEvent),
                                        _c_tibrvQueue,
                                        _c_tibrvEventCallback,
@@ -361,12 +315,6 @@ def tibrvEvent_CreateTimer(queue: tibrvQueue, callback: tibrvEventCallback, inte
 
 
 ##
-# tibrv/events.h
-# tibrv_status tibrvEvent_DestroyEx(
-#                tibrvEvent                  event,
-#                tibrvEventOnComplete        completeCallback
-#              );
-#
 _rv.tibrvEvent_DestroyEx.argtypes = [_c_tibrvEvent, _c_tibrvEventOnComplete]
 _rv.tibrvEvent_DestroyEx.restype = _c_tibrv_status
 
@@ -401,12 +349,6 @@ def tibrvEvent_Destroy(event: tibrvEvent, callback: tibrvEventOnComplete = None)
 
 
 ##
-# tibrv/events.h
-# tibrv_status tibrvEvent_GetType(
-#                tibrvEvent                  event,
-#                tibrvEventType*             type
-#              );
-#
 _rv.tibrvEvent_GetType.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_c_tibrvEventType)]
 _rv.tibrvEvent_GetType.restype = _c_tibrv_status
 
@@ -428,12 +370,6 @@ def tibrvEvent_GetType(event: tibrvEvent) -> (tibrv_status, tibrvEventType):
 
 
 ##
-# tibrv/events.h
-# tibrv_status tibrvEvent_GetQueue(
-#                tibrvEvent                  event,
-#                tibrvQueue*                 queue
-#              );
-#
 _rv.tibrvEvent_GetQueue.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_c_tibrvQueue)]
 _rv.tibrvEvent_GetQueue.restype = _c_tibrv_status
 
@@ -455,12 +391,6 @@ def tibrvEvent_GetQueue(event: tibrvEvent) -> (tibrv_status, tibrvQueue):
 
 
 ##
-# tibrv/events.h
-# tibrv_status tibrvEvent_GetListenerSubject(
-#                tibrvEvent                  event,
-#                const char**                subject
-#              );
-#
 _rv.tibrvEvent_GetListenerSubject.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_c_tibrv_str)]
 _rv.tibrvEvent_GetListenerSubject.restype = _c_tibrv_status
 
@@ -482,12 +412,6 @@ def tibrvEvent_GetListenerSubject(event: tibrvEvent) -> (tibrv_status, str):
 
 
 ##
-# tibrv/events.h
-# tibrv_status tibrvEvent_GetListenerTransport(
-#                tibrvEvent                  event,
-#                tibrvTransport*             transport
-#              );
-#
 _rv.tibrvEvent_GetListenerTransport.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_c_tibrvTransport)]
 _rv.tibrvEvent_GetListenerTransport.restype = _c_tibrv_status
 
@@ -509,12 +433,6 @@ def tibrvEvent_GetListenerTransport(event: tibrvEvent) -> (tibrv_status, tibrvTr
 
 
 ##
-# tibrv/events.h
-# tibrv_status tibrvEvent_GetTimerInterval(
-#                tibrvEvent                  event,
-#                tibrv_f64*                  interval
-#              );
-#
 _rv.tibrvEvent_GetTimerInterval.argtypes = [_c_tibrvEvent, _ctypes.POINTER(_c_tibrv_f64)]
 _rv.tibrvEvent_GetTimerInterval.restype = _c_tibrv_status
 
@@ -536,12 +454,6 @@ def tibrvEvent_GetTimerInterval(event: tibrvEvent) -> (tibrv_status, float):
 
 
 ##
-# tibrv/events.h
-# tibrv_status tibrvEvent_ResetTimerInterval(
-#                tibrvEvent                  event,
-#                tibrv_f64                   newInterval
-#              );
-#
 _rv.tibrvEvent_ResetTimerInterval.argtypes = [_c_tibrvEvent, _c_tibrv_f64]
 _rv.tibrvEvent_ResetTimerInterval.restype = _c_tibrv_status
 

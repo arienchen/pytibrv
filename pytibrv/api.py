@@ -2,7 +2,7 @@
 # pytibrv/api.py
 #   TIBRV Library for PYTHON
 #
-# LAST MODIFIED : V1.0 20161209 ARIEN arien.chen@gmail.com
+# LAST MODIFIED : V1.1 20170220 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # ---------------------------------------------------
@@ -114,7 +114,10 @@
 #
 # CHANGED LOGS
 # ---------------------------------------------------
-# 20161209 V1,0 ARIEN arien.chen@gmail.com
+# 20170220 V1.1 ARIEN arien.chen@gmail.com
+#   REMOVE TIBRV C Header
+#
+# 20161209 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
 ##
@@ -176,41 +179,14 @@ _c_tibrvMsg_p                = _ctypes.POINTER(_c_tibrvMsg)
 
 ##
 # Callback
-# typedef void (*tibrvEventCallback) (
-#                 tibrvEvent          event,
-#                 tibrvMsg            message,
-#                 void*               closure
-#                );
-#
 _c_tibrvEventCallback = _func(_ctypes.c_void_p, _c_tibrvEvent, _c_tibrvMsg, _ctypes.c_void_p)
 
-# typedef void (*tibrvEventVectorCallback) (
-#                  tibrvMsg            messages[],
-#                  tibrv_u32           numMessages
-#                );
-#
 _c_tibrvEventVectorCallback = _func(None, _ctypes.POINTER(_c_tibrvMsg), _c_tibrv_u32)
 
-
-# typedef void (*tibrvEventOnComplete) (
-#                  tibrvEvent          event,
-#                  void*               closure
-#                );
-#
 _c_tibrvEventOnComplete = _func(None, _c_tibrvEvent, _ctypes.c_void_p)
 
-# typedef void (*tibrvQueueOnComplete) (
-#                  tibrvQueue          queue,
-#                  void*               closure
-#                 );
-#
 _c_tibrvQueueOnComplete = _func(None, _c_tibrvQueue, _ctypes.c_void_p)
 
-##
-# typedef void (*tibrvQueueHook) (
-#                   tibrvQueue          eventQueue,
-#                   void*               closure
-#                   );
 _c_tibrvQueueHook = _func(None, _c_tibrvQueue, _ctypes.c_void_p)
 
 ##-----------------------------------------------------------------------------
@@ -269,16 +245,9 @@ def _pystr(sz: _ctypes.c_char_p, codepage = None) -> str:
         return ss.decode(codepage)
 
 ##-----------------------------------------------------------------------------
-# TIBRV API
-#   tibrv_Open()
-#   tibrv_Close()
-#   tibrv_Version()
+# TIBRV API : tibrv/tibrv.h
 ##-----------------------------------------------------------------------------
 
-##
-# tibrv/tibrv.h
-# tibrv_status tibrv_Open(void)
-#
 _rv.tibrv_Open.argtypes = None
 _rv.tibrv_Open.restype = _c_tibrv_status
 
@@ -286,10 +255,7 @@ def tibrv_Open() -> tibrv_status:
     status = _rv.tibrv_Open()
     return status
 
-##
-# tibrv/tibrv.h
-# tibrv_status tibrv_Close(void)
-#
+
 _rv.tibrv_Close.argtypes = None
 _rv.tibrv_Close.restype = _c_tibrv_status
 
@@ -297,10 +263,7 @@ def tibrv_Close() -> tibrv_status:
     status = _rv.tibrv_Close()
     return status
 
-##
-# tibrv/tibrv.h
-# const char * tibrv_Version(void)
-#
+
 _rv.tibrv_Version.argtypes = []
 _rv.tibrv_Version.restype = _ctypes.c_char_p
 

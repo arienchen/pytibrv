@@ -2,7 +2,7 @@
 # pytibrv/cm.py
 #   tibrvcmTransport_XXX
 #
-# LAST MODIFIED : V1.0 20161226 ARIEN
+# LAST MODIFIED : V1.1 20170220 ARIEN
 #
 # DESCRIPTIONS
 # ------------------------------------------------------
@@ -23,6 +23,9 @@
 #
 # CHANGED LOGS
 # ------------------------------------------------------
+# 20170220 V1.1 ARIEN arien.chen@gmail.com
+#   REMOVE TIBRV C Header
+#
 # 20161226 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
@@ -60,31 +63,10 @@ TIBRVCMQ_LIMIT_BYTES                = 1
 
 
 ##-----------------------------------------------------------------------------
-# TIBRV API
-#   tibrvcmTransport_CreateDistributedQueueEx
-#   tibrvcmTransport_GetCompleteTime
-#   tibrvcmTransport_GetUnassignedMessageCount
-#   tibrvcmTransport_GetWorkerWeight
-#   tibrvcmTransport_GetWorkerTasks
-#   tibrvcmTransport_SetCompleteTime
-#   tibrvcmTransport_SetTaskBacklogLimit
-#   tibrvcmTransport_SetWorkerWeight
-#   tibrvcmTransport_SetWorkerTasks
+# TIBRV API : tibrv/cm.h
 ##-----------------------------------------------------------------------------
 
 ##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_CreateDistributedQueueEx(
-#                   tibrvcmTransport*           cmTransport,
-#                   tibrvTransport              transport,
-#                   const char*                 cmName,
-#                   tibrv_u32                   workerWeight,
-#                   tibrv_u32                   workerTasks,
-#                   tibrv_u16                   schedulerWeight,
-#                   tibrv_f64                   schedulerHeartbeat,
-#                   tibrv_f64                   schedulerActivation
-#               );
-#
 _rvdq.tibrvcmTransport_CreateDistributedQueueEx.argtypes = [_ctypes.POINTER(_c_tibrvcmTransport),
                                                             _c_tibrvTransport,
                                                             _c_tibrv_str,
@@ -146,12 +128,6 @@ def tibrvcmTransport_CreateDistributedQueue(tx: tibrvTransport, cmName: str) \
 
 
 ##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_SetCompleteTime(
-#                   tibrvcmTransport            cmTransport,
-#                   tibrv_f64                   completeTime
-#               );
-#
 _rvdq.tibrvcmTransport_SetCompleteTime.argtypes = [_c_tibrvcmTransport, _c_tibrv_f64]
 _rvdq.tibrvcmTransport_SetCompleteTime.restype = _c_tibrv_status
 
@@ -179,12 +155,6 @@ def tibrvcmTransport_SetCompleteTime(cmTransport: tibrvcmTransport, completeTime
 
 
 ##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_GetCompleteTime(
-#                   tibrvcmTransport            cmTransport,
-#                   tibrv_f64*                  completeTime
-#               );
-#
 _rvdq.tibrvcmTransport_GetCompleteTime.argtypes = [_c_tibrvcmTransport, _ctypes.POINTER(_c_tibrv_f64)]
 _rvdq.tibrvcmTransport_GetCompleteTime.restype = _c_tibrv_status
 
@@ -206,12 +176,6 @@ def tibrvcmTransport_GetCompleteTime(cmTransport: tibrvcmTransport) -> (tibrv_st
 
 
 ##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_SetWorkerWeight(
-#                   tibrvcmTransport            cmTransport,
-#                   tibrv_u32                   workerWeight
-#               );
-#
 _rvdq.tibrvcmTransport_SetWorkerWeight.argtypes = [_c_tibrvcmTransport, _c_tibrv_u32]
 _rvdq.tibrvcmTransport_SetWorkerWeight.restype = _c_tibrv_status
 
@@ -239,12 +203,6 @@ def tibrvcmTransport_SetWorkerWeight(cmTransport: tibrvcmTransport, workerWeight
 
 
 ##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_GetWorkerWeight(
-#                   tibrvcmTransport            cmTransport,
-#                   tibrv_u32*                  workerWeight
-#               );
-#
 _rvdq.tibrvcmTransport_GetWorkerWeight.argtypes = [_c_tibrvcmTransport, _ctypes.POINTER(_c_tibrv_u32)]
 _rvdq.tibrvcmTransport_GetWorkerWeight.restype = _c_tibrv_status
 
@@ -267,11 +225,6 @@ def tibrvcmTransport_GetWorkerWeight(cmTransport: tibrvcmTransport) -> (tibrv_st
 
 
 ##
-# tibrv_status tibrvcmTransport_SetWorkerTasks(
-#                   tibrvcmTransport            cmTransport,
-#                   tibrv_u32                   listenerTasks
-#               );
-#
 _rvdq.tibrvcmTransport_SetWorkerTasks.argtypes = [_c_tibrvcmTransport, _c_tibrv_u32]
 _rvdq.tibrvcmTransport_SetWorkerTasks.restype = _c_tibrv_status
 
@@ -299,12 +252,6 @@ def tibrvcmTransport_SetWorkerTasks(cmTransport: tibrvcmTransport, listenerTasks
 
 
 ##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_GetWorkerTasks(
-#                   tibrvcmTransport            cmTransport,
-#                   tibrv_u32*                  listenerTasks
-#               );
-#
 _rvdq.tibrvcmTransport_GetWorkerTasks.argtypes = [_c_tibrvcmTransport, _ctypes.POINTER(_c_tibrv_u32)]
 _rvdq.tibrvcmTransport_GetWorkerTasks.restype = _c_tibrv_status
 
@@ -326,13 +273,6 @@ def tibrvcmTransport_GetWorkerTasks(cmTransport: tibrvcmTransport) -> (tibrv_sta
 
 
 ##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_SetTaskBacklogLimit(
-#                   tibrvcmTransport	cmTransport,
-#                   tibrv_u32			limitType,
-#                   tibrv_u32			limitValue
-#               );
-#
 _rvdq.tibrvcmTransport_SetTaskBacklogLimit.argtypes = [_c_tibrvcmTransport, _c_tibrv_u32, _c_tibrv_u32]
 _rvdq.tibrvcmTransport_SetTaskBacklogLimit.restype = _c_tibrv_status
 
@@ -374,11 +314,6 @@ def tibrvcmTransport_SetTaskBacklogLimitInMessages(cmTransport: tibrvcmTransport
 
 
 ##
-# tibrv/cm.h
-# tibrv_status tibrvcmTransport_GetUnassignedMessageCount(
-#                   tibrvcmTransport	cmTransport,
-#                   tibrv_u32			*msgCount);
-#
 _rvdq.tibrvcmTransport_GetUnassignedMessageCount.argtypes = [_c_tibrvcmTransport, _ctypes.POINTER(_c_tibrv_u32)]
 _rvdq.tibrvcmTransport_GetUnassignedMessageCount.restype = _c_tibrv_status
 

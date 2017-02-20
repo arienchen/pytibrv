@@ -2,7 +2,7 @@
 # pytibrv/disp.py
 #   tibrvDispacher_XXX
 # 
-# LAST MODIFIED : V1.0 20161211 ARIEN
+# LAST MODIFIED : V1.1 20170220 ARIEN
 #
 # DESCRIPTIONS
 # ------------------------------------------------------
@@ -17,6 +17,9 @@
 #
 # CHANGED LOGS
 # ------------------------------------------------------
+# 20170220 V1.1 ARIEN arien.chen@gmail.com
+#   REMOVE TIBRV C Header
+#
 # 20161211 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
@@ -31,14 +34,10 @@ from .api import _rv, _cstr, _pystr, \
 
 from .status import TIBRV_INVALID_DISPATCHER, TIBRV_INVALID_ARG, TIBRV_INVALID_DISPATCHABLE
 
-##
-# tibrv/disp.h
-# tibrv_status tibrvDispatcher_CreateEx(
-#                tibrvDispatcher*            dispatcher,
-#                tibrvDispatchable           dispatchable,
-#                tibrv_f64                   idleTimeout
-#              );
-#
+##-----------------------------------------------------------------------------
+# TIBRV API : tibrv/disp.h
+##-----------------------------------------------------------------------------
+
 _rv.tibrvDispatcher_CreateEx.argtypes = [_ctypes.POINTER(_c_tibrvDispatcher),
                                          _c_tibrvDispatchable,
                                          _c_tibrv_f64]
@@ -70,10 +69,6 @@ def tibrvDispatcher_Create(dispatchable: tibrvDispatchable,
     return status, disp.value
 
 ##
-# tibrv/disp.h
-# tibrv_status tibrvDispatcher_Join(
-#    tibrvDispatcher             dispatcher);
-#
 _rv.tibrvDispatcher_Join.argtypes = [_c_tibrvDispatcher]
 _rv.tibrvDispatcher_Join.restype = _c_tibrv_status
 
@@ -92,11 +87,6 @@ def tibrvDispatcher_Join(dispatcher: tibrvDispatcher) -> tibrv_status:
 
 
 ##
-# tibrv/disp.h
-# tibrv_status  tibrvDispatcher_Destroy(
-#                 ibrvDispatcher             dispatcher
-#               );
-#
 _rv.tibrvDispatcher_Destroy.argtypes = [_c_tibrvDispatcher]
 _rv.tibrvDispatcher_Destroy.restype = _c_tibrv_status
 
@@ -116,12 +106,6 @@ def tibrvDispatcher_Destroy(dispatcher: tibrvDispatcher) -> tibrv_status:
 
 
 ##
-# tibrv/disp.h
-# tibrv_status tibrvDispatcher_SetName(
-#                tibrvDispatcher             dispatcher,
-#                const char*                 dispatchName
-#              );
-#
 _rv.tibrvDispatcher_SetName.argtypes = [_c_tibrvDispatcher, _ctypes.c_char_p]
 _rv.tibrvDispatcher_SetName.restype = _c_tibrv_status
 
@@ -145,11 +129,6 @@ def tibrvDispatcher_SetName(dispatcher: tibrvDispatcher, dispatchName: str) -> t
     return status
 
 ##
-# tibrv/disp.h
-# tibrv_status tibrvDispatcher_GetName(
-#                tibrvDispatcher             dispatcher,
-#                const char**                dispatchName
-#              );
 _rv.tibrvDispatcher_GetName.argtypes = [_c_tibrvDispatcher, _ctypes.POINTER(_ctypes.c_char_p)]
 _rv.tibrvDispatcher_GetName.restype = _c_tibrv_status
 
