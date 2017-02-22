@@ -1434,7 +1434,6 @@ class TibrvQueue:
 
         return status
 
-    @property
     def count(self) -> int:
 
         status, ret = tibrvQueue_GetCount(self.id())
@@ -1454,7 +1453,7 @@ class TibrvQueue:
 
         return status
 
-    def policy(self) -> str:
+    def policy(self) -> int:
         return self._policy
 
     def maxEvents(self) -> str:
@@ -1827,6 +1826,15 @@ class TibrvListener(TibrvEvent):
         status, q = tibrvEvent_GetQueue(self.id())
         if status == TIBRV_OK:
             ret = TibrvQueue(q)
+
+        self._err = TibrvStatus.error(status)
+
+        return ret
+
+    def tx(self) -> TibrvTx:
+        ret = None
+
+        status, q = tibrvEvent_GetListenerTransport(self.id())
 
         self._err = TibrvStatus.error(status)
 
