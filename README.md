@@ -419,9 +419,39 @@ TIBRV/C | PYTIBRV/API | PYTIBRV/Object
 `tibrvMsg_UpdateString()`<br>`tibrvMsg_UpdateStringArray()`|`tibrvMsg_UpdateString()`<br>`tibrvMsg_UpdateStringArray()`|`TibrvMsg.setStr()`
 `tibrvMsg_UpdateMsg()`|`tibrvMsg_UpdateMsg()`|`TibrvMsg.setMsg()`
 `tibrvMsg_UpdateDateTime()`|`tibrvMsg_UpdateDateTime()`|`TibrvMsg.setDateTime()`
-`tibrvMsg_UpdateField()`|`tibrvMsg_UpdateField()`|`TibrvMsg.setField()`
+`tibrvMsg_UpdateField()`|`tibrvMsg_UpdateField()` **Depracted**|`TibrvMsg.setField()` **Deprecated**
+
+### Queue 
+TIBRV/C | PYTIBRV/API | PYTIBRV/Object
+--- | --- | --- 
+`tibrvQueue_Create()`|`tibrvQueue_Create()`|`TibrvQueue()`
+`tibrvQueue_Destroy()`|`tibrvQueue_Destroy()`|`TibrvQueue.destroy()`
+`tibrvQueue_Dispatch()`|`tibrvQueue_Dispatch()`|`TibrvQueue.dispatch()`
+`tibrvQueue_GetCount()`|`tibrvQueue_GetCount()`|`TibrvQueue.count`
+`tibrvQueue_GetLimitPolicy()`|`tibrvQueue_GetLimitPolicy()`|`TibrvQueue.policy`
+`tibrvQueue_GetName()`|`tibrvQueue_GetName()`|`TibrvQueue.name`
+`tibrvQueue_GetPriority()`|`tibrvQueue_GetPriority()`|`TibrvQueue.priority`
+`tibrvQueue_Poll()`|`tibrvQueue_Poll()`|`TibrvQueue.poll()`
+`tibrvQueue_SetLimitPolicy()`|`tibrvQueue_SetLimitPolicy()`|`TibrvQueue.policy`
+`tibrvQueue_SetName()`|`tibrvQueue_SetName()`|`TibrvQueue.name`
+`tibrvQueue_SetPriority()`|`tibrvQueue_SetPriority()`|`TibrvQueue.priority`
+`tibrvQueue_TimedDispatch()`|`tibrvQueue_TimedDispatch()`|`TibrvQueue.timedDispatch`
+`tibrvQueue_SetHook()` | **N/A** | **N/A**
+`tibrvQueue_GetHook()` | **N/A** | **N/A**
+`tibrvQueue_RemoveHook()` | **N/A** | **N/A**
 
 ### Event 
+TIBRV/C | PYTIBRV/API | PYTIBRV/Object
+--- | --- | --- 
+`tibrvEvent_CreateListener()` | `tibrvEvent_CreateListener()` | `TibrvListener.create()`
+`tibrvEvent_CreateTimer()` | `tibrvEvent_CreateTimer()` | `TibrvTimer.create()`
+`tibrvEvent_DestroyEx()` | `tibrvEvent_Destroy()` | `TibrvListener.destroy()` <br> `TibrvTimer.destroy()`
+`tibrvEvent_GetListenerSubject()` | `tibrvEvent_GetListenerSubject()` | `TibrvListener.subject`
+`tibrvEvent_GetTransport()` | `tibrvEvent_GetTransport()` | `TibrvListener.tx()`
+`tibrvEvent_GetTimerInterval()` | `tibrvEvent_GetTimerInterval()` | `TibrvTimer.interval`
+`tibrvEvent_GetType()` | `tibrvEvent_GetType()` | `TibrvTimer.eventType()`<br>`TibrvListener.eventType()`
+`tibrvEvent_GetQueue()` | `tibrvEvent_GetQueue()` | `TibrvListener.queue()`
+`tibrvEvent_ResetTimerInterval()` | `tibrvEvent_ResetTimerInterval()` | `TibrvTimer.interval`
 
 ### Transport 
 
