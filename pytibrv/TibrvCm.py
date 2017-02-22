@@ -6,7 +6,7 @@
 #   TibrvCmListener         <- tibrvcmEvent_XXX
 #   TibrvCmMsg              <- tibrvMsg_XXX
 #
-# LAST MODIFIED : V1.0 20161227 ARIEN arien.chen@gmail.com
+# LAST MODIFIED : V1.1 20170202 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # -----------------------------------------------------------------------------
@@ -26,7 +26,10 @@
 #
 # CHANGED LOGS
 # -----------------------------------------------------------------------------
-# 20161227 ARIEN V1.0
+# 20170222 V1.1 ARIEN arien.chen@gmail.com
+#   add removeSendState()
+#
+# 20161227 V1.0 ARIEN arien.chen@gmail.com
 #   CREATED
 #
 
@@ -51,6 +54,7 @@ from .cm import tibrvcmTransport, tibrvcmEvent, \
                 tibrvcmTransport_ConnectToRelayAgent, tibrvcmTransport_DisconnectFromRelayAgent, \
                 tibrvcmTransport_GetDefaultCMTimeLimit, tibrvcmTransport_SetDefaultCMTimeLimit, \
                 tibrvcmTransport_ReviewLedger, tibrvcmTransport_ExpireMessages, \
+                tibrvcmTransport_SetPublisherInactivityDiscardInterval, \
                 tibrvcmEvent_CreateListener, tibrvcmEvent_Destroy, tibrvcmEvent_GetQueue, \
                 tibrvcmEvent_GetListenerSubject, tibrvcmEvent_GetListenerTransport, \
                 tibrvcmEvent_SetExplicitConfirm, tibrvcmEvent_ConfirmMsg, \
@@ -401,6 +405,20 @@ class TibrvCmTx:
 
         return status
 
+    def removeSendState(self, cmname: str) -> tibrv_status:
+
+        status = tibrvcmTransport_RemoveSendState(self.id(), cmname)
+        self._err = TibrvStatus.error(status)
+
+        return status
+
+    def discardInterval(self, timeout: str) -> tibrv_status:
+
+        status = tibrvcmTransport_SetPublisherInactivityDiscardInterval(self.id(), timeout)
+        self._err = TibrvStatus.error(status)
+
+        return status
+
     def reviewLedger(self, callback: TibrvReviewCallback, subject: str, closure = None) -> tibrv_status:
 
         if not isinstance(callback, TibrvReviewCallback):
@@ -507,4 +525,5 @@ class TibrvCmListener:
         self._err = TibrvStatus.error(status)
 
         return status
+
 
