@@ -4,7 +4,7 @@
 #   TibrvFtMember       <- tibrvftMember_XXX
 #   TibrvFtMonitor      <- tibrvftMonitor_XXX
 #
-# LAST MODIFIED : V1.1 20161227 ARIEN arien.chen@gmail.com
+# LAST MODIFIED : V1.2 20161227 ARIEN arien.chen@gmail.com
 #
 # DESCRIPTIONS
 # -----------------------------------------------------------------------------
@@ -12,6 +12,9 @@
 #
 # CHANGED LOGS
 # -----------------------------------------------------------------------------
+# 20170222 V1.2 ARIEN arien.chen@gmail.com
+#   add TibrvFt.version()
+#
 # 20161227 V1.1 ARIEN arien.chen@gmail.com
 #   change readonly property to normal function
 #
@@ -27,6 +30,14 @@ from pytibrv.events import tibrvClosure
 from pytibrv.Tibrv import TibrvQueue, TibrvTx, TibrvStatus, TibrvError
 
 from pytibrv.ft import *
+
+class TibrvFt:
+
+    @staticmethod
+    def version() -> str:
+        ver = tibrvft_Version()
+        return ver
+
 
 class TibrvFtMemberCallback:
 
