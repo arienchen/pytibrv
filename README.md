@@ -419,20 +419,20 @@ TIBRV/C | PYTIBRV/API | PYTIBRV/Object
 `tibrvMsg_UpdateString()`<br>`tibrvMsg_UpdateStringArray()`|`tibrvMsg_UpdateString()`<br>`tibrvMsg_UpdateStringArray()`|`TibrvMsg.setStr()`
 `tibrvMsg_UpdateMsg()`|`tibrvMsg_UpdateMsg()`|`TibrvMsg.setMsg()`
 `tibrvMsg_UpdateDateTime()`|`tibrvMsg_UpdateDateTime()`|`TibrvMsg.setDateTime()`
-`tibrvMsg_UpdateField()`|`tibrvMsg_UpdateField()` **Depracted**|`TibrvMsg.setField()` **Deprecated**
+`tibrvMsg_UpdateField()`|`tibrvMsg_UpdateField()` <br>**Depracted**|`TibrvMsg.setField()` <br>**Deprecated**
 
 ### Queue 
 TIBRV/C | PYTIBRV/API | PYTIBRV/Object
 --- | --- | --- 
-`tibrvQueue_Create()`|`tibrvQueue_Create()`|`TibrvQueue()`
+`tibrvQueue_Create()`|`tibrvQueue_Create()`|`TibrvQueue.create()`
 `tibrvQueue_Destroy()`|`tibrvQueue_Destroy()`|`TibrvQueue.destroy()`
 `tibrvQueue_Dispatch()`|`tibrvQueue_Dispatch()`|`TibrvQueue.dispatch()`
-`tibrvQueue_GetCount()`|`tibrvQueue_GetCount()`|`TibrvQueue.count`
-`tibrvQueue_GetLimitPolicy()`|`tibrvQueue_GetLimitPolicy()`|`TibrvQueue.policy`
+`tibrvQueue_GetCount()`|`tibrvQueue_GetCount()`|`TibrvQueue.count()`
+`tibrvQueue_GetLimitPolicy()`|`tibrvQueue_GetLimitPolicy()`|`TibrvQueue.policy()`<br>`TibrvQueue.maxEvents()`<br>`TibrvQueue.discardAmount()`
 `tibrvQueue_GetName()`|`tibrvQueue_GetName()`|`TibrvQueue.name`
 `tibrvQueue_GetPriority()`|`tibrvQueue_GetPriority()`|`TibrvQueue.priority`
 `tibrvQueue_Poll()`|`tibrvQueue_Poll()`|`TibrvQueue.poll()`
-`tibrvQueue_SetLimitPolicy()`|`tibrvQueue_SetLimitPolicy()`|`TibrvQueue.policy`
+`tibrvQueue_SetLimitPolicy()`|`tibrvQueue_SetLimitPolicy()`|`TibrvQueue.setPolicy()`
 `tibrvQueue_SetName()`|`tibrvQueue_SetName()`|`TibrvQueue.name`
 `tibrvQueue_SetPriority()`|`tibrvQueue_SetPriority()`|`TibrvQueue.priority`
 `tibrvQueue_TimedDispatch()`|`tibrvQueue_TimedDispatch()`|`TibrvQueue.timedDispatch`
@@ -454,8 +454,108 @@ TIBRV/C | PYTIBRV/API | PYTIBRV/Object
 `tibrvEvent_ResetTimerInterval()` | `tibrvEvent_ResetTimerInterval()` | `TibrvTimer.interval`
 
 ### Transport 
+TIBRV/C | PYTIBRV/API | PYTIBRV/Object
+--- | --- | --- 
+`tibrvTransport_Create()` | `tibrvTransport_Create()` | `TibrvTx.create()`
+`tibrvTransport_CreateInbox()` | `tibrvTransport_CreateInbox()` | `TibrvTx.inbox()`
+`tibrvTransport_Destroy()` | `tibrvTransport_Destroy()` | `TibrvTx.destroy()`
+`tibrvTransport_GetDaemon()` | `tibrvTransport_GetDaemon()` | `TibrvTx.daemon()`
+`tibrvTransport_GetNetwork()` | `tibrvTransport_GetNetwork()` | `TibrvTx.network()`
+`tibrvTransport_GetService()` | `tibrvTransport_GetService()` | `TibrvTx.service()`
+`tibrvTransport_GetDescription()` | `tibrvTransport_GetDescription()` | `TibrvTx.description`
+`tibrvTransport_RequestReliability()` | `tibrvTransport_RequestReliability()` | `TibrvTx.reliability()`
+`tibrvTransport_Send()` | `tibrvTransport_Send()` | `TibrvTx.send()`
+`tibrvTransport_SendRequest()` | `tibrvTransport_SendRequest()` | `TibrvTx.sendRequest()`
+`tibrvTransport_SendReply()` | `tibrvTransport_SendReply()` | `TibrvTx.sendReply()`
+`tibrvTransport_SetDescription()` | `tibrvTransport_SetDecription()` | `TibrvTx.description`
+`tibrvTransport_CreateAcceptVc`|**N/A**|**N/A**
+`tibrvTransport_CreateConnectVc`|**N/A**|**N/A**
+`tibrvTransport_WaitForVcConnection`|**N/A**|**N/A**
+`tibrvTransport_Sendv`|**N/A**|**N/A**
+`tibrvTransport_SetSendingWaitLimit`|**N/A**|**N/A**
+`tibrvTransport_GetSendingWaitLimit`|**N/A**|**N/A**
+`tibrvTransport_SetBatchMode`|**N/A**|**N/A**
+`tibrvTransport_SetBatchSize`|**N/A**|**N/A**
+`tibrvTransport_CreateLicensed`|**N/A**|**N/A**
+
 
 ### Dispatcher 
+TIBRV/C | PYTIBRV/API | PYTIBRV/Object
+--- | --- | --- 
+`tibrvDispatcher_Create()`|`tibrvDispatcher_Create()`|`TibrvDispatcher.create()`
+`tibrvDispatcher_Destroy()`|`tibrvDispatcher_Destroy()`|`TibrvDispatcher.destroy()`
+`tibrvDispatcher_GetName()`|`tibrvDispatcher_GetName()`|`TibrvDispatcher.name`
+`tibrvDispatcher_SetName()`|`tibrvDispatcher_SetName()`|`TibrvDispatcher.name`
+
+
+### Fault Tolance 
+TIBRV/C | PYTIBRV/API | PYTIBRV/Object
+--- | --- | --- 
+`tibrvft_Version()`|`tibrvft_Version()`|`TibrvFt.version()`
+`tibrvftMember_Create()`|`tibrvftMember_Create()`|`TibrvFtMember.create()`
+`tibrvftMember_Destroy()`|`tibrvftMember_Destroy()`|`TibrvFtMember.destroy()`
+`tibrvftMember_GetGroupName()`|`tibrvftMember_GetGroupName()`|`TibrvFtMember.name()`
+`tibrvftMember_GetQueue()`|`tibrvftMember_GetQueue()`|`TibrvFtMember.queue()`
+`tibrvftMember_GetTransport()`|`tibrvftMember_GetTransport()`|`TibrvFtMember.tx()`
+`tibrvftMember_GetWeight()`|`tibrvftMember_GetWeight()`|`TibrvFtMember.weight`
+`tibrvftMember_SetWeight()`|`tibrvftMember_SetWeight()`|`TibrvFtMember.weight`
+`tibrvftMonitor_Create()`|`tibrvftMonitor_Create()`|`TibrvFtMonitor.create()`
+`tibrvftMonitor_Destroy()`|`tibrvftMonitor_Destroy()`|`TibrvFtMonitor.destroy()`
+`tibrvftMonitor_GetQueue()`|`tibrvftMonitor_GetQueue()`|`tibrvftMonitor_GetQueue()`
+`tibrvftMonitor_GetGroupName()`|`tibrvftMonitor_GetGroupName()`|`TibrvFtMonitor.name()`
+`tibrvftMonitor_GetTransport()`|`tibrvftMonitor_GetTransport()`|`TibrvFtMonitor.tx()`
+
+
+### Certified Message 
+TIBRV/C | PYTIBRV/API | PYTIBRV/Object
+--- | --- | --- 
+`tibrvcmTransport_AddListener()`|`tibrvcmTransport_AddListener()`|`TibrvCmTx.addListener()`
+`tibrvcmTransport_AllowListener()`|`tibrvcmTransport_AllowListener()`|`tibrvCmTx.allow()`
+`tibrvcmTransport_ConnectToRelayAgent()`|`tibrvcmTransport_ConnectToRelayAgent()`|`TibrvCmTx.connectAgent()`
+`tibrvcmTransport_Create()`|`tibrvcmTransport_Create()`|`TibrvCmTx.create()`
+`tibrvcmTransport_Destroy()`|`tibrvcmTransport_Destroy()`|`TibrvCmTx.destroy()`
+`tibrvcmTransport_DisconnectFromRelayAgent()`|`tibrvcmTransport_DisconnectFromRelayAgent()`|`TibrvCmTx.disconnectAgent()`
+`tibrvcmTransport_ExpireMessages()`|`tibrvcmTransport_ExpireMessages()`|`TibrvCmTx.expire()`
+`tibrvcmTransport_GetDefaultCMTimeLimit()`|`tibrvcmTransport_GetDefaultCMTimeLimit()`|`TibrvCmTx.timeLimit`
+`tibrvcmTransport_GetLedgerName()`|`tibrvcmTransport_GetLedgerName()`|`TibrvCmTx.ledgerName()`
+`tibrvcmTransport_GetName()`|`tibrvcmTransport_GetName()`|`TibrvCmTx.name()`
+`tibrvcmTransport_GetRelayAgent()`|`tibrvcmTransport_GetRelayAgent()`|`TibrvCmTx.relayAgent()`
+`tibrvcmTransport_GetRequestOld()`|`tibrvcmTransport_GetRequestOld()`|`TibrvCmTx.isRequestOld()`
+`tibrvcmTransport_GetSyncLedger()`|`tibrvcmTransport_GetSyncLedger()`|`TibrvCmTx.isSync()`
+`tibrvcmTransport_GetTransport()`|`tibrvcmTransport_GetTransport()`|`TibrvCmTx.tx()`
+`tibrvcmTransport_RemoveSendState()`|`tibrvcmTransport_RemoveSendState()`|`TibrvCmTx.removeSendState()`
+`tibrvcmTransport_ReviewLedger()`|`tibrvcmTransport_ReviewLedger()`|`TibrvCmTx.reviewLedger()`
+`tibrvcmTransport_Send()`|`tibrvcmTransport_Send()`|`TibrvCmTx.send()`
+`tibrvcmTransport_SendRequest()`|`tibrvcmTransport_SendRequest()`|`TibrvCmTx.sendRequest()`
+`tibrvcmTransport_SendReply()`|`tibrvcmTransport_SendReply()`|`TibrvCmTx.sendReply()`
+`tibrvcmTransport_SetDefaultCMTimeLimit()`|`tibrvcmTransport_SetDefaultCMTimeLimit()`|`TibrvCmTx.timeLimit`
+`tibrvcmTransport_SetPublisherInactivityDiscardInterval()`|`tibrvcmTransport_SetPublisherInactivityDiscardInterval()`|`TibrvCmTx.discardInterval()`
+`tibrvcmTransport_SyncLedger()`|`tibrvcmTransport_SyncLedger()`|`TibrvCmTx.syncLedger()`
+`tibrvcmEvent_ConfirmMsg()`|`tibrvcmEvent_ConfirmMsg()`|`TibrvCmListener.confirm()`
+`tibrvcmEvent_CreateListener()`|`tibrvcmEvent_CreateListener()`|`TibrvCmListener.create()`
+`tibrvcmEvent_Destroy()`|`tibrvcmEvent_Destroy()`|`TibrvCmListener.destroy()`
+`tibrvcmEvent_GetListenerSubject()`|`tibrvcmEvent_GetListenerSubject()`|`TibrvCmListener.subject()`
+`tibrvcmEvent_GetListenerTransport()`|`tibrvcmEvent_GetListenerTransport()`|`TibrvCmListener.tx()`
+`tibrvcmEvent_GetQueue()`|`tibrvcmEvent_GetQueue()`|`TibrvCmListener.queue()`
+`tibrvcmEvent_SetExplicitConfirm()`|`tibrvcmEvent_SetExplicitConfirm()`|`TibrvCmListener.explict()`
+`tibrvMsg_GetCMSender()`|`tibrvMsg_GetCMSender()`|`TibrvCmMsg.sender()`
+`tibrvMsg_GetCMSequence()`|`tibrvMsg_GetCMSequence()`|`TibrvCmMsg.sequence()`
+`tibrvMsg_GetCMTimeLimit()`|`tibrvMsg_GetCMTimeLimit()`|`TibrvCmMsg.timeLimit`
+`tibrvMsg_SetCMTimeLimit()`|`tibrvMsg_SetCMTimeLimit()`|`TibrvCmMsg.timeLimit`
+
+### Distributed Queue 
+TIBRV/C | PYTIBRV/API | PYTIBRV/Object
+--- | --- | --- 
+`tibrvcmTransport_CreateDistributedQueueEx()`|`tibrvcmTransport_CreateDistributedQueueEx()`|`TibrvDQ.create()`
+`tibrvcmTransport_GetCompleteTime()`|`tibrvcmTransport_GetCompleteTime()`|`TibrvDQ.completeTime`
+`tibrvcmTransport_GetUnassignedMessageCount()`|`tibrvcmTransport_GetUnassignedMessageCount()`|`TibrvDQ.count()`
+`tibrvcmTransport_GetWorkerWeight()`|`tibrvcmTransport_GetWorkerWeight()`|`TibrvDQ.workerWeight`
+`tibrvcmTransport_GetWorkerTasks()`|`tibrvcmTransport_GetWorkerTasks()`|`TibrvDQ.workerTasks`
+`tibrvcmTransport_SetCompleteTime()`|`tibrvcmTransport_SetCompleteTime()`|`TibrvDQ.completeTime`
+`tibrvcmTransport_SetTaskBacklogLimitInBytes()`|`tibrvcmTransport_SetTaskBacklogLimitInBytes()`|`TibrvDQ.setBytesLimit()`
+`tibrvcmTransport_SetTaskBacklogLimitInMessages()`|`tibrvcmTransport_SetTaskBacklogLimitInMessages()`|`TibrvDQ.setMsgLimit()`
+`tibrvcmTransport_SetWorkerWeight()`|`tibrvcmTransport_SetWorkerWeight()`|`TibrvDQ.workerWeight`
+`tibrvcmTransport_SetWorkerTasks()`|`tibrvcmTransport_SetWorkerTasks()`|`TibrvDQ.workerTasks`
 
 
 ## Contribute
