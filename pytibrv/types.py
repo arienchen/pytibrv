@@ -21,7 +21,7 @@
 #
 # 6. tibrvMsgField is not suggested
 #    tibrvMsg_GetXXX are recommended
-#    TiBRV will do format conversion if necessary
+#    TIBRV will do format conversion if necessary
 #    for example:
 #      field data type is int16,
 #      when you tibrvMsg_GetString(), TIBRV will convert int to string for you.
